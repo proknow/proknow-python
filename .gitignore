@@ -102,3 +102,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Virtual environment
+bin/
+pyvenv.cfg
+
+# Mac files
+.DS_Store
