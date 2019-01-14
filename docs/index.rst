@@ -14,6 +14,7 @@ Welcome to the ProKnow SDK documentation. Use the links below to access the usag
 
    usage
    api
+   contributing
 
 
 Indices and tables

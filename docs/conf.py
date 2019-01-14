@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'ProKnow DS - Python SDK'
-copyright = '2019, Kyle Burnett'
+copyright = '2019, ProKnow'
 author = 'Kyle Burnett'
 
 # The short X.Y version
