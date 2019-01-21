@@ -1,5 +1,5 @@
 __all__ = [
-    'Roles'
+    'Roles',
 ]
 
 import six
@@ -62,50 +62,57 @@ class Roles(object):
         _, role = self._requestor.post('/roles', body=body)
         return RoleItem(self, role)
 
-    def delete(self, identifier):
+    def delete(self, role_id):
         """Deletes a role.
 
         Parameters:
-            identifier (str): The id of the role to delete.
+            role_id (str): The id of the role to delete.
 
         Raises:
             AssertionError: If the input parameters are invalid.
         """
-        assert isinstance(identifier, six.string_types), "`identifier` is required as a string."
-        self._requestor.delete('/roles/' + identifier)
+        assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
+        self._requestor.delete('/roles/' + role_id)
 
-    def find(self, **kwargs):
-        """Finds a role by id or name.
+    def find(self, predicate=None, **props):
+        """Finds the first role that matches the input paramters.
 
         Parameters:
-            **kwargs: A dictionary of keyword arguments that may include `identifier` and `name`.
-                These arguments are considered---in that order---to find matching roles.
+            predicate (func): A function that is passed a role as input and which should return
+                a bool indicating whether the role is a match.
+            **props: A dictionary of keyword arguments that may include any role attribute.
+                These arguments are considered in turn to find matching roles.
 
         Returns:
             :class:`proknow.Roles.RoleItem`: A representation of the matching role.
         """
         roles = self.query()
-        if "identifier" in kwargs:
-            for role in roles:
-                if role._id == kwargs["identifier"]:
-                    return role
-        elif "name" in kwargs:
-            for role in roles:
-                if role._data["name"] == kwargs["name"]:
-                    return role
+        if predicate is None and len(props) == 0:
+            return None
+
+        for role in roles:
+            match = True
+            if predicate is not None and not predicate(role):
+                match = False
+            for key in props:
+                if role._data[key] != props[key]:
+                    match = False
+            if match:
+                return role
+
         return None
 
-    def get(self, identifier):
+    def get(self, role_id):
         """Gets a role.
 
         Parameters:
-            identifier (str): The id of the role to get.
+            role_id (str): The id of the role to get.
 
         Returns:
             :class:`proknow.Roles.RoleItem`: an object representing a role in the organization
         """
-        assert isinstance(identifier, six.string_types), "`identifier` is required as a string."
-        _, role = self._requestor.get('/roles/' + identifier)
+        assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
+        _, role = self._requestor.get('/roles/' + role_id)
         return RoleItem(self, role)
 
     def query(self):
@@ -136,7 +143,7 @@ class RoleSummary(object):
         """Initializes the RoleSummary class.
 
         Parameters:
-            roles (proknow.Roles.Roles): The Role instance that is instantiating the object.
+            roles (proknow.Roles.Roles): The Roles instance that is instantiating the object.
             role (dict): A dictionary of role attributes.
         """
         self._roles = roles

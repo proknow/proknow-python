@@ -1,8 +1,11 @@
 __all__ = [
-    'Workspaces'
+    'Workspaces',
 ]
 
 import six
+import re
+
+from .Exceptions import WorkspaceLookupError
 
 
 class Workspaces(object):
@@ -48,21 +51,21 @@ class Workspaces(object):
         self._cache = None
         return WorkspaceItem(self, workspace)
 
-    def delete(self, identifier):
+    def delete(self, workspace_id):
         """Deletes a workspace.
 
         Parameters:
-            identifier (str): The id of the workspace to delete.
+            workspace_id (str): The id of the workspace to delete.
 
         Raises:
             AssertionError: If the input parameters are invalid.
         """
-        assert isinstance(identifier, six.string_types), "`identifier` is required as a string."
-        self._requestor.delete('/workspaces/' + identifier)
+        assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
+        self._requestor.delete('/workspaces/' + workspace_id)
         self._cache = None
 
-    def find(self, **kwargs):
-        """Finds a workspace by id, slug, or name.
+    def find(self, predicate=None, **props):
+        """Finds the first workspace that matches the input paramters.
 
         Note:
             This method utilizes a cache of workspaces. Once it has a cache of workspaces, it will
@@ -73,28 +76,91 @@ class Workspaces(object):
             before this method. In most use cases, this is not necessary.
 
         Parameters:
-            **kwargs: A dictionary of keyword arguments that may include `identifier`, `slug`, and
-                `name`. These arguments are considered---in that order---to find matching
-                workspaces.
+            predicate (func): A function that is passed a workspace as input and which should return
+                a bool indicating whether the workspace is a match.
+            **props: A dictionary of keyword arguments that may include any workspace attribute.
+                These arguments are considered in turn to find matching workspaces.
 
         Returns:
             :class:`proknow.Workspaces.WorkspaceItem`: A representation of the matching workspace.
         """
         if self._cache is None:
             self.query()
-        if "identifier" in kwargs:
-            for workspace in self._cache:
-                if workspace._id == kwargs["identifier"]:
-                    return workspace
-        elif "slug" in kwargs:
-            for workspace in self._cache:
-                if workspace.data["slug"] == kwargs["slug"]:
-                    return workspace
-        elif "name" in kwargs:
-            for workspace in self._cache:
-                if workspace.data["name"] == kwargs["name"]:
-                    return workspace
+        if predicate is None and len(props) == 0:
+            return None
+
+        for workspace in self._cache:
+            match = True
+            if predicate is not None and not predicate(workspace):
+                match = False
+            for key in props:
+                if workspace._data[key] != props[key]:
+                    match = False
+            if match:
+                return workspace
+
         return None
+
+    def resolve(self, workspace):
+        """Resolves a workspace by id or name.
+
+        Parameters:
+            workspace (str): The workspace id or name.
+
+        Returns:
+            :class:`proknow.Workspaces.WorkspaceItem`: A representation of the resolved workspace.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given name could not be found.
+        """
+        assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
+
+        pattern = re.compile(r"^[0-9a-f]{32}$")
+        if pattern.match(workspace) is not None:
+            return self.resolveById(workspace)
+        else:
+            return self.resolveByName(workspace)
+
+    def resolveByName(self, name):
+        """Resolves a workspace name to a workspace.
+
+        Parameters:
+            name (str): The workspace name.
+
+        Returns:
+            :class:`proknow.Workspaces.WorkspaceItem`: A representation of the resolved workspace.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given name could not be found.
+        """
+        assert isinstance(name, six.string_types), "`name` is required as a string."
+
+        workspace = self.find(name=name)
+        if workspace is None:
+            raise WorkspaceLookupError("Workspace with name `" + name + "` not found.")
+        return workspace
+
+    def resolveById(self, workspace_id):
+        """Resolves a workspace id to a workspace.
+
+        Parameters:
+            workspace_id (str): The workspace id.
+
+        Returns:
+            :class:`proknow.Workspaces.WorkspaceItem`: A representation of the resolved workspace.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given name could not be found.
+        """
+        assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
+
+        workspace = self.find(workspace_id=workspace_id)
+        if workspace is None:
+            raise WorkspaceLookupError("Workspace with id `" + workspace_id + "` not found.")
+        return workspace
 
     def query(self):
         """Queries for workspaces.
@@ -132,8 +198,8 @@ class WorkspaceItem(object):
         """Initializes the WorkspaceItem class.
 
         Parameters:
-            workspaces (proknow.Workspaces.Workspaces): The Workspaces instance that is instantiating
-                the object.
+            workspaces (proknow.Workspaces.Workspaces): The Workspaces instance that is
+                instantiating the object.
             workspace (dict): A dictionary of workspace attributes.
         """
         self._workspaces = workspaces

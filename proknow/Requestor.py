@@ -1,8 +1,10 @@
 __all__ = [
-    'Requestor'
+    'Requestor',
 ]
 
 import requests
+
+from .Exceptions import HttpError
 
 
 class Requestor(object):
@@ -22,7 +24,7 @@ class Requestor(object):
 
     def _handle_response(self, r):
         if r.status_code >= 400:
-            raise RequestorError(r.text)
+            raise HttpError(r.status_code, r.text)
         try:
             return (r.status_code, r.json())
         except ValueError:
@@ -126,5 +128,20 @@ class Requestor(object):
         r = requests.put(self._base_url + route, params=query, auth=(self._username, self._password), json=body)
         return self._handle_response(r)
 
-class RequestorError(Exception):
-    pass
+    def stream(self, route, path):
+        """Issues an HTTP ``PUT`` request.
+
+        Parameters:
+            route (str): The API route to use in the request.
+            path (str): The file path to stream the request response
+            query (dict, optional): An optional dictionary of query parameters to use in the
+                request.
+            body (dict, optional): An optional dictionary to be used as a JSON request body for the
+                request.
+        """
+        with open(path, 'wb') as file:
+            with requests.get(self._base_url + route, auth=(self._username, self._password), stream=True) as r:
+                # TODO: should handle 400+ response codes
+                for chunk in r.iter_content(chunk_size=5242880):
+                    if chunk:
+                        file.write(chunk)

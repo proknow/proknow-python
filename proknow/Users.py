@@ -1,5 +1,5 @@
 __all__ = [
-    'Users'
+    'Users',
 ]
 
 import six
@@ -55,54 +55,57 @@ class Users(object):
         _, user = self._requestor.post('/users', body=body)
         return UserItem(self, user)
 
-    def delete(self, identifier):
+    def delete(self, user_id):
         """Deletes a user.
 
         Parameters:
-            identifier (str): The id of the user to delete.
+            user_id (str): The id of the user to delete.
 
         Raises:
             AssertionError: If the input parameters are invalid.
         """
-        assert isinstance(identifier, six.string_types), "`identifier` is required as a string."
-        self._requestor.delete('/users/' + identifier)
+        assert isinstance(user_id, six.string_types), "`user_id` is required as a string."
+        self._requestor.delete('/users/' + user_id)
 
-    def find(self, **kwargs):
+    def find(self, predicate=None, **props):
         """Finds a user by id, email, or name.
 
         Parameters:
-            **kwargs: A dictionary of keyword arguments that may include `identifier`, `email`, and
-                `name`. These arguments are considered---in that order---to find matching roles.
+            predicate (func): A function that is passed a user as input and which should return
+                a bool indicating whether the user is a match.
+            **props: A dictionary of keyword arguments that may include any user attribute.
+                These arguments are considered in turn to find matching users.
 
         Returns:
             :class:`proknow.Users.UserItem`: A representation of the matching user.
         """
         users = self.query()
-        if "identifier" in kwargs:
-            for user in users:
-                if user._id == kwargs["identifier"]:
-                    return user
-        if "email" in kwargs:
-            for user in users:
-                if user._data["email"] == kwargs["email"]:
-                    return user
-        elif "name" in kwargs:
-            for user in users:
-                if user._data["name"] == kwargs["name"]:
-                    return user
+        if predicate is None and len(props) == 0:
+            return None
+
+        for user in users:
+            match = True
+            if predicate is not None and not predicate(user):
+                match = False
+            for key in props:
+                if user._data[key] != props[key]:
+                    match = False
+            if match:
+                return user
+
         return None
 
-    def get(self, identifier):
+    def get(self, user_id):
         """Gets a user.
 
         Parameters:
-            identifier (str): The id of the user to get.
+            user_id (str): The id of the user to get.
 
         Returns:
             :class:`proknow.Users.UserItem`: an object representing a user in the organization
         """
-        assert isinstance(identifier, six.string_types), "`identifier` is required as a string."
-        _, user = self._requestor.get('/users/' + identifier)
+        assert isinstance(user_id, six.string_types), "`user_id` is required as a string."
+        _, user = self._requestor.get('/users/' + user_id)
         return UserItem(self, user)
 
     def query(self):
@@ -134,7 +137,7 @@ class UserSummary(object):
         """Initializes the UserSummary class.
 
         Parameters:
-            users (proknow.Users.Users): The User instance that is instantiating the object.
+            users (proknow.Users.Users): The Users instance that is instantiating the object.
             user (dict): A dictionary of user attributes.
         """
         self._users = users
