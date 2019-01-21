@@ -6,30 +6,33 @@ The ProKnow DS - Python SDK library provides convenient access to the ProKnow AP
 
 ### Mac OSX
 
+Use the following steps if you need to be able to package the project to publish on PyPi or if you need to build the documentation.
+
 1. Install the latest version of python. This will be installed alongside the version that your operating system provides.
-2. Run the following to install/upgrade `pip`, `setuptools` and `wheel`.
+2. Run the following to install/upgrade `pip`, `setuptools`, `wheel`, and `pipenv`.
 ```
-python3 -m pip install --upgrade pip setuptools wheel
+python3 -m pip install --upgrade pip setuptools wheel pipenv
 ```
-3. Create a virtual environment. Note that this will create the directories `bin/`, `include/`, and `/lib` and the file pyvenv.cfg. These files should be ignored in your distribution
+3. Initialize a virtual environment using `pipenv`.
 ```
-python3 -m venv ./
+pipenv install --dev
 ```
-4. Activate the virtual environment. You'll need to do this again each time you open the project in a new terminal window.
-```
-source ./bin/activate
-```
+4. Activate the virtual environment using `pipenv shell`.
 
-Once the virtual environment has been activated, you can use `python` and `pip` to refer to `python3` and `pip3`. For example, the following command can be used to install the current directory as a development package allowing you to continue to develop the package without reinstalling it after each change is made.
+#### Packaging
 
-```
-pip install -e ./
-```
-
-To make the documentation, you'll need to install sphinx with the following command (after initializing your development environment with `source ./bin/activate`).
+First, make sure the version has been updated in setup.py. Then run the following.
 
 ```
-pip install sphinx
+python setup.py bdist_wheel --universal
+twine upload dist/*
 ```
 
-Then run `make` in the `docs/` directory to build the documentation.
+#### Building the Documentation
+
+With the pipenv shell, you can run `make clean && make html` to build the documentation.
+```
+pipenv shell
+cd docs/
+make clean && make html
+```

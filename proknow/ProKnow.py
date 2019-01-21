@@ -5,9 +5,11 @@ import six
 
 from .Auth import Auth
 from .Requestor import Requestor
+from .CustomMetrics import CustomMetrics
 from .Workspaces import Workspaces
 from .Roles import Roles
 from .Users import Users
+from .Patients import Patients
 
 
 class ProKnow(object):
@@ -18,7 +20,12 @@ class ProKnow(object):
 
     Attributes:
         requestor (:class:`proknow.Requestor.Requestor`): An instance of the Requestor class.
+        custom_metrics (:class:`ProKnow.CustomMetrics.CustomMetrics`): An instance of the Custom
+            Metrics class.
         workspaces (:class:`proknow.Workspaces.Workspaces`): An instance of the Workspaces class.
+        roles (:class:`proknow.Roles.Roles`): An instance of the Roles class.
+        users (:class:`proknow.Users.Users`): An instance of the Users class.
+        patients (:class:`proknow.Patients.Patients`): An instance of the Patients class.
     """
 
     def __init__(self, base_url, credentials_file=None, credentials_id=None, credentials_secret=None):
@@ -54,7 +61,11 @@ class ProKnow(object):
                 credentials_secret = data["secret"]
 
         self.requestor = Requestor(base_url, credentials_id, credentials_secret)
+
+        self.custom_metrics = CustomMetrics(self, self.requestor)
         
         self.workspaces = Workspaces(self, self.requestor)
         self.roles = Roles(self, self.requestor)
         self.users = Users(self, self.requestor)
+
+        self.patients = Patients(self, self.requestor)
