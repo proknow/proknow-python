@@ -8,12 +8,17 @@ Installation
 
 Use ``pip`` to install::
 
-	pip install proknow
+	pip install --upgrade proknow
 
 Basic Usage
 -----------
 
-To use the SDK, you'll need to generate an `API token <https://support.proknow.com/article/165-configuring-your-profile#api-keys>`_ in the ProKnow DS user interface. Once you have a credentials file, use it in your script to create an instance of the main ProKnow class::
+To use the SDK, you'll need two important items:
+
+* Base URL: This is the URL that will be used to make API requests to ProKnow. It's the first part of the web address you see when you are signed in to your ProKnow DS account. The form of this URL is typically ``https://your-domain.proknow.com``.
+* API Token: You can generate an `API token <https://support.proknow.com/article/165-configuring-your-profile#api-keys>`_ in the ProKnow DS user interface. Always keep your API Token secret. Once you have your ``credentials.json``, make note of the file path.
+
+The code snippet below can be used to test your installation of the ``proknow`` package. Please be sure to replace ``https://example.proknow.com`` with your organization's Base URL described above, and replace ``./credentials.json`` with the path to your credentials file::
 
 	from proknow import ProKnow
 
@@ -22,3 +27,22 @@ To use the SDK, you'll need to generate an `API token <https://support.proknow.c
 	print("The workspaces are as follows:")
 	for workspace in workspaces:
 		print(workspace.name)
+
+If an adaptation of the script above does not work for you see the troubleshooting section below.
+
+Troubleshooting
+---------------
+
+**Connection errors**
+
+These can be caused by the failure to replace ``https://example.proknow.com`` as your ``base_url``. ``https://example.proknow.com`` is not a real endpoint and will not work. If you've already replaced the base URL, login to your ProKnow DS account and check to make sure it matches the base URL shown in the address bar.
+
+If you are able to login to your ProKnow DS account and have verified that the base URLs match, there is also a chance that your organization's firewall is configured to block traffic originating from unknown sources like your Python script. If this is the case please contact your IT department to request special permission for your script to access the ProKnow API from inside your organization's network.
+
+**File not found errors**
+
+If you specified a ``credentials_file`` in the ProKnow constructor, but are receiving a message saying that the file or directory does not exist, you may have a typo in your credentials file path. Correct the file path, and try again. Note that relative file paths are usually relative to the directory from which the ``python`` executable is being invoked.
+
+**Type or Assertion errors**
+
+These indicate that you've provided invalid parameters to the ``ProKnow`` contructor. The error message can usually point you in the right direction. Correct the parameters, and try again.

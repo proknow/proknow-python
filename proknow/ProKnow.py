@@ -9,6 +9,7 @@ from .CustomMetrics import CustomMetrics
 from .Workspaces import Workspaces
 from .Roles import Roles
 from .Users import Users
+from .Uploads import Uploads
 from .Patients import Patients
 
 
@@ -25,6 +26,7 @@ class ProKnow(object):
         workspaces (:class:`proknow.Workspaces.Workspaces`): An instance of the Workspaces class.
         roles (:class:`proknow.Roles.Roles`): An instance of the Roles class.
         users (:class:`proknow.Users.Users`): An instance of the Users class.
+        uploads (:class:`proknow.Uploads.Uploads`): An instance of the Uploads class.
         patients (:class:`proknow.Patients.Patients`): An instance of the Patients class.
     """
 
@@ -67,5 +69,7 @@ class ProKnow(object):
         self.workspaces = Workspaces(self, self.requestor)
         self.roles = Roles(self, self.requestor)
         self.users = Users(self, self.requestor)
+
+        self.uploads = Uploads(self, self.requestor)
 
         self.patients = Patients(self, self.requestor)

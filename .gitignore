@@ -38,6 +38,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
@@ -109,3 +110,6 @@ pyvenv.cfg
 
 # Mac files
 .DS_Store
+
+# Test configuration files
+pktestconfig.py

@@ -61,3 +61,42 @@ class CustomMetricLookupError(ProKnowError):
 
     def __repr__(self):
         return 'CustomMetricLookupError({!r})'.format(self.message)
+
+class InvalidPathError(ProKnowError):
+    """Indicates that the provided path is not valid.
+
+    Attributes:
+        message (str): An explanation of the error.
+    """
+
+    def __init__(self, message):
+        """Initializes the InvalidPathError class.
+
+        Parameters:
+            message (str): An explanation of the error.
+        """
+        super(InvalidPathError, self).__init__(message)
+        self.message = message
+
+    def __repr__(self):
+        return 'InvalidPathError({!r})'.format(self.message)
+
+class TimeoutExceededError(ProKnowError):
+    """Indicates that the current operation exceeded the timeout limits.
+
+    Attributes:
+        message (str): An explanation of the error.
+    """
+
+    def __init__(self, message):
+        """Initializes the TimeoutExceededError class.
+
+        Parameters:
+            message (str): An explanation of the error.
+        """
+        super(TimeoutExceededError, self).__init__(message)
+        self.message = message
+
+    def __repr__(self):
+        return 'TimeoutExceededError({!r})'.format(self.message)
+

@@ -38,10 +38,20 @@ class Users(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example creates a new user under the Admin role::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                role_id = pk.roles.find(name="Admin").id
+                pk.users.create("jsmith@example.com", "John Smith", role_id)
         """
-        assert isinstance(email, str), "`email` is required as a string."
-        assert isinstance(name, str), "`name` is required as a string."
-        assert isinstance(role_id, str), "`role_id` is required as a string."
+        assert isinstance(email, six.string_types), "`email` is required as a string."
+        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
 
         body = {
             "email": email,
@@ -49,7 +59,7 @@ class Users(object):
             "role_id": role_id,
         }
         if password is not None:
-            assert isinstance(password, str), "`password` is required as a string."
+            assert isinstance(password, six.string_types), "`password` is required as a string."
             body["password"] = password
 
         _, user = self._requestor.post('/users', body=body)
@@ -63,6 +73,15 @@ class Users(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            If you know the user id, you can delete the user directly using this method::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.users.delete('5c463a6c04005a992cc16b29f9a7637b')
         """
         assert isinstance(user_id, six.string_types), "`user_id` is required as a string."
         self._requestor.delete('/users/' + user_id)
@@ -78,6 +97,9 @@ class Users(object):
 
         Returns:
             :class:`proknow.Users.UserItem`: A representation of the matching user.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
         users = self.query()
         if predicate is None and len(props) == 0:
@@ -103,6 +125,17 @@ class Users(object):
 
         Returns:
             :class:`proknow.Users.UserItem`: an object representing a user in the organization
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            If you know the user id, you can get the user directly using this method::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                admin = pk.users.get('5c463a6c04005a992cc16b29f9a7637b')
         """
         assert isinstance(user_id, six.string_types), "`user_id` is required as a string."
         _, user = self._requestor.get('/users/' + user_id)
@@ -114,6 +147,18 @@ class Users(object):
         Returns:
             list: A list of :class:`proknow.Users.UserSummary` objects, each representing a
             summarized user in the organization.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example queries the users and prints the name of each user::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                for user in pk.users.query():
+                    print(user.name)
         """
         _, users = self._requestor.get('/users')
         return [UserSummary(self, user) for user in users]
@@ -168,6 +213,18 @@ class UserSummary(object):
 
         Returns:
             :class:`proknow.Users.UserItem`: an object representing a user in the organization
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to turn a list of UserSummary objects into a list of
+            UserItem objects::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                users = [user.get() for user in pk.users.query()]
         """
         return self._users.get(self._id)
 
@@ -212,15 +269,33 @@ class UserItem(object):
         return self._data
 
     def delete(self):
-        """Deletes the user."""
+        """Deletes the user.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to find a user by its email and delete it::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                jsmith = pk.users.find(email='jsmith@example.com')
+                jsmith.delete()
+        """
         self._users.delete(self._id)
 
     def save(self):
         """Saves the changes made to a user.
 
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
         Example:
-            The following example illustrates how to find a user by its email, set it to inactive,
+            The following example shows how to find a user by its email, set it to inactive,
             and save it::
+
+                from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 jsmith = pk.users.find(email='jsmith@example.com')

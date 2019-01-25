@@ -42,6 +42,26 @@ class CustomMetrics(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example creates a three new custom metrics, demonstrating each of the available
+            custom metric types::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.custom_metrics.create('Genetic Type', "patient", {
+                    "enum": {
+                        "values": ["Type I", "Type II", "Type III", "Type IV"]
+                    }
+                })
+                pk.custom_metrics.create('Physician Name', "patient", {
+                    "string": {}
+                })
+                pk.custom_metrics.create('Toxicity of Larynx (1-4)', "patient", {
+                    "number": {}
+                })
         """
         assert isinstance(name, six.string_types), "`name` is required as a string."
         assert isinstance(context, six.string_types), "`context` is required as a string."
@@ -59,6 +79,16 @@ class CustomMetrics(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            If you know the custom metric id, you can delete the custom metric directly using this
+            method::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.custom_metrics.delete('5c463a6c040040f1efda74db75c1b121')
         """
         assert isinstance(custom_metric_id, six.string_types), "`custom_metric_id` is required as a string."
         self._requestor.delete('/metrics/custom/' + custom_metric_id)
@@ -85,6 +115,9 @@ class CustomMetrics(object):
         Returns:
             :class:`proknow.CustomMetrics.CustomMetricItem`: A representation of the matching
             custom metric.
+
+        Raises: 
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
         if self._cache is None:
             self.query()
@@ -115,6 +148,7 @@ class CustomMetrics(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
             :class:`proknow.Exceptions.CustomMetricLookupError`: If the custom metric with the
                 given id or name could not be found.
         """
@@ -122,11 +156,11 @@ class CustomMetrics(object):
 
         pattern = re.compile(r"^[0-9a-f]{32}$")
         if pattern.match(custom_metric) is not None:
-            return self.resolveById(custom_metric)
+            return self.resolve_by_id(custom_metric)
         else:
-            return self.resolveByName(custom_metric)
+            return self.resolve_by_name(custom_metric)
 
-    def resolveByName(self, name):
+    def resolve_by_name(self, name):
         """Resolves a custom metric name to a custom metric.
 
         Parameters:
@@ -138,6 +172,7 @@ class CustomMetrics(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
             :class:`proknow.Exceptions.CustomMetricLookupError`: If the custom metric with the given
                 name could not be found.
         """
@@ -148,7 +183,7 @@ class CustomMetrics(object):
             raise CustomMetricLookupError("Custom metric with name `" + name + "` not found.")
         return custom_metric
 
-    def resolveById(self, custom_metric_id):
+    def resolve_by_id(self, custom_metric_id):
         """Resolves a custom metric id to a custom metric.
 
         Parameters:
@@ -160,6 +195,7 @@ class CustomMetrics(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
             :class:`proknow.Exceptions.CustomMetricLookupError`: If the custom metric with the given
                 id could not be found.
         """
@@ -179,6 +215,18 @@ class CustomMetrics(object):
         Returns:
             list: A list of :class:`proknow.CustomMetrics.CustomMetricItem` objects, each
             representing a custom metric in the organization.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example queries the custom metrics and prints the name of each custom metric::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                for custom_metric in pk.custom_metrics.query():
+                    print(custom_metric.name)
         """
         _, custom_metrics = self._requestor.get('/metrics/custom')
         self._cache = [CustomMetricItem(self, custom_metric) for custom_metric in custom_metrics]
@@ -231,15 +279,34 @@ class CustomMetricItem(object):
         return self._type
 
     def delete(self):
-        """Deletes the custom metric."""
+        """Deletes the custom metric.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to find a custom metric by its name and delete it::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                metric = pk.custom_metric.find(name='Type')
+                metric.name = "Genetic Type"
+                metric.save()
+        """
         self._custom_metrics.delete(self._id)
 
     def save(self):
         """Saves the changes made to a custom metric.
 
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
         Example:
-            The following example illustrates how to find a custom metric by its name, change the
+            The following example shows how to find a custom metric by its name, change the
             name, and save it::
+
+                from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 metric = pk.custom_metric.find(name='Type')
@@ -250,4 +317,4 @@ class CustomMetricItem(object):
         self._data = custom_metric
         self.name = custom_metric["name"]
         self.context = custom_metric["context"]
-        self.type = custom_metric["type"]
+        self._type = custom_metric["type"]

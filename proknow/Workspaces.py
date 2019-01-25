@@ -42,6 +42,16 @@ class Workspaces(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example creates a new workspace with the slug "research" and the name "Research".
+            The protected argument is not provided, so it will default to True::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.workspaces.create('research', 'Research')
         """
         assert isinstance(slug, six.string_types), "`slug` is required as a string."
         assert isinstance(name, six.string_types), "`name` is required as a string."
@@ -59,6 +69,15 @@ class Workspaces(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            If you know the workspace id, you can delete the workspace directly using this method::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.workspaces.delete('5c463a6c040040f1efda74db75c1b121')
         """
         assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
         self._requestor.delete('/workspaces/' + workspace_id)
@@ -83,6 +102,9 @@ class Workspaces(object):
 
         Returns:
             :class:`proknow.Workspaces.WorkspaceItem`: A representation of the matching workspace.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
         if self._cache is None:
             self.query()
@@ -112,17 +134,18 @@ class Workspaces(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
             :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given name could not be found.
         """
         assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
 
         pattern = re.compile(r"^[0-9a-f]{32}$")
         if pattern.match(workspace) is not None:
-            return self.resolveById(workspace)
+            return self.resolve_by_id(workspace)
         else:
-            return self.resolveByName(workspace)
+            return self.resolve_by_name(workspace)
 
-    def resolveByName(self, name):
+    def resolve_by_name(self, name):
         """Resolves a workspace name to a workspace.
 
         Parameters:
@@ -133,6 +156,7 @@ class Workspaces(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
             :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given name could not be found.
         """
         assert isinstance(name, six.string_types), "`name` is required as a string."
@@ -142,7 +166,7 @@ class Workspaces(object):
             raise WorkspaceLookupError("Workspace with name `" + name + "` not found.")
         return workspace
 
-    def resolveById(self, workspace_id):
+    def resolve_by_id(self, workspace_id):
         """Resolves a workspace id to a workspace.
 
         Parameters:
@@ -153,11 +177,12 @@ class Workspaces(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
             :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given name could not be found.
         """
         assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
 
-        workspace = self.find(workspace_id=workspace_id)
+        workspace = self.find(id=workspace_id)
         if workspace is None:
             raise WorkspaceLookupError("Workspace with id `" + workspace_id + "` not found.")
         return workspace
@@ -171,6 +196,18 @@ class Workspaces(object):
         Returns:
             list: A list of :class:`proknow.Workspaces.WorkspaceItem` objects, each representing a
             workspace in the organization.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example queries the workspaces and prints the name of each workspace::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                for workspace in pk.workspaces.query():
+                    print(workspace.name)
         """
         _, workspaces = self._requestor.get('/workspaces')
         self._cache = [WorkspaceItem(self, workspace) for workspace in workspaces]
@@ -219,15 +256,33 @@ class WorkspaceItem(object):
         return self._data
 
     def delete(self):
-        """Deletes the workspace."""
+        """Deletes the workspace.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to find a workspace by its slug and delete it::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                research = pk.workspaces.find(slug='research')
+                research.delete()
+        """
         self._workspaces.delete(self._id)
 
     def save(self):
         """Saves the changes made to a workspace.
 
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
         Example:
-            The following example illustrates how to find a workspace by its slug, modify the name,
+            The following example shows how to find a workspace by its slug, modify the name,
             and save it::
+
+                from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 clinical = pk.workspaces.find(slug='clinical')

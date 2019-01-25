@@ -23,5 +23,6 @@ setuptools.setup(
 		"Programming Language :: Python :: 3",
 		"Topic :: Software Development :: Libraries :: Python Modules",
 	],
-	install_requires=['six', 'requests'],
+	install_requires=['six', 'requests', 'requests-futures'],
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
 )
