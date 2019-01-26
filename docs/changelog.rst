@@ -18,7 +18,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 * Improved documentation throughout
 * ``Uploads`` module for initiating new uploads
 * Implemented testing
-* Implemented classes for ``ImageSetItem`` and ``StructureSetItem`` in the ``Patients`` module. These classes inherit from the base ``EntityItem`` class.
+* Implemented classes for ``ImageSetItem`` and ``StructureSetItem`` in the ``Patients`` module.
 
 **Bug Fixes**
 
@@ -39,6 +39,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 * Added ``stream`` method to ``Requestor`` class
 * New ``Exceptions`` module for errors specific to the ProKnow DS - Python SDK.
 * ``CustomMetrics`` module for interacting with organization custom metrics. This module is also used by the ``Patients`` module when getting and setting metadata.
+* ``Patients`` module for interacting with patient data (including studies and entities).
 * Change implementation of ``.find`` method throughout to use the signature ``(self, predicate=None, **props)``.
 * Renamed ``identifier`` arguments as ``workspace_id``, ``role_id``, ``user_id``, etc.
 
