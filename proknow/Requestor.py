@@ -30,6 +30,12 @@ class Requestor(object):
         except ValueError:
             return (r.status_code, r.text)
 
+    def get_auth(self):
+        return (self._username, self._password)
+
+    def get_base_url(self):
+        return self._base_url
+
     def get(self, route, query=None):
         """Issues an HTTP ``GET`` request.
 
@@ -141,7 +147,8 @@ class Requestor(object):
         """
         with open(path, 'wb') as file:
             with requests.get(self._base_url + route, auth=(self._username, self._password), stream=True) as r:
-                # TODO: should handle 400+ response codes
+                if r.status_code >= 400:
+                    raise HttpError(r.status_code, r.text)
                 for chunk in r.iter_content(chunk_size=5242880):
                     if chunk:
                         file.write(chunk)

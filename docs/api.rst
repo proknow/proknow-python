@@ -15,4 +15,5 @@ This guide includes a complete API reference.
    api/workspaces
    api/roles
    api/users
+   api/uploads
    api/patients

@@ -6,8 +6,11 @@ verify_ssl = true
 [dev-packages]
 sphinx = "*"
 sphinx-rtd-theme = "*"
+pytest = "*"
+nox = "*"
 
 [packages]
+proknow = {editable = true,path = "."}
 
 [requires]
 python_version = "3.7"

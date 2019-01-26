@@ -5,6 +5,8 @@ __all__ = [
 import os
 import six
 
+from .Exceptions import InvalidPathError
+
 
 class Patients(object):
     """
@@ -41,17 +43,27 @@ class Patients(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given
+                name or id could not be found.
+
+        Example:
+            This example shows how to create a patient in the workspace called "Clinical"::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patient = pk.patients.create("Clinical", "12345", "Becker^Matthew")
         """
         assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
-        assert isinstance(mrn, str), "`mrn` is required as a string."
-        assert isinstance(name, str), "`name` is required as a string."
+        assert isinstance(mrn, six.string_types), "`mrn` is required as a string."
+        assert isinstance(name, six.string_types), "`name` is required as a string."
         if birth_date is not None:
-            assert isinstance(birth_date, str), "`birth_date` is required as a string."
+            assert isinstance(birth_date, six.string_types), "`birth_date` is required as a string."
         if birth_time is not None:
-            assert isinstance(birth_time, str), "`birth_time` is required as a string."
+            assert isinstance(birth_time, six.string_types), "`birth_time` is required as a string."
         if sex is not None:
-            assert isinstance(sex, str), "`sex` is required as a string."
-
+            assert isinstance(sex, six.string_types), "`sex` is required as a string."
 
         item = self._proknow.workspaces.resolve(workspace)
 
@@ -64,7 +76,7 @@ class Patients(object):
         }
 
         _, patient = self._requestor.post('/workspaces/' + item.id + '/patients', body=body)
-        return PatientItem(self, patient)
+        return PatientItem(self, item.id, patient)
 
     def delete(self, workspace_id, patient_id):
         """Deletes a patient.
@@ -75,6 +87,16 @@ class Patients(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            If you know the workspace id and patient id, you can delete a patient directly using
+            this method::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.patients.delete('5c463a6c040040f1efda74db75c1b121', '5c4b4c52a5c058c3d1d98ac194d0200f')
         """
         assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
         assert isinstance(patient_id, six.string_types), "`patient_id` is required as a string."
@@ -92,6 +114,11 @@ class Patients(object):
 
         Returns:
             :class:`proknow.Patients.PatientSummary`: A representation of the matching patient.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given
+                name or id could not be found.
         """
         patients = self.query(workspace)
         if predicate is None and len(props) == 0:
@@ -105,7 +132,7 @@ class Patients(object):
                 if patient._data[key] != props[key]:
                     match = False
             if match:
-                return metric
+                return patient
 
         return None
 
@@ -119,6 +146,20 @@ class Patients(object):
         Returns:
             list: A list of :class:`proknow.Patients.PatientSummary` objects that match the given
             MRNs.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given
+                name or id could not be found.
+
+        Example:
+            Use this method to resolve a list of patient MRNs. Just provide the ID as a list in the
+            second argument::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.patients.lookup('Clinical', ['HNC-0522c0009', 'HNC-0522c0013'])
         """
         assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
 
@@ -136,6 +177,19 @@ class Patients(object):
         Returns:
             :class:`proknow.Patients.PatientItem`: an object representing a patient in the
             organization
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            If you know the workspace id and patient id, you can get the patient directly using
+            this method::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.patients.get('5c463a6c040040f1efda74db75c1b121', '5c4b4c52a5c058c3d1d98ac194d0200f')
         """
         assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
         assert isinstance(patient_id, six.string_types), "`patient_id` is required as a string."
@@ -151,6 +205,20 @@ class Patients(object):
         Returns:
             list: A list of :class:`proknow.Patients.PatientSummary` objects, each representing a
             summarized patient in the given workspace.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example queries the patients belonging to the Clinical workspace and prints the
+            name of each patient::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                for patient in pk.patients.query("Clinical"):
+                    print(patient.name)
         """
         assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
 
@@ -232,6 +300,18 @@ class PatientSummary(object):
         Returns:
             :class:`proknow.Patients.PatientItem`: an object representing a patient in the
             organization.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to turn a list of PatientSummary objects into a list of
+            PatientItem objects::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = [patient.get() for patient in pk.patients.query("Clinical")]
         """
         return self._patients.get(self._workspace_id, self._id)
 
@@ -284,11 +364,41 @@ class PatientItem(object):
         return self._data
 
     def delete(self):
-        """Deletes the patient."""
+        """Deletes the patient.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to find a patient by its MRN and delete it::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                patient.delete()
+        """
         self._patients.delete(self._workspace_id, self._id)
 
     def save(self):
-        """Saves the changes made to a patient."""
+        """Saves the changes made to a patient.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to find a patient by its MRN, update the name, and save
+            it::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                patient.name = "ANON-1234"
+                patient.save()
+        """
         body = {
             "mrn": self.mrn,
             "name": self.name,
@@ -318,6 +428,27 @@ class PatientItem(object):
 
         Returns:
             list: A list of matching :class:`proknow.Patients.EntitySummary` objects.
+
+        Example:
+            Use this example to find the patient entities matching the predicate function (returns
+            all plan and dose entities)::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(lambda entity: entity.data["type"] == "dose" or entity.data["type"] == "plan")
+
+            Use this example to find the patient entities matching the predicate function (returns
+            entities with the modality value of "MR")::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(modality="MR")
         """
         if predicate is None and len(props) == 0:
             return []
@@ -371,6 +502,21 @@ class PatientItem(object):
         Returns:
             dict: The dictionary of custom metric key-value pairs where the keys are the decoded
             custom metric names.
+
+        Raises:
+            :class:`proknow.Exceptions.CustomMetricLookupError`: If a custom metric could not be
+                resolved.
+
+        Example:
+            Use this example to print the metadata values for a patient::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                for key, value in patient.get_metadata():
+                    print(key + ": " + value)
         """
         metadata = {}
         for key in self.metadata:
@@ -384,6 +530,25 @@ class PatientItem(object):
         Params:
             metadata (dict): A dictionary of custom metric key-value pairs where the keys are the
             names of the custom metric.
+
+        Raises:
+            :class:`proknow.Exceptions.CustomMetricLookupError`: If a custom metric could not be
+                resolved.
+
+        Example:
+            Use this example to set the metadata value for "Genetic Type" for a patient before
+            saving::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                meta = patient.get_metadata()
+                meta["Genetic Type"] = "Type II"
+                patient.set_metadata(meta)
+                patient.save()
+
         """
         encoded = {}
         for key in metadata:
@@ -476,6 +641,20 @@ class EntitySummary(object):
             One of (:class:`proknow.Patients.ImageSetItem`,
             :class:`proknow.Patients.StructureSetItem`, :class:`proknow.Patients.PlanItem`,
             :class:`proknow.Patients.DoseItem`) based on the entity summary type.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            Use this example to find all of the patient's entities and construct a list of the
+            type-specific object types::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = [entity.get() for entity in patient.find_entities(lambda entity: True)]
         """
         entity_type = self._data["type"]
         if entity_type == "image_set":
@@ -527,32 +706,134 @@ class EntityItem(object):
     def data(self):
         return self._data
 
-    def _resolve_path(self, path):
-        if os.path.isdir(path):
-            entity_type = self._data["type"]
-            if entity_type == 'image_set':
-                # TODO: need to implement this
-                # prefix = self._data["modality"]
-                pass
-            elif entity_type == 'structure_set':
-                # TODO: need to implement this
-                # prefix = "RS"
-                pass
-            elif entity_type == 'plan':
-                prefix = "RP"
-            elif entity_type == 'dose':
-                prefix = "RD"
-            return os.path.join(os.path.abspath(path), prefix + self._data["uid"] + ".dcm")
-        else:
-            return os.path.abspath(path)
-
 class ImageSetItem(EntityItem):
-    """Not implemented"""
-    pass
+    """
+
+    This class represents a an image set. It's instantiated by the
+    :class:`proknow.Patients.EntitySummary` class as a complete representation of an image set
+    entity.
+
+    Attributes:
+        id (str): The id of the entity (readonly).
+        data (dict): The summary representation of the entity as returned from the API (readonly).
+
+    """
+
+    def __init__(self, patients, workspace_id, patient_id, entity):
+        """Initializes the ImageSetItem class.
+
+        Parameters:
+            patients (proknow.Patients.Patients): The Patients instance that is instantiating the
+                object.
+            workspace_id (str): The id of the workspace to which the patient belongs.
+            patient_id (str): The id of the patient to which the entity belongs.
+            entity (dict): A dictionary of entity attributes.
+        """
+        super(ImageSetItem, self).__init__(patients, workspace_id, patient_id, entity)
+
+    def download(self, path):
+        """Download the image set as a directory of images.
+
+        Parameters:
+            path (str): A path to a directory in which a directory of images should be downloaded.
+
+        Returns:
+            str: The absolute path to the downloaded image set directory.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.InvalidPathError`: If the provided path is invalid.
+
+        Example:
+            This example shows how to download an image set into the current directory::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="image_set")
+                image_set = entities[0].get()
+                image_set.download("./")
+        """
+        assert isinstance(path, six.string_types), "`path` is required as a string."
+        modality = self._data["modality"]
+        if os.path.isdir(path):
+            main_directory = os.path.join(os.path.abspath(path), modality + "." + self._data["uid"])
+        else:
+            raise InvalidPathError('`' + path + '` is invalid')
+        os.mkdir(main_directory)
+
+        for image in self._data["data"]["images"]:
+            image_path = os.path.join(main_directory, modality + "." + image["uid"])
+            self._requestor.stream('/workspaces/' + self._workspace_id + '/imagesets/' + self._id + '/images/' + image["id"] + '/dicom', image_path)
+        return main_directory
 
 class StructureSetItem(EntityItem):
-    """Not implemented"""
-    pass
+    """
+
+    This class represents a structure set. It's instantiated by the
+    :class:`proknow.Patients.EntitySummary` class as a complete representation of a structure set
+    entity.
+
+    Attributes:
+        id (str): The id of the entity (readonly).
+        data (dict): The summary representation of the entity as returned from the API (readonly).
+
+    """
+
+    def __init__(self, patients, workspace_id, patient_id, entity):
+        """Initializes the StructureSetItem class.
+
+        Parameters:
+            patients (proknow.Patients.Patients): The Patients instance that is instantiating the
+                object.
+            workspace_id (str): The id of the workspace to which the patient belongs.
+            patient_id (str): The id of the patient to which the entity belongs.
+            entity (dict): A dictionary of entity attributes.
+        """
+        super(StructureSetItem, self).__init__(patients, workspace_id, patient_id, entity)
+
+    def download(self, path):
+        """Download the currently approved structure set file.
+
+        Parameters:
+            path (str): A path to a directory or file to which the structure set file should be
+            streamed.
+
+        Returns:
+            str: The absolute path to the downloaded file.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.InvalidPathError`: If the provided path is invalid.
+
+        Example:
+            This example shows how to download a plan file for a patient to the current directory::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="structure_set")
+                structure_set = entities[0].get()
+                structure_set.download("./")
+        """
+        assert isinstance(path, six.string_types), "`path` is required as a string."
+        if os.path.isdir(path):
+            resolved_path = os.path.join(os.path.abspath(path), "RS." + self._data["uid"] + ".dcm")
+        else:
+            absolute = os.path.abspath(path)
+            directory = os.path.dirname(path)
+            if os.path.isdir(directory):
+                resolved_path = absolute
+            else:
+                raise InvalidPathError('`' + path + '` is invalid')
+        self._requestor.stream('/workspaces/' + self._workspace_id + '/structuresets/' + self._id + '/versions/' + self._data["data"]["version"] + '/dicom', resolved_path)
+        return resolved_path
 
 class PlanItem(EntityItem):
     """
@@ -583,8 +864,37 @@ class PlanItem(EntityItem):
 
         Parameters:
             path (str): A path to a directory or file to which the plan file should be streamed.
+
+        Returns:
+            str: The absolute path to the downloaded file.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.InvalidPathError`: If the provided path is invalid.
+
+        Example:
+            This example shows how to download a plan file for a patient to the current directory::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="plan")
+                plan = entities[0].get()
+                plan.download("./")
         """
-        resolved_path = self._resolve_path(path)
+        assert isinstance(path, six.string_types), "`path` is required as a string."
+        if os.path.isdir(path):
+            resolved_path = os.path.join(os.path.abspath(path), "RP." + self._data["uid"] + ".dcm")
+        else:
+            absolute = os.path.abspath(path)
+            directory = os.path.dirname(path)
+            if os.path.isdir(directory):
+                resolved_path = absolute
+            else:
+                raise InvalidPathError('`' + path + '` is invalid')
         self._requestor.stream('/workspaces/' + self._workspace_id + '/plans/' + self._id + '/dicom', resolved_path)
         return resolved_path
 
@@ -617,7 +927,37 @@ class DoseItem(EntityItem):
 
         Parameters:
             path (str): A path to a directory or file to which the dose file should be streamed.
+
+        Returns:
+            str: The absolute path to the downloaded file.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.InvalidPathError`: If the provided path is invalid.
+
+        Example:
+            This example shows how to download a dose file for a patient to the current directory::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="dose")
+                dose = entities[0].get()
+                dose.download("./")
         """
-        resolved_path = self._resolve_path(path)
+        assert isinstance(path, six.string_types), "`path` is required as a string."
+        if os.path.isdir(path):
+            resolved_path = os.path.join(os.path.abspath(path), "RD." + self._data["uid"] + ".dcm")
+        else:
+            absolute = os.path.abspath(path)
+            directory = os.path.dirname(path)
+            if os.path.isdir(directory):
+                resolved_path = absolute
+            else:
+                raise InvalidPathError('`' + path + '` is invalid')
+
         self._requestor.stream('/workspaces/' + self._workspace_id + '/doses/' + self._id + '/dicom', resolved_path)
         return resolved_path

@@ -36,8 +36,44 @@ class Roles(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example creates a new role called "Researchers" with full permissions on the
+            "Research" workspace::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.roles.create("Researchers", {
+                    "create_api_keys": False,
+                    "manage_access": False,
+                    "manage_custom_metrics": False,
+                    "manage_template_metric_sets": False,
+                    "manage_renaming_rules": False,
+                    "manage_template_checklists": False,
+                    "organization_read": False,
+                    "organization_view_phi": False,
+                    "organization_download_dicom": False,
+                    "organization_write_collections": False,
+                    "organization_write_patients": False,
+                    "organization_contour_patients": False,
+                    "organization_delete_collections": False,
+                    "organization_delete_patients": False,
+                    "workspaces": [{
+                        "id": pk.workspaces.find(name="Research").id,
+                        "read": True,
+                        "view_phi": True,
+                        "download_dicom": True,
+                        "write_collections": True,
+                        "write_patients": True,
+                        "contour_patients": True,
+                        "delete_collections": True,
+                        "delete_patients": True,
+                    }],
+                })
         """
-        assert isinstance(name, str), "`name` is required as a string."
+        assert isinstance(name, six.string_types), "`name` is required as a string."
         assert isinstance(permissions, dict), "`permissions` is required as a dict."
 
         body = {
@@ -70,6 +106,15 @@ class Roles(object):
 
         Raises:
             AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            If you know the role id, you can delete the role directly using this method::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                pk.roles.delete('5c463a6c040068100c7f665acad17ac4')
         """
         assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
         self._requestor.delete('/roles/' + role_id)
@@ -85,6 +130,9 @@ class Roles(object):
 
         Returns:
             :class:`proknow.Roles.RoleItem`: A representation of the matching role.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
         roles = self.query()
         if predicate is None and len(props) == 0:
@@ -110,6 +158,17 @@ class Roles(object):
 
         Returns:
             :class:`proknow.Roles.RoleItem`: an object representing a role in the organization
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            If you know the role id, you can get the role directly using this method::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                researchers = pk.roles.get('5c463a6c040068100c7f665acad17ac4')
         """
         assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
         _, role = self._requestor.get('/roles/' + role_id)
@@ -121,6 +180,18 @@ class Roles(object):
         Returns:
             list: A list of :class:`proknow.Roles.RoleSummary` objects, each representing a
             summarized role in the organization.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example queries the roles and prints the name of each role::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                for role in pk.roles.query():
+                    print(role.name)
         """
         _, roles = self._requestor.get('/roles')
         return [RoleSummary(self, role) for role in roles]
@@ -169,6 +240,18 @@ class RoleSummary(object):
 
         Returns:
             :class:`proknow.Roles.RoleItem`: an object representing a role in the organization
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to turn a list of RoleSummary objects into a list of
+            RoleItem objects::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                roles = [role.get() for role in pk.roles.query()]
         """
         return self._roles.get(self._id)
 
@@ -225,18 +308,36 @@ class RoleItem(object):
         return self._data
 
     def delete(self):
-        """Deletes the role."""
+        """Deletes the role.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to find a role by its name and delete it::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                researchers = pk.roles.find(name='researchers').get()
+                researchers.delete()
+        """
         self._roles.delete(self._id)
 
     def save(self):
         """Saves the changes made to a role.
 
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
         Example:
-            The following example illustrates how to find a role by its slug, modify a permission,
+            The following example shows how to find a role by its name, modify a permission,
             and save it::
 
+                from proknow import ProKnow
+
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                researchers = pk.roles.find(name='researchers')
+                researchers = pk.roles.find(name='researchers').get()
                 researchers.permissions["organization_read"] = True
                 researchers.save()
         """
