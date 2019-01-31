@@ -467,6 +467,12 @@ class CollectionItemPatientSummary(object):
 
     This class represents a summary view of a patient.
 
+    Attributes:
+        id (str): The id of the patient (readonly).
+        entity_id (str): The id of the entity if specified (readonly).
+        data (dict): The summary representation of the collection patient as returned from the API
+            (readonly).
+
     """
 
     def __init__(self, collections, summary):
