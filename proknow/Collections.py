@@ -199,6 +199,7 @@ class CollectionSummary(object):
     Attributes:
         id (str): The id of the collection (readonly).
         name (str): The name of the collection (readonly).
+        description (str): The description of the collection (readonly).
         data (dict): The summary representation of the collection as returned from the API
             (readonly).
 
