@@ -13,25 +13,70 @@ class App():
         self.marked_workspaces = []
         self.marked_roles = []
         self.marked_users = []
+        self.marked_collections = []
 
     def cleanup(self):
+        for collection in self.marked_collections:
+            try:
+                collection.delete()
+            except:
+                print('Error deleting collection: ' + collection.name)
+                pass
         for custom_metric in self.marked_custom_metrics:
-            custom_metric.delete()
+            try:
+                custom_metric.delete()
+            except:
+                print('Error deleting custom metric: ' + custom_metric.name)
+                pass
         for user in self.marked_users:
-            user.delete()
+            try:
+                user.delete()
+            except:
+                print('Error deleting user: ' + user.name)
+                pass
         for role in self.marked_roles:
-            role.delete()
+            try:
+                role.delete()
+            except:
+                print('Error deleting role: ' + user.name)
+                pass
         for workspace in self.marked_workspaces:
-            if workspace.data["protected"] == True:
-                workspace.protected = False
-                workspace.save()
-            workspace.delete()
+            try:
+                if workspace.data["protected"] == True:
+                    workspace.protected = False
+                    workspace.save()
+                workspace.delete()
+            except:
+                print('Error deleting workspace: ' + user.name)
+                pass
 
 @pytest.fixture(scope="module")
 def app():
     proknow = App()
     yield proknow
     proknow.cleanup()
+
+@pytest.fixture
+def collection_factory(app):
+    pk = app.pk
+
+    def _create_collections(collections, do_not_mark=False):
+        result = []
+        if not isinstance(collections, list):
+            collections = [collections]
+        for custom_metric in collections:
+            if isinstance(custom_metric, dict):
+                created = pk.collections.create(**custom_metric)
+            elif isinstance(custom_metric, tuple):
+                created = pk.collections.create(*custom_metric)
+            else:
+                created = None
+            result.append(created)
+            if created is not None and do_not_mark is False:
+                app.marked_collections.append(created)
+        return result
+
+    return _create_collections
 
 @pytest.fixture
 def custom_metric_factory(app):

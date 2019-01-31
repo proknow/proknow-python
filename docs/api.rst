@@ -17,3 +17,4 @@ This guide includes a complete API reference.
    api/users
    api/uploads
    api/patients
+   api/collections

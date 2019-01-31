@@ -1,6 +1,18 @@
 Release History
 ===============
 
+v0.4.0
+------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**New Features & Enhancements**
+
+* ``Collections`` module for interacting with collections
+* Renamed ``metric_type`` argument in the ``CustomMetrics.create`` method to ``type``
+
 v0.3.0
 ------
 

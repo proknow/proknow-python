@@ -27,11 +27,11 @@ def test_create_patients(app, workspace_factory):
     else:
         patient_match = None
     assert patient_match is not None
-    assert patient.mrn == "1000"
-    assert patient.name == "Last^First"
-    assert patient.birth_date == "2018-01-01"
-    assert patient.birth_time == "123456.000000"
-    assert patient.sex == "M"
+    assert patient_match.mrn == "1000"
+    assert patient_match.name == "Last^First"
+    assert patient_match.birth_date == "2018-01-01"
+    assert patient_match.birth_time == "123456.000000"
+    assert patient_match.sex == "M"
 
 def test_create_patients_failure(app, workspace_factory):
     pk = app.pk
