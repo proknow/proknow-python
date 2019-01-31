@@ -100,8 +100,8 @@ class Collections(object):
 
         Parameters:
             workspace (str, optional): An id or name of the workspace in which to query for
-                workspace representations of collection. If a workspace is not provided,
-                organization collections will be returned.
+                workspace representations of collection. If a workspace is not provided, only
+                organization collections will be considered.
             predicate (func): A function that is passed a collection as input and which should
                 return a bool indicating whether the collection is a match.
             **props: A dictionary of keyword arguments that may include any collection attribute.
@@ -161,7 +161,7 @@ class Collections(object):
 
         Parameters:
             workspace (str, optional): An id or name of the workspace in which to query for
-                workspace representations of collection. If a workspace is not provided,
+                workspace representations of collections. If a workspace is not provided, only
                 organization collections will be returned.
 
         Returns:
