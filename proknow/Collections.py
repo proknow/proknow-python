@@ -95,10 +95,13 @@ class Collections(object):
         assert isinstance(collection_id, six.string_types), "`collection_id` is required as a string."
         self._requestor.delete('/collections/' + collection_id)
 
-    def find(self, predicate=None, **props):
+    def find(self, workspace=None, predicate=None, **props):
         """Finds the first collection that matches the input paramters.
 
         Parameters:
+            workspace (str, optional): An id or name of the workspace in which to query for
+                workspace representations of collection. If a workspace is not provided,
+                organization collections will be returned.
             predicate (func): A function that is passed a collection as input and which should
                 return a bool indicating whether the collection is a match.
             **props: A dictionary of keyword arguments that may include any collection attribute.
@@ -111,7 +114,7 @@ class Collections(object):
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
-        collections = self.query()
+        collections = self.query(workspace)
         if predicate is None and len(props) == 0:
             return None
 
@@ -157,8 +160,9 @@ class Collections(object):
         """Queries for collections.
 
         Parameters:
-            workspace (str, optional): An id or name of the workspace in which to query for workspace
-                representations of collection.
+            workspace (str, optional): An id or name of the workspace in which to query for
+                workspace representations of collection. If a workspace is not provided,
+                organization collections will be returned.
 
         Returns:
             list: A list of :class:`proknow.Collections.CollectionSummary` objects, each

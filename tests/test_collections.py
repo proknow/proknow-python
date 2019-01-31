@@ -91,7 +91,7 @@ def test_find_collections(app, collection_factory):
     expr = re.compile(r"ind")
 
     # Find using predicate
-    found = pk.collections.find(lambda ws: expr.search(ws.data["name"]) is not None)
+    found = pk.collections.find(predicate=lambda ws: expr.search(ws.data["name"]) is not None)
     assert found is not None
     assert found.name == "Find Me"
     assert found.description == ""
@@ -103,13 +103,13 @@ def test_find_collections(app, collection_factory):
     assert found.description == ""
 
     # Find using both
-    found = pk.collections.find(lambda ws: expr.search(ws.data["name"]) is not None, id=collection.id, name="Find Me")
+    found = pk.collections.find(predicate=lambda ws: expr.search(ws.data["name"]) is not None, id=collection.id, name="Find Me")
     assert found is not None
     assert found.name == "Find Me"
     assert found.description == ""
 
     # Find failure
-    found = pk.collections.find(lambda ws: expr.search(ws.data["id"]) is not None)
+    found = pk.collections.find(predicate=lambda ws: expr.search(ws.data["id"]) is not None)
     assert found is None
     found = pk.collections.find(id=collection.id, name="Find me")
     assert found is None
