@@ -28,13 +28,13 @@ class CustomMetrics(object):
         self._requestor = requestor
         self._cache = None
 
-    def create(self, name, context, metric_type):
+    def create(self, name, context, type):
         """Creates a new custom metric.
 
         Parameters:
             name (str): The custom metric name.
             context (str): The custom metric context.
-            metric_type (dict): The custom metric type.
+            type (dict): The custom metric type.
 
         Returns:
             :class:`proknow.CustomMetrics.CustomMetricItem`: A representation of the created custom
@@ -65,9 +65,9 @@ class CustomMetrics(object):
         """
         assert isinstance(name, six.string_types), "`name` is required as a string."
         assert isinstance(context, six.string_types), "`context` is required as a string."
-        assert isinstance(metric_type, dict), "`metric_type` is required as a dict."
+        assert isinstance(type, dict), "`type` is required as a dict."
 
-        _, custom_metric = self._requestor.post('/metrics/custom', body={'name': name, 'context': context, 'type': metric_type})
+        _, custom_metric = self._requestor.post('/metrics/custom', body={'name': name, 'context': context, 'type': type})
         self._cache = None
         return CustomMetricItem(self, custom_metric)
 

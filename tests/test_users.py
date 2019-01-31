@@ -57,7 +57,7 @@ def test_delete_users(app, user_factory):
         match = None
     assert match is None
 
-def test_delete_workspaces_failure(app, user_factory):
+def test_delete_users_failure(app, user_factory):
     pk = app.pk
 
     role_id = pk.roles.find(name="Admin").id
@@ -65,7 +65,7 @@ def test_delete_workspaces_failure(app, user_factory):
 
     user.delete()
 
-    # Assert error is raised when attempting to delete role that does not exist
+    # Assert error is raised when attempting to delete user that does not exist
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         user.delete()
     assert err_wrapper.value.status_code == 404

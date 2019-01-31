@@ -18,4 +18,4 @@ Accepted Contributions
 3. Documentation.
 4. Tests.
 
-We are unlikely to accept pull requests that modify the license or change the way we publish and deploy. For example, we would not accept a change that separated the source and build directories because it would change the way we published the documentation. Tests are the exception to this because we do not yet have a testing strategy in place.
+We are unlikely to accept pull requests that modify the license or change the way we publish and deploy. For example, we would not accept a change that separated the source and build directories because it would change the way we published the documentation.

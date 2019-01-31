@@ -11,6 +11,7 @@ from .Roles import Roles
 from .Users import Users
 from .Uploads import Uploads
 from .Patients import Patients
+from .Collections import Collections
 
 
 class ProKnow(object):
@@ -21,13 +22,15 @@ class ProKnow(object):
 
     Attributes:
         requestor (:class:`proknow.Requestor.Requestor`): An instance of the Requestor class.
-        custom_metrics (:class:`ProKnow.CustomMetrics.CustomMetrics`): An instance of the Custom
-            Metrics class.
+        custom_metrics (:class:`ProKnow.CustomMetrics.CustomMetrics`): An instance of the
+            CustomMetrics class.
         workspaces (:class:`proknow.Workspaces.Workspaces`): An instance of the Workspaces class.
         roles (:class:`proknow.Roles.Roles`): An instance of the Roles class.
         users (:class:`proknow.Users.Users`): An instance of the Users class.
         uploads (:class:`proknow.Uploads.Uploads`): An instance of the Uploads class.
         patients (:class:`proknow.Patients.Patients`): An instance of the Patients class.
+        collections (:class:`proknow.Collections.Collections`): An instance of the Collections
+            class.
     """
 
     def __init__(self, base_url, credentials_file=None, credentials_id=None, credentials_secret=None):
@@ -73,3 +76,4 @@ class ProKnow(object):
         self.uploads = Uploads(self, self.requestor)
 
         self.patients = Patients(self, self.requestor)
+        self.collections = Collections(self, self.requestor)
