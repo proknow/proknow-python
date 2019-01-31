@@ -134,7 +134,7 @@ class Collections(object):
         """Gets a collection.
 
         Parameters:
-            collection (str): The id of the collection to get.
+            collection_id (str): The id of the collection to get.
 
         Returns:
             :class:`proknow.Collections.CollectionItem`: an object representing a collection in the
