@@ -138,6 +138,7 @@ class Collections(object):
             organization
 
         Raises:
+            AssertionError: If the input parameters are invalid.
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
@@ -261,8 +262,8 @@ class CollectionItem(object):
         id (str): The id of the collection (readonly).
         data (dict): The complete representation of the collection as returned from the API
             (readonly).
-        name (str): The name of the collections.
-        description (str): The description of the collections.
+        name (str): The name of the collection.
+        description (str): The description of the collection.
 
     """
 
@@ -369,8 +370,8 @@ class CollectionItemPatients(object):
 
         Parameters:
             workspace (str): An id or name of the workspace in which to find the patient(s).
-            items (list): A list of dict objects containing the key "patient" and, optionally, the
-                key "entity." The values of these fields must be ids.
+            items (list): A list of dictionary objects containing the key "patient" and, optionally,
+                the key "entity." The values of these fields must be ids.
 
         Raises:
             AssertionError: If the input parameters are invalid.
@@ -434,8 +435,8 @@ class CollectionItemPatients(object):
 
         Parameters:
             workspace (str): An id or name of the workspace in which to find the patient(s).
-            items (list): A list of dict objects containing the key "patient." The value of this
-                field must be an id.
+            items (list): A list of dictionary objects containing the key "patient." The value of
+                this field must be an id.
 
         Raises:
             AssertionError: If the input parameters are invalid.
@@ -465,11 +466,13 @@ class CollectionItemPatientSummary(object):
     """
 
     def __init__(self, collections, summary):
-        """Initializes the CollectionItemPatients class.
+        """Initializes the CollectionItemPatientSummary class.
 
         Parameters:
             collections (proknow.Collections.Collections): The Collections instance that is
                 instantiating the object.
+            summary (dict): A dictionary representing the collection patient summary as returned by
+                the API.
         """
         self._collections = collections
         self._proknow = self._collections._proknow
