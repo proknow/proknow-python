@@ -28,7 +28,7 @@ pipenv install --dev
 First, make sure the version has been updated in setup.py. Then run the following outside your pipenv shell.
 
 ```
-python3 setup.py bdist_wheel --universal
+python3 setup.py bdist_wheel
 python3 -m twine upload dist/*
 ```
 

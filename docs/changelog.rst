@@ -1,6 +1,17 @@
 Release History
 ===============
 
+v0.4.1
+------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**Bug Fixes**
+
+This release attempts to fix installation errors for users running python 2. According to `this issue <https://github.com/Azure/azure-storage-python/issues/36>`_, wheels cannot (or should not) be marked as universal if it or one of its dependencies installs a package based on whether the python version is 2 or 3. For the ``proknow`` package, the dependency ``requests_futures`` installs the package ``futures`` if the python version is less than 3.2.
+
 v0.4.0
 ------
 
