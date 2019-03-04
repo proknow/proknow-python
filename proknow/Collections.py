@@ -47,14 +47,14 @@ class Collections(object):
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                pk.collections("My Collection", "", "organization", [])
+                pk.collections.create("My Collection", "", "organization", [])
 
             This example creates a new workspace collection called "My Workspace Collection"::
 
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                pk.collections("My Workspace Collection", "", "workspace", [
+                pk.collections.create("My Workspace Collection", "", "workspace", [
                     pk.workspaces.find(name="Clinical").id
                 ])
         """
@@ -431,7 +431,7 @@ class CollectionItemPatients(object):
             patients = self._query()
         else: # == 'workspace'
             patients = self._query({
-                "workspace": self._collection.data.workspaces[0]
+                "workspace": self._collection.data["workspaces"][0]
             })
         return [CollectionItemPatientSummary(self._collections, patient) for patient in patients]
 
