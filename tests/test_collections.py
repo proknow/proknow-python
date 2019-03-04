@@ -215,11 +215,38 @@ def test_collection_patients(app, workspace_factory, collection_factory):
     pk = app.pk
 
     workspace = workspace_factory(("patients-test", "Patients Test", False))[0]
-    collection = collection_factory(("Patients Test Collection", "", "organization", [workspace.id]))[0]
     batch = pk.uploads.upload("Patients Test", "./tests/data/Becker^Matthew")
     path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     patient_summary = batch.find_patient(path)
     entity_summary = batch.find_entity(path)
+
+    # Create workspace collection
+    collection = collection_factory(("Patients Test Collection", "", "workspace", [workspace.id]))[0]
+
+    # Verify collection is empty
+    patients = collection.patients.query()
+    assert len(patients) == 0
+
+    # Verify patient added to the collection
+    collection.patients.add("Patients Test", [{
+        "patient": patient_summary.id,
+        "entity": entity_summary.id,
+    }])
+    patients = collection.patients.query()
+    assert len(patients) == 1
+    patient = patients[0]
+    assert patient.id == patient_summary.id
+    assert patient.entity_id == entity_summary.id
+
+    # Verify patient is removed from collection
+    collection.patients.remove("Patients Test", [{
+        "patient": patient_summary.id
+    }])
+    patients = collection.patients.query()
+    assert len(patients) == 0
+
+    # Create organization collection
+    collection = collection_factory(("Patients Test Collection", "", "organization", [workspace.id]))[0]
 
     # Verify collection is empty
     patients = collection.patients.query()

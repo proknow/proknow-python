@@ -52,6 +52,12 @@ Next, run the tests with the `nox` command from within your pipenv shell.
 nox
 ```
 
+To run a specific test using python 3, use the following form:
+
+```
+pytest tests/{{file name}}::{{test name}}
+```
+
 #### Building the Documentation
 
 With the pipenv shell, you can run `make clean && make html` to build the documentation.
