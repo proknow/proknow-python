@@ -114,10 +114,10 @@ class Collections(object):
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
-        collections = self.query(workspace)
         if predicate is None and len(props) == 0:
             return None
 
+        collections = self.query(workspace)
         for collection in collections:
             match = True
             if predicate is not None and not predicate(collection):

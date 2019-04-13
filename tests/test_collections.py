@@ -90,6 +90,10 @@ def test_find_collections(app, collection_factory):
     collection = collection_factory(("Find Me", "", "organization", []))[0]
     expr = re.compile(r"ind")
 
+    # Find with no args
+    found = pk.collections.find()
+    assert found is None
+
     # Find using predicate
     found = pk.collections.find(predicate=lambda ws: expr.search(ws.data["name"]) is not None)
     assert found is not None

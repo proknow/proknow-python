@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import json
 import six
 
-from .Auth import Auth
 from .Requestor import Requestor
 from .CustomMetrics import CustomMetrics
 from .Workspaces import Workspaces

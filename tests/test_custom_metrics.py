@@ -71,6 +71,10 @@ def test_find_custom_metrics(app, custom_metric_factory):
     custom_metric = custom_metric_factory(("Find Me", "patient", {"string": {}}))[0]
     expr = re.compile(r"ind M")
 
+    # Find with no args
+    found = pk.custom_metrics.find()
+    assert found is None
+
     # Find using predicate
     found = pk.custom_metrics.find(lambda ws: expr.search(ws.data["name"]) is not None)
     assert found is not None

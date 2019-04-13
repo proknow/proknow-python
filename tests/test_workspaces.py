@@ -69,6 +69,10 @@ def test_find_workspaces(app, workspace_factory):
     workspace = workspace_factory(("findme", "Find Me"))[0]
     expr = re.compile(r"indm")
 
+    # Find with no args
+    found = pk.workspaces.find()
+    assert found is None
+
     # Find using predicate
     found = pk.workspaces.find(lambda ws: expr.search(ws.data["slug"]) is not None)
     assert found is not None
