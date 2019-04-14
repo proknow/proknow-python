@@ -46,3 +46,12 @@ If you specified a ``credentials_file`` in the ProKnow constructor, but are rece
 **Type or Assertion errors**
 
 These indicate that you've provided invalid parameters to the ``ProKnow`` contructor. The error message can usually point you in the right direction. Correct the parameters, and try again.
+
+Guides
+------
+
+
+.. toctree::
+   :maxdepth: 2
+
+   usage/computed_metrics
