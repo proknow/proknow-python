@@ -10,7 +10,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 **New Features & Enhancements**
 
-* Added new classes in the Patients module for interacting with entity scorecards
+* Added new classes in the ``Patients`` module for interacting with entity scorecards
 * Improved code coverage
 
 v0.4.1
