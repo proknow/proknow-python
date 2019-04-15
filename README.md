@@ -41,7 +41,6 @@ Before you start testing, you'll need access to a ProKnow DS organization where 
 base_url = "https://example.proknow.com"
 credentials_id = "{{ id from credentials.json }}"
 credentials_secret = "{{ secret from credentials.json }}"
-
 ```
 
 Make sure to put your actual base_url and the id and secret from your `credentials.json` file in place of the placeholders above.
@@ -56,6 +55,12 @@ To run a specific test using python 3, use the following form:
 
 ```
 pytest tests/{{file name}}::{{test name}}
+```
+
+To run tests with the HTML coverage report, use the following:
+
+```
+pytest --cov=proknow --cov-branch --cov-report html tests
 ```
 
 #### Building the Documentation

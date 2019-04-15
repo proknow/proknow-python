@@ -149,7 +149,7 @@ class Uploads(object):
         # Wait for uploads to complete and construct lookup dictionary
         for file in files:
             result = file["chunk_request"].result()
-            if result.status_code >= 400:
+            if result.status_code >= 400: # pragma: no cover (difficult to test)
                 raise HttpError(result.status_code, result.text)
 
         # Wait for uploads to come to terminal state
@@ -165,6 +165,8 @@ class Uploads(object):
                 try:
                     if file["upload_result"]["status"] in ("completed", "pending", "failed"):
                         continue
+                    else: # pragma: no cover (cannot hit)
+                        pass
                 except KeyError:
                     pass
 
@@ -189,7 +191,7 @@ class Uploads(object):
 
             if done:
                 break
-            elif (datetime.utcnow() - last_change).total_seconds() > 30:
+            elif (datetime.utcnow() - last_change).total_seconds() > 30: # pragma: no cover (difficult to test)
                 raise TimeoutExceededError("Timeout of 30 seconds elapsed while waiting for uploads to finish")
             elif len(uploads) > 0:
                 last_upload = uploads[-1]
@@ -248,6 +250,8 @@ class UploadBatch(object):
                     entity = UploadEntitySummary(self._uploads, self._workspace_id, patient_id, upload["entity"])
                     self._entity_lookup[entity_id] = entity
                     patient.add_entity(entity)
+            else: # pragma: no cover (cannot hit)
+                pass
 
     @property
     def patients(self):

@@ -2,10 +2,11 @@ import pytest
 import re
 import os
 import filecmp
+import six
 
 from proknow import Exceptions
 
-def test_create_patients(app, workspace_factory):
+def test_create(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("create-patients-test", "Create Patients Test", False))
@@ -33,7 +34,7 @@ def test_create_patients(app, workspace_factory):
     assert patient_match.birth_time == "123456.000000"
     assert patient_match.sex == "M"
 
-def test_create_patients_failure(app, workspace_factory):
+def test_create_failure(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("create-patients-failure-test", "Create Patients Failure Test", False))
@@ -45,7 +46,7 @@ def test_create_patients_failure(app, workspace_factory):
     assert err_wrapper.value.status_code == 409
     assert err_wrapper.value.body == 'Patient already exists with mrn "1000"'
 
-def test_delete_patients(app, workspace_factory):
+def test_delete(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("delete-patients-test", "Delete Patients Test", False))
@@ -61,7 +62,7 @@ def test_delete_patients(app, workspace_factory):
         match = None
     assert match is None
 
-def test_delete_patients_failure(app, workspace_factory):
+def test_delete_failure(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("delete-patients-failure-test", "Delete Patients Failure Test", False))
@@ -74,12 +75,16 @@ def test_delete_patients_failure(app, workspace_factory):
     assert err_wrapper.value.status_code == 404
     assert err_wrapper.value.body == 'Patient "' + patient.id + '" not found'
 
-def test_find_patients(app, workspace_factory):
+def test_find(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("find-patients-test", "Find Patients Test", False))
     pk.patients.create("Find Patients Test", "1000", "Last^First")
     expr = re.compile(r"st\^Fi")
+
+    # Find with no args
+    found = pk.patients.find("Find Patients Test")
+    assert found is None
 
     # Find using predicate
     found = pk.patients.find("Find Patients Test", lambda p: expr.search(p.data["name"]) is not None)
@@ -114,7 +119,7 @@ def test_find_patients(app, workspace_factory):
     found = pk.patients.find("Find Patients Test", mrn="1000", name="last^first")
     assert found is None
 
-def test_lookup_patients(app, workspace_factory):
+def test_lookup(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("lookup-patients-test", "Lookup Patients Test", False))
@@ -137,7 +142,7 @@ def test_lookup_patients(app, workspace_factory):
             assert patient.birth_time == None
             assert patient.sex == None
 
-def test_query_patients(app, workspace_factory):
+def test_query(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("query-patients-test", "Query Patients Test", False))
@@ -152,6 +157,7 @@ def test_query_patients(app, workspace_factory):
     else:
         match = None
     assert match is not None
+    assert isinstance(match.id, six.string_types)
     assert match.mrn == "1000"
     assert match.name == "Test^1"
     assert match.birth_date == "2018-01-01"
@@ -166,13 +172,14 @@ def test_query_patients(app, workspace_factory):
     else:
         match = None
     assert match is not None
+    assert isinstance(match.id, six.string_types)
     assert match.mrn == "1001"
     assert match.name == "Test^2"
     assert match.birth_date == None
     assert match.birth_time == None
     assert match.sex == None
 
-def test_update_patients(app, custom_metric_factory, workspace_factory):
+def test_update(app, custom_metric_factory, workspace_factory):
     pk = app.pk
 
     custom_metric_factory(("String Metric 1", "patient", {"string": {}}))
@@ -181,7 +188,7 @@ def test_update_patients(app, custom_metric_factory, workspace_factory):
     workspace_factory(("update-patients-test", "Update Patients Test", False))
     patient = pk.patients.create("Update Patients Test", "1000", "Last^First")
 
-    # Verify workspace was updated successfully
+    # Verify patient was updated successfully
     patient.mrn = "1000-AAAA-2000"
     patient.name = "Modified^Name"
     patient.birth_date = "2018-01-01"
@@ -213,7 +220,7 @@ def test_update_patients(app, custom_metric_factory, workspace_factory):
         "Enum Metric 1": "one"
     }
 
-def test_update_patients_failure(app, workspace_factory):
+def test_update_failure(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("update-patients-failure-test", "Update Patients Failure Test", False))
@@ -226,7 +233,7 @@ def test_update_patients_failure(app, workspace_factory):
     assert err_wrapper.value.status_code == 409
     assert err_wrapper.value.body == 'Patient already exists with mrn "1001"'
 
-def test_patient_set_metadata_failure(app, workspace_factory):
+def test_set_metadata_failure(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("patient-set-metadata-failure-test", "Patient Set Metadata Failure Test", False))
@@ -238,7 +245,7 @@ def test_patient_set_metadata_failure(app, workspace_factory):
         patient.set_metadata(meta)
     assert err_wrapper.value.message == 'Custom metric with name `Unknown Metric` not found.'
 
-def test_patient_find_entities(app, workspace_factory):
+def test_find_entities(app, workspace_factory):
     pk = app.pk
 
     workspace_factory(("patient-find-entities-test", "Patient Find Entities Test", False))
@@ -246,134 +253,37 @@ def test_patient_find_entities(app, workspace_factory):
     patients = pk.patients.lookup("Patient Find Entities Test", ["HNC-0522c0009"])
     assert len(patients) == 1
     patient = patients[0].get()
+
+    # Find with no args
     entities = patient.find_entities()
     assert len(entities) == 0
+
+    # Find image set
+    entities = patient.find_entities(lambda entity: entity.data["type"] == "image_set")
+    assert len(entities) == 1
+    entities = patient.find_entities(type="image_set")
+    assert len(entities) == 1
+
+    # Find structure set
+    entities = patient.find_entities(lambda entity: entity.data["type"] == "structure_set")
+    assert len(entities) == 1
+    entities = patient.find_entities(type="structure_set")
+    assert len(entities) == 1
+
+    # Find plan
+    entities = patient.find_entities(lambda entity: entity.data["type"] == "plan")
+    assert len(entities) == 1
+    entities = patient.find_entities(type="plan")
+    assert len(entities) == 1
+
+    # Find dose
+    entities = patient.find_entities(lambda entity: entity.data["type"] == "dose")
+    assert len(entities) == 1
+    entities = patient.find_entities(type="dose")
+    assert len(entities) == 1
+
+    # Find multiple
     entities = patient.find_entities(lambda entity: True)
     assert len(entities) == 4
     entities = patient.find_entities(lambda entity: entity.data["type"] == "dose" or entity.data["type"] == "plan")
     assert len(entities) == 2
-    entities = patient.find_entities(type="dose")
-    assert len(entities) == 1
-
-def test_patient_download_image_set(app, workspace_factory, temp_directory):
-    pk = app.pk
-
-    image_files = [
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm"),
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00001.dcm"),
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00002.dcm"),
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00003.dcm"),
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00004.dcm"),
-    ]
-    workspace_factory(("patient-download-image-set-test", "Patient Download Image Set Test", False))
-    pk.uploads.upload("Patient Download Image Set Test", image_files)
-    patients = pk.patients.lookup("Patient Download Image Set Test", ["HNC-0522c0009"])
-    assert len(patients) == 1
-    patient = patients[0].get()
-    entities = patient.find_entities(type="image_set")
-    assert len(entities) == 1
-    image_set = entities[0].get()
-
-    # Download to directory
-    download_path = image_set.download(temp_directory.path)
-    download_image_paths = []
-    for _, _, paths in os.walk(download_path):
-        for path in paths:
-            download_image_paths.append(os.path.join(download_path, path))
-    for image_file in image_files:
-        for download_image_path in download_image_paths:
-            if filecmp.cmp(image_file, download_image_path, shallow=False):
-                found = True
-                break
-        else:
-            found = False
-        assert found
-
-    # Directory does not exist
-    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
-        download_path = image_set.download("/path/to/nowhere/")
-    assert err_wrapper.value.message == "`/path/to/nowhere/` is invalid"
-
-def test_patient_download_structure_set(app, workspace_factory, temp_directory):
-    pk = app.pk
-
-    structure_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
-    workspace_factory(("patient-download-structure-set-test", "Patient Download Structure Set Test", False))
-    pk.uploads.upload("Patient Download Structure Set Test", structure_set_path)
-    patients = pk.patients.lookup("Patient Download Structure Set Test", ["HNC-0522c0009"])
-    assert len(patients) == 1
-    patient = patients[0].get()
-    entities = patient.find_entities(type="structure_set")
-    assert len(entities) == 1
-    structure_set = entities[0].get()
-
-    # Download to directory
-    download_path = structure_set.download(temp_directory.path)
-    assert filecmp.cmp(structure_set_path, download_path, shallow=False)
-
-    # Download to specific file
-    specific_path = os.path.join(temp_directory.path, "structure_set.dcm")
-    download_path = structure_set.download(specific_path)
-    assert specific_path == download_path
-    assert filecmp.cmp(structure_set_path, download_path, shallow=False)
-
-    # File does not exist
-    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
-        download_path = structure_set.download("/path/to/nowhere/structure_set.dcm")
-    assert err_wrapper.value.message == "`/path/to/nowhere/structure_set.dcm` is invalid"
-
-def test_patient_download_plan(app, workspace_factory, temp_directory):
-    pk = app.pk
-
-    plan_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
-    workspace_factory(("patient-download-plan-test", "Patient Download Plan Test", False))
-    pk.uploads.upload("Patient Download Plan Test", plan_path)
-    patients = pk.patients.lookup("Patient Download Plan Test", ["HNC-0522c0009"])
-    assert len(patients) == 1
-    patient = patients[0].get()
-    entities = patient.find_entities(type="plan")
-    assert len(entities) == 1
-    plan = entities[0].get()
-
-    # Download to directory
-    download_path = plan.download(temp_directory.path)
-    assert filecmp.cmp(plan_path, download_path, shallow=False)
-
-    # Download to specific file
-    specific_path = os.path.join(temp_directory.path, "plan.dcm")
-    download_path = plan.download(specific_path)
-    assert specific_path == download_path
-    assert filecmp.cmp(plan_path, download_path, shallow=False)
-
-    # File does not exist
-    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
-        download_path = plan.download("/path/to/nowhere/plan.dcm")
-    assert err_wrapper.value.message == "`/path/to/nowhere/plan.dcm` is invalid"
-
-def test_patient_download_dose(app, workspace_factory, temp_directory):
-    pk = app.pk
-
-    dose_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
-    workspace_factory(("patient-download-dose-test", "Patient Download Dose Test", False))
-    pk.uploads.upload("Patient Download Dose Test", dose_path)
-    patients = pk.patients.lookup("Patient Download Dose Test", ["HNC-0522c0009"])
-    assert len(patients) == 1
-    patient = patients[0].get()
-    entities = patient.find_entities(type="dose")
-    assert len(entities) == 1
-    dose = entities[0].get()
-
-    # Download to directory
-    download_path = dose.download(temp_directory.path)
-    assert filecmp.cmp(dose_path, download_path, shallow=False)
-
-    # Download to specific file
-    specific_path = os.path.join(temp_directory.path, "dose.dcm")
-    download_path = dose.download(specific_path)
-    assert specific_path == download_path
-    assert filecmp.cmp(dose_path, download_path, shallow=False)
-
-    # File does not exist
-    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
-        download_path = dose.download("/path/to/nowhere/dose.dcm")
-    assert err_wrapper.value.message == "`/path/to/nowhere/dose.dcm` is invalid"

@@ -1,7 +1,7 @@
 API Reference
 =============
 
-This guide includes a complete API reference.
+This collection of pages includes a complete API reference.
 
 
 .. toctree::
