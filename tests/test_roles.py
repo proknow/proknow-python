@@ -1,5 +1,6 @@
 import pytest
 import re
+import six
 
 from proknow import Exceptions
 
@@ -53,6 +54,7 @@ def test_create_roles(app):
         role_match = None
     assert role_match is not None
     role = role_match.get()
+    assert isinstance(role.data["id"], six.string_types)
     assert role.name == "Create Test"
     assert role.permissions == {
         "create_api_keys": False,
@@ -160,6 +162,10 @@ def test_find_roles(app, role_factory):
         "workspaces": [],
     }))[0]
     expr = re.compile(r"ind")
+
+    # Find with no args
+    found = pk.roles.find()
+    assert found is None
 
     # Find using predicate
     found = pk.roles.find(lambda ws: expr.search(ws.data["name"]) is not None)
@@ -273,6 +279,7 @@ def test_update_roles(app, role_factory):
         role_match = None
     assert role_match is not None
     role = role_match.get()
+    assert isinstance(role.data["id"], six.string_types)
     assert role.name == "Updated Role Name"
     assert role.permissions == {
         "create_api_keys": False,

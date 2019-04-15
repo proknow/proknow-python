@@ -45,7 +45,7 @@ class CustomMetrics(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            This example creates a three new custom metrics, demonstrating each of the available
+            This example creates three new custom metrics, demonstrating each of the available
             custom metric types::
 
                 from proknow import ProKnow

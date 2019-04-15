@@ -1,5 +1,6 @@
 import pytest
 import re
+import six
 
 from proknow import Exceptions
 
@@ -24,8 +25,17 @@ def test_create_users(app):
         user_match = None
     assert user_match is not None
     user = user_match.get()
+    assert isinstance(user.data["id"], six.string_types)
     assert user.name == "Create Test"
     assert user.email == "example+create_test@proknow.com"
+    assert user.active is True
+    assert user.role_id == role_id
+
+    # Verify user can be created with password
+    user = pk.users.create("example+create_test2@proknow.com", "Create Test 2", role_id, "2pBUYbneE^egW^qX*34v")
+    app.marked_users.append(user) # mark for removal
+    assert user.name == "Create Test 2"
+    assert user.email == "example+create_test2@proknow.com"
     assert user.active is True
     assert user.role_id == role_id
 
@@ -77,6 +87,10 @@ def test_find_users(app, user_factory):
     role_id = pk.roles.find(name="Admin").id
     user = user_factory(("example+findme@proknow.com", "Find Me", role_id))[0]
     expr = re.compile(r"ind")
+
+    # Find with no args
+    found = pk.users.find()
+    assert found is None
 
     # Find using predicate
     found = pk.users.find(lambda ws: expr.search(ws.data["name"]) is not None)
@@ -154,6 +168,7 @@ def test_update_users(app, user_factory):
         user_match = None
     assert user_match is not None
     user = user_match.get()
+    assert isinstance(user.data["id"], six.string_types)
     assert user.email == "example+updated@proknow.com"
     assert user.name == "Updated User Name"
     assert user.active == False
