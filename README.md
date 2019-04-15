@@ -23,15 +23,6 @@ pipenv install --dev
 ```
 4. Activate the virtual environment using `pipenv shell`.
 
-#### Packaging
-
-First, make sure the version has been updated in setup.py. Then run the following outside your pipenv shell.
-
-```
-python3 setup.py bdist_wheel --universal
-python3 -m twine upload dist/*
-```
-
 #### Testing
 
 Before you start testing, you'll need access to a ProKnow DS organization where you can generate an [API token](https://support.proknow.com/article/165-configuring-your-profile#api-keys) for your project. Once you have your API token create a file called `pktestconfig.py` in the root of this project with the following contents:
@@ -70,4 +61,13 @@ With the pipenv shell, you can run `make clean && make html` to build the docume
 pipenv shell
 cd docs/
 make clean && make html
+```
+
+#### Packaging
+
+First, make sure the version has been updated in setup.py. Then run the following outside your pipenv shell.
+
+```
+python3 setup.py bdist_wheel --universal
+python3 -m twine upload dist/*
 ```
