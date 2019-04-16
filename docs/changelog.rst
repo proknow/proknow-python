@@ -1,6 +1,17 @@
 Release History
 ===============
 
+v0.5.1
+------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**Bug Fixes**
+
+* The PyPi package for v0.5.0 was not built properly. This version addresses that issue and should be used in place of v0.5.0.
+
 v0.5.0
 ------
 
