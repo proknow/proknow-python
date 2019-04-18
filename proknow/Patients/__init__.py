@@ -1,4 +1,3 @@
-from .Patients import *
-from .Studies import *
 from .Entities import *
-from .EntityScorecards import *
+from .Studies import *
+from .Patients import *

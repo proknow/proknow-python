@@ -36,12 +36,14 @@ class Requestor(object):
     def get_base_url(self):
         return self._base_url
 
-    def get(self, route, query=None):
+    def get(self, route, query=None, headers=None):
         """Issues an HTTP ``GET`` request.
 
         Parameters:
             route (str): The API route to use in the request.
             query (dict, optional): An optional dictionary of query parameters to use in the
+                request.
+            headers (dict, optional): An optional dictionary of request headers to use in the
                 request.
 
         Returns:
@@ -51,7 +53,7 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.get(self._base_url + route, params=query, auth=(self._username, self._password))
+        r = requests.get(self._base_url + route, params=query, headers=headers, auth=(self._username, self._password))
         return self._handle_response(r)
 
     def delete(self, route, query=None, body=None):

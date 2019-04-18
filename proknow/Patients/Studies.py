@@ -1,5 +1,6 @@
 from .Entities import EntitySummary
 
+
 class StudySummary(object):
     """
 

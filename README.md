@@ -68,6 +68,7 @@ make clean && make html
 First, make sure the version has been updated in setup.py. Then run the following outside your pipenv shell.
 
 ```
+rm -rf dist build */*.egg-info *.egg-info
 python3 setup.py bdist_wheel --universal
 python3 -m twine upload dist/*
 ```

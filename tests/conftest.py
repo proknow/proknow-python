@@ -1,6 +1,8 @@
 import pytest
 import tempfile
 import shutil
+import string
+import random
 
 from pktestconfig import base_url, credentials_id, credentials_secret
 
@@ -9,6 +11,7 @@ from proknow import ProKnow
 class App():
     def __init__(self):
         self.pk = ProKnow(base_url, credentials_id=credentials_id, credentials_secret=credentials_secret)
+        self.resource_prefix = "pkpy"
         self.marked_custom_metrics = []
         self.marked_workspaces = []
         self.marked_roles = []
@@ -38,7 +41,7 @@ class App():
             try:
                 role.delete()
             except:
-                print('Error deleting role: ' + user.name)
+                print('Error deleting role: ' + role.name)
                 pass
         for workspace in self.marked_workspaces:
             try:
@@ -47,8 +50,15 @@ class App():
                     workspace.save()
                 workspace.delete()
             except:
-                print('Error deleting workspace: ' + user.name)
+                print('Error deleting workspace: ' + workspace.name)
                 pass
+
+def generate_string(size=10, lowercase_only=False):
+    if lowercase_only:
+        characters = string.ascii_lowercase + string.digits
+    else:
+        characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(size))
 
 @pytest.fixture(scope="module")
 def app():
@@ -57,114 +67,161 @@ def app():
     proknow.cleanup()
 
 @pytest.fixture
-def collection_factory(app):
+def custom_metric_generator(app):
     pk = app.pk
+    resource_prefix = app.resource_prefix
 
-    def _create_collections(collections, do_not_mark=False):
-        result = []
-        if not isinstance(collections, list):
-            collections = [collections]
-        for custom_metric in collections:
-            if isinstance(custom_metric, dict):
-                created = pk.collections.create(**custom_metric)
-            elif isinstance(custom_metric, tuple):
-                created = pk.collections.create(*custom_metric)
-            else:
-                created = None
-            result.append(created)
-            if created is not None and do_not_mark is False:
-                app.marked_collections.append(created)
-        return result
+    def _create_custom_metric(do_not_mark=False, **args):
+        params = {
+            "name": resource_prefix + generate_string(),
+            "context": "patient",
+            "type": {
+                "number": {}
+            }
+        }
+        params.update(args)
+        if params["name"].find(resource_prefix) != 0:
+            params["name"] + resource_prefix + params["name"]
+        custom_metric = pk.custom_metrics.create(**params)
+        if do_not_mark is False:
+            app.marked_custom_metrics.append(custom_metric)
+        return (params, custom_metric)
 
-    return _create_collections
+    return _create_custom_metric
 
 @pytest.fixture
-def custom_metric_factory(app):
+def workspace_generator(app):
     pk = app.pk
+    resource_prefix = app.resource_prefix
 
-    def _create_custom_metrics(custom_metrics, do_not_mark=False):
-        result = []
-        if not isinstance(custom_metrics, list):
-            custom_metrics = [custom_metrics]
-        for custom_metric in custom_metrics:
-            if isinstance(custom_metric, dict):
-                created = pk.custom_metrics.create(**custom_metric)
-            elif isinstance(custom_metric, tuple):
-                created = pk.custom_metrics.create(*custom_metric)
-            else:
-                created = None
-            result.append(created)
-            if created is not None and do_not_mark is False:
-                app.marked_custom_metrics.append(created)
-        return result
+    def _create_workspace(do_not_mark=False, **args):
+        params = {
+            "slug": resource_prefix + generate_string(lowercase_only=True),
+            "name": generate_string(),
+            "protected": False
+        }
+        params.update(args)
+        if params["slug"].find(resource_prefix) != 0:
+            params["slug"] = resource_prefix + params["slug"]
+        workspace = pk.workspaces.create(**params)
+        if do_not_mark is False:
+            app.marked_workspaces.append(workspace)
+        return (params, workspace)
 
-    return _create_custom_metrics
+    return _create_workspace
 
 @pytest.fixture
-def workspace_factory(app):
+def role_generator(app):
     pk = app.pk
+    resource_prefix = app.resource_prefix
 
-    def _create_workspaces(workspaces, do_not_mark=False):
-        result = []
-        if not isinstance(workspaces, list):
-            workspaces = [workspaces]
-        for workspace in workspaces:
-            if isinstance(workspace, dict):
-                created = pk.workspaces.create(**workspace)
-            elif isinstance(workspace, tuple):
-                created = pk.workspaces.create(*workspace)
-            else:
-                created = None
-            result.append(created)
-            if created is not None and do_not_mark is False:
-                app.marked_workspaces.append(created)
-        return result
+    def _create_role(do_not_mark=False, **args):
+        params = {
+            "name": resource_prefix + generate_string(),
+            "permissions": {
+                "create_api_keys": False,
+                "manage_access": False,
+                "manage_custom_metrics": False,
+                "manage_template_metric_sets": False,
+                "manage_renaming_rules": False,
+                "manage_template_checklists": False,
+                "organization_read": False,
+                "organization_view_phi": False,
+                "organization_download_dicom": False,
+                "organization_write_collections": False,
+                "organization_write_patients": False,
+                "organization_contour_patients": False,
+                "organization_delete_collections": False,
+                "organization_delete_patients": False,
+                "workspaces": [],
+            }
+        }
+        params.update(args)
+        if params["name"].find(resource_prefix) != 0:
+            params["name"] = resource_prefix + params["name"]
+        role = pk.roles.create(**params)
+        if do_not_mark is False:
+            app.marked_roles.append(role)
+        return (params, role)
 
-    return _create_workspaces
+    return _create_role
 
 @pytest.fixture
-def role_factory(app):
+def user_generator(app):
     pk = app.pk
+    resource_prefix = app.resource_prefix
 
-    def _create_roles(roles, do_not_mark=False):
-        result = []
-        if not isinstance(roles, list):
-            roles = [roles]
-        for role in roles:
-            if isinstance(role, dict):
-                created = pk.roles.create(**role)
-            elif isinstance(role, tuple):
-                created = pk.roles.create(*role)
-            else:
-                created = None
-            result.append(created)
-            if created is not None and do_not_mark is False:
-                app.marked_roles.append(created)
-        return result
+    def _create_user(do_not_mark=False, **args):
+        params = {
+            "email": resource_prefix + generate_string(lowercase_only=True) + '@proknow.com',
+            "name": generate_string(),
+            "role_id": pk.roles.find(name="Admin").id
+        }
+        params.update(args)
+        if params["email"].find(resource_prefix) != 0:
+            params["email"] = resource_prefix + params["email"]
+        user = pk.users.create(**params)
+        if do_not_mark is False:
+            app.marked_users.append(user)
+        return (params, user)
 
-    return _create_roles
+    return _create_user
 
 @pytest.fixture
-def user_factory(app):
+def patient_generator(app, workspace_generator):
     pk = app.pk
 
-    def _create_users(users, do_not_mark=False):
-        result = []
-        if not isinstance(users, list):
-            users = [users]
-        for user in users:
-            if isinstance(user, dict):
-                created = pk.users.create(**user)
-            elif isinstance(user, tuple):
-                created = pk.users.create(*user)
-            else:
-                created = None
-            result.append(created)
-            if created is not None and do_not_mark is False:
-                app.marked_users.append(created)
-        return result
+    def _create_patient(path_or_paths):
+        _, workspace = workspace_generator()
+        batch = pk.uploads.upload(workspace.id, path_or_paths)
+        length = len(batch.patients)
+        assert length == 1, "patient_generator: only 1 patient at a time supported; got " + length
+        return batch.patients[0].get()
 
-    return _create_users
+    return _create_patient
+
+@pytest.fixture
+def entity_generator(app, workspace_generator):
+    pk = app.pk
+
+    def _create_entity(path_or_paths, **args):
+        _, workspace = workspace_generator()
+        batch = pk.uploads.upload(workspace.id, path_or_paths)
+        length = len(batch.patients)
+        assert length == 1, "entity_generator: only 1 patient at a time supported; got " + length
+        if len(args) > 0:
+            entities = batch.patients[0].get().find_entities(**args)
+            length = len(entities)
+            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + length
+            return entities[0].get()
+        else:
+            length = len(batch.patients[0].entities)
+            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + length
+            return batch.patients[0].entities[0].get()
+
+    return _create_entity
+
+@pytest.fixture
+def collection_generator(app):
+    pk = app.pk
+    resource_prefix = app.resource_prefix
+
+    def _create_collection(do_not_mark=False, **args):
+        params = {
+            "name": resource_prefix + generate_string(),
+            "description": generate_string(),
+            "type": "organization",
+            "workspaces": []
+        }
+        params.update(args)
+        if params["name"].find(resource_prefix) != 0:
+            params["name"] = resource_prefix + params["name"]
+        collection = pk.collections.create(**params)
+        if do_not_mark is False:
+            app.marked_users.append(collection)
+        return (params, collection)
+
+    return _create_collection
 
 class TempDirectory(object):
     def __init__(self):
