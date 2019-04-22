@@ -67,6 +67,28 @@ def app():
     proknow.cleanup()
 
 @pytest.fixture
+def collection_generator(app):
+    pk = app.pk
+    resource_prefix = app.resource_prefix
+
+    def _create_collection(do_not_mark=False, **args):
+        params = {
+            "name": resource_prefix + generate_string(),
+            "description": generate_string(),
+            "type": "organization",
+            "workspaces": []
+        }
+        params.update(args)
+        if params["name"].find(resource_prefix) != 0:
+            params["name"] = resource_prefix + params["name"]
+        collection = pk.collections.create(**params)
+        if do_not_mark is False:
+            app.marked_users.append(collection)
+        return (params, collection)
+
+    return _create_collection
+
+@pytest.fixture
 def custom_metric_generator(app):
     pk = app.pk
     resource_prefix = app.resource_prefix
@@ -90,25 +112,38 @@ def custom_metric_generator(app):
     return _create_custom_metric
 
 @pytest.fixture
-def workspace_generator(app):
+def entity_generator(app, workspace_generator):
     pk = app.pk
-    resource_prefix = app.resource_prefix
 
-    def _create_workspace(do_not_mark=False, **args):
-        params = {
-            "slug": resource_prefix + generate_string(lowercase_only=True),
-            "name": generate_string(),
-            "protected": False
-        }
-        params.update(args)
-        if params["slug"].find(resource_prefix) != 0:
-            params["slug"] = resource_prefix + params["slug"]
-        workspace = pk.workspaces.create(**params)
-        if do_not_mark is False:
-            app.marked_workspaces.append(workspace)
-        return (params, workspace)
+    def _create_entity(path_or_paths, **args):
+        _, workspace = workspace_generator()
+        batch = pk.uploads.upload(workspace.id, path_or_paths)
+        length = len(batch.patients)
+        assert length == 1, "entity_generator: only 1 patient at a time supported; got " + length
+        if len(args) > 0:
+            entities = batch.patients[0].get().find_entities(**args)
+            length = len(entities)
+            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + length
+            return entities[0].get()
+        else:
+            length = len(batch.patients[0].entities)
+            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + length
+            return batch.patients[0].entities[0].get()
 
-    return _create_workspace
+    return _create_entity
+
+@pytest.fixture
+def patient_generator(app, workspace_generator):
+    pk = app.pk
+
+    def _create_patient(path_or_paths):
+        _, workspace = workspace_generator()
+        batch = pk.uploads.upload(workspace.id, path_or_paths)
+        length = len(batch.patients)
+        assert length == 1, "patient_generator: only 1 patient at a time supported; got " + length
+        return batch.patients[0].get()
+
+    return _create_patient
 
 @pytest.fixture
 def role_generator(app):
@@ -146,6 +181,19 @@ def role_generator(app):
 
     return _create_role
 
+class TempDirectory(object):
+    def __init__(self):
+        self.path = tempfile.mkdtemp()
+
+    def cleanup(self):
+        shutil.rmtree(self.path)
+
+@pytest.fixture
+def temp_directory():
+    temp = TempDirectory()
+    yield temp
+    temp.cleanup()
+
 @pytest.fixture
 def user_generator(app):
     pk = app.pk
@@ -168,70 +216,22 @@ def user_generator(app):
     return _create_user
 
 @pytest.fixture
-def patient_generator(app, workspace_generator):
-    pk = app.pk
-
-    def _create_patient(path_or_paths):
-        _, workspace = workspace_generator()
-        batch = pk.uploads.upload(workspace.id, path_or_paths)
-        length = len(batch.patients)
-        assert length == 1, "patient_generator: only 1 patient at a time supported; got " + length
-        return batch.patients[0].get()
-
-    return _create_patient
-
-@pytest.fixture
-def entity_generator(app, workspace_generator):
-    pk = app.pk
-
-    def _create_entity(path_or_paths, **args):
-        _, workspace = workspace_generator()
-        batch = pk.uploads.upload(workspace.id, path_or_paths)
-        length = len(batch.patients)
-        assert length == 1, "entity_generator: only 1 patient at a time supported; got " + length
-        if len(args) > 0:
-            entities = batch.patients[0].get().find_entities(**args)
-            length = len(entities)
-            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + length
-            return entities[0].get()
-        else:
-            length = len(batch.patients[0].entities)
-            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + length
-            return batch.patients[0].entities[0].get()
-
-    return _create_entity
-
-@pytest.fixture
-def collection_generator(app):
+def workspace_generator(app):
     pk = app.pk
     resource_prefix = app.resource_prefix
 
-    def _create_collection(do_not_mark=False, **args):
+    def _create_workspace(do_not_mark=False, **args):
         params = {
-            "name": resource_prefix + generate_string(),
-            "description": generate_string(),
-            "type": "organization",
-            "workspaces": []
+            "slug": resource_prefix + generate_string(lowercase_only=True),
+            "name": generate_string(),
+            "protected": False
         }
         params.update(args)
-        if params["name"].find(resource_prefix) != 0:
-            params["name"] = resource_prefix + params["name"]
-        collection = pk.collections.create(**params)
+        if params["slug"].find(resource_prefix) != 0:
+            params["slug"] = resource_prefix + params["slug"]
+        workspace = pk.workspaces.create(**params)
         if do_not_mark is False:
-            app.marked_users.append(collection)
-        return (params, collection)
+            app.marked_workspaces.append(workspace)
+        return (params, workspace)
 
-    return _create_collection
-
-class TempDirectory(object):
-    def __init__(self):
-        self.path = tempfile.mkdtemp()
-
-    def cleanup(self):
-        shutil.rmtree(self.path)
-
-@pytest.fixture
-def temp_directory():
-    temp = TempDirectory()
-    yield temp
-    temp.cleanup()
+    return _create_workspace

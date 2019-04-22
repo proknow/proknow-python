@@ -433,14 +433,40 @@ class StructureSetRoiItem(object):
     def tag(self):
         return self._tag
 
-    def is_editable(self):
-        """Returns whether the ROI item is editable.
+    def delete(self):
+        """Deletes the roi.
 
-        Returns:
-            bool: True if the ROI item is editable and False otherwise
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.InvalidOperationError`: If the operation cannot be performed.
 
+        Example:
+            This example deletes the ROI called BODY_2::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="structure_set")
+                structure_set = entities[0].get()
+                for roi in structure_set.rois:
+                    if roi.name == "BODY_2":
+                        match = roi
+                        break
+                else:
+                    match = None
+                assert match is not None
+                match.delete()
         """
-        return self._structure_set._is_editable
+        if not self._structure_set._is_editable:
+            raise InvalidOperationError('Item is not editable')
+        wid = self._workspace_id
+        sid = self._structure_set._id
+        rid = self._id
+        headers = { 'ProKnow-Lock': self._structure_set._lock["id"] }
+        self._requestor.delete('/workspaces/' + wid + '/structuresets/' + sid + '/draft/rois/' + rid, headers=headers)
+        self._structure_set.rois.remove(self)
 
     def get_data(self):
         """Gets the data for an ROI (contours, lines, and points).
@@ -478,40 +504,14 @@ class StructureSetRoiItem(object):
         _, data = self._requestor.get('/structuresets/' + self._structure_set.id + '/rois/' + self._tag, headers=headers)
         return StructureSetRoiData(self, data)
 
-    def delete(self):
-        """Deletes the roi.
+    def is_editable(self):
+        """Returns whether the ROI item is editable.
 
-        Raises:
-            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
-            :class:`proknow.Exceptions.InvalidOperationError`: If the operation cannot be performed.
+        Returns:
+            bool: True if the ROI item is editable and False otherwise
 
-        Example:
-            This example deletes the ROI called BODY_2::
-
-                from proknow import ProKnow
-
-                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
-                patient = patients[0].get()
-                entities = patient.find_entities(type="structure_set")
-                structure_set = entities[0].get()
-                for roi in structure_set.rois:
-                    if roi.name == "BODY_2":
-                        match = roi
-                        break
-                else:
-                    match = None
-                assert match is not None
-                match.delete()
         """
-        if not self._structure_set._is_editable:
-            raise InvalidOperationError('Item is not editable')
-        wid = self._workspace_id
-        sid = self._structure_set._id
-        rid = self._id
-        headers = { 'ProKnow-Lock': self._structure_set._lock["id"] }
-        self._requestor.delete('/workspaces/' + wid + '/structuresets/' + sid + '/draft/rois/' + rid, headers=headers)
-        self._structure_set.rois.remove(self)
+        return self._structure_set._is_editable
 
     def save(self):
         """Saves the roi.
@@ -805,6 +805,32 @@ class StructureSetVersionItem(object):
             else:
                 sleep(0.1) # 100 ms
 
+    def delete(self):
+        """Deletes the structure set version.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.InvalidOperationError`: If the operation cannot be performed.
+
+        Example:
+            The following example shows how to delete all archived versions of the structure set
+            (i.e., all versions with a status of "archived" instead of "approved" and "draft")::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="structure_set")
+                entity = entities[0].get()
+                archived = [version for version in entity.versions.query() if version.status == "archived"]
+                for version in archived:
+                    version.delete()
+        """
+        if self._is_draft:
+            raise InvalidOperationError('Draft versions of structure sets cannot be deleted')
+        self._structure_set_versions.delete(self._version_id)
+
     def download(self, path):
         """Download the version of the structure set.
 
@@ -859,32 +885,6 @@ class StructureSetVersionItem(object):
         vid = self._version_id
         self._requestor.stream('/workspaces/' + wid + '/structuresets/' + sid + '/versions/' + vid + '/dicom', resolved_path)
         return resolved_path
-
-    def delete(self):
-        """Deletes the structure set version.
-
-        Raises:
-            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
-            :class:`proknow.Exceptions.InvalidOperationError`: If the operation cannot be performed.
-
-        Example:
-            The following example shows how to delete all archived versions of the structure set
-            (i.e., all versions with a status of "archived" instead of "approved" and "draft")::
-
-                from proknow import ProKnow
-
-                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
-                patient = patients[0].get()
-                entities = patient.find_entities(type="structure_set")
-                entity = entities[0].get()
-                archived = [version for version in entity.versions.query() if version.status == "archived"]
-                for version in archived:
-                    version.delete()
-        """
-        if self._is_draft:
-            raise InvalidOperationError('Draft versions of structure sets cannot be deleted')
-        self._structure_set_versions.delete(self._version_id)
 
     def get(self):
         """Gets a structure set item by id.
