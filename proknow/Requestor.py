@@ -36,12 +36,14 @@ class Requestor(object):
     def get_base_url(self):
         return self._base_url
 
-    def get(self, route, query=None):
+    def get(self, route, query=None, headers=None):
         """Issues an HTTP ``GET`` request.
 
         Parameters:
             route (str): The API route to use in the request.
             query (dict, optional): An optional dictionary of query parameters to use in the
+                request.
+            headers (dict, optional): An optional dictionary of request headers to use in the
                 request.
 
         Returns:
@@ -51,10 +53,10 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.get(self._base_url + route, params=query, auth=(self._username, self._password))
+        r = requests.get(self._base_url + route, params=query, headers=headers, auth=(self._username, self._password))
         return self._handle_response(r)
 
-    def delete(self, route, query=None, body=None):
+    def delete(self, route, query=None, body=None, headers=None):
         """Issues an HTTP ``DELETE`` request.
 
         Parameters:
@@ -63,6 +65,8 @@ class Requestor(object):
                 request.
             body (dict, optional): An optional dictionary to be used as a JSON request body for the
                 request.
+            headers (dict, optional): An optional dictionary of request headers to use in the
+                request.
 
         Returns:
             tuple: A tuple (status_code, msg).
@@ -71,10 +75,10 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.delete(self._base_url + route, params=query, auth=(self._username, self._password), json=body)
+        r = requests.delete(self._base_url + route, params=query, headers=headers, auth=(self._username, self._password), json=body)
         return self._handle_response(r)
 
-    def patch(self, route, query=None, body=None):
+    def patch(self, route, query=None, body=None, headers=None):
         """Issues an HTTP ``PATCH`` request.
 
         Parameters:
@@ -83,6 +87,8 @@ class Requestor(object):
                 request.
             body (dict, optional): An optional dictionary to be used as a JSON request body for the
                 request.
+            headers (dict, optional): An optional dictionary of request headers to use in the
+                request.
 
         Returns:
             tuple: A tuple (status_code, msg).
@@ -91,10 +97,10 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.patch(self._base_url + route, params=query, auth=(self._username, self._password), json=body)
+        r = requests.patch(self._base_url + route, params=query, headers=headers, auth=(self._username, self._password), json=body)
         return self._handle_response(r)
 
-    def post(self, route, query=None, body=None):
+    def post(self, route, query=None, body=None, headers=None):
         """Issues an HTTP ``POST`` request.
 
         Parameters:
@@ -103,6 +109,8 @@ class Requestor(object):
                 request.
             body (dict, optional): An optional dictionary to be used as a JSON request body for the
                 request.
+            headers (dict, optional): An optional dictionary of request headers to use in the
+                request.
 
         Returns:
             tuple: A tuple (status_code, msg).
@@ -111,10 +119,10 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.post(self._base_url + route, params=query, auth=(self._username, self._password), json=body)
+        r = requests.post(self._base_url + route, params=query, headers=headers, auth=(self._username, self._password), json=body)
         return self._handle_response(r)
 
-    def put(self, route, query=None, body=None):
+    def put(self, route, query=None, body=None, headers=None):
         """Issues an HTTP ``PUT`` request.
 
         Parameters:
@@ -123,6 +131,8 @@ class Requestor(object):
                 request.
             body (dict, optional): An optional dictionary to be used as a JSON request body for the
                 request.
+            headers (dict, optional): An optional dictionary of request headers to use in the
+                request.
 
         Returns:
             tuple: A tuple (status_code, msg).
@@ -131,7 +141,7 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.put(self._base_url + route, params=query, auth=(self._username, self._password), json=body)
+        r = requests.put(self._base_url + route, params=query, headers=headers, auth=(self._username, self._password), json=body)
         return self._handle_response(r)
 
     def stream(self, route, path):

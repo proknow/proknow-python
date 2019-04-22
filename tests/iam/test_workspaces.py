@@ -3,70 +3,71 @@ import re
 
 from proknow import Exceptions
 
-def test_create_workspaces(app):
+def test_create(app, workspace_generator):
     pk = app.pk
 
     # Verify returned WorkspaceItem
-    workspace = pk.workspaces.create("create-test", "Create Test", False)
-    app.marked_workspaces.append(workspace) # mark for removal
-    assert workspace.slug == "create-test"
-    assert workspace.name == "Create Test"
-    assert workspace.protected == False
+    params, created = workspace_generator()
+    assert created.slug == params["slug"]
+    assert created.name == params["name"]
+    assert created.protected == params["protected"]
 
     # Assert item can be found in query
     workspaces = pk.workspaces.query()
     for workspace in workspaces:
-        if workspace.slug == "create-test":
+        if workspace.slug == params["slug"]:
             workspace_match = workspace
             break
     else:
         workspace_match = None
     assert workspace_match is not None
-    assert workspace_match.slug == "create-test"
-    assert workspace_match.name == "Create Test"
-    assert workspace_match.protected == False
+    assert workspace_match.slug == params["slug"]
+    assert workspace_match.name == params["name"]
+    assert workspace_match.protected == params["protected"]
 
-def test_create_workspaces_failure(app):
+def test_create_failure(app, workspace_generator):
     pk = app.pk
+
+    params, _ = workspace_generator()
 
     # Assert error is raised for duplicate workspace
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
-        pk.workspaces.create("clinical", "Clinical")
+        pk.workspaces.create(**params)
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'Workspace already exists with slug "clinical"'
+    assert err_wrapper.value.body == 'Workspace already exists with slug "' + params["slug"] + '"'
 
-def test_delete_workspaces(app, workspace_factory):
+def test_delete(app, workspace_generator):
     pk = app.pk
 
-    workspace = workspace_factory(("deleteme", "Delete Me", False), do_not_mark=True)[0]
+    params, workspace = workspace_generator(do_not_mark=True)
 
     # Verify workspace was deleted successfully
     workspace.delete()
     for workspace in pk.workspaces.query():
-        if workspace.slug == "deleteme":
+        if workspace.slug == params["slug"]:
             match = workspace
             break
     else:
         match = None
     assert match is None
 
-def test_delete_workspaces_failure(app, workspace_factory):
+def test_delete_failure(app, workspace_generator):
     pk = app.pk
 
-    workspace = workspace_factory(("deleteme-failure", "Delete Me Failure", True))[0]
+    _, workspace = workspace_generator(do_not_mark=True)
+
+    workspace.delete()
 
     # Assert error is raised when attempting to delete protected workspace
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         workspace.delete()
-    assert err_wrapper.value.status_code == 400
-    assert err_wrapper.value.body == ('Workspace "' + workspace.id + '" is protected from '
-        'accidental deletion. To delete the workspace, you must first turn off accidental '
-        'deletion protection.')
+    assert err_wrapper.value.status_code == 404
+    assert err_wrapper.value.body == ('Workspace "' + workspace.id + '" not found.')
 
-def test_find_workspaces(app, workspace_factory):
+def test_find(app, workspace_generator):
     pk = app.pk
 
-    workspace = workspace_factory(("findme", "Find Me"))[0]
+    params, _ = workspace_generator(slug="findme", name="Find Me")
     expr = re.compile(r"indm")
 
     # Find with no args
@@ -76,23 +77,23 @@ def test_find_workspaces(app, workspace_factory):
     # Find using predicate
     found = pk.workspaces.find(lambda ws: expr.search(ws.data["slug"]) is not None)
     assert found is not None
-    assert found.slug == "findme"
-    assert found.name == "Find Me"
-    assert found.protected == True
+    assert found.slug == params["slug"]
+    assert found.name == params["name"]
+    assert found.protected == params["protected"]
 
     # Find using props
-    found = pk.workspaces.find(slug="findme", name="Find Me")
+    found = pk.workspaces.find(slug=params["slug"], name=params["name"])
     assert found is not None
-    assert found.slug == "findme"
-    assert found.name == "Find Me"
-    assert found.protected == True
+    assert found.slug == params["slug"]
+    assert found.name == params["name"]
+    assert found.protected == params["protected"]
 
     # Find using both
-    found = pk.workspaces.find(lambda ws: expr.search(ws.data["slug"]) is not None, slug="findme", name="Find Me")
+    found = pk.workspaces.find(lambda ws: expr.search(ws.data["slug"]) is not None, slug=params["slug"], name=params["name"])
     assert found is not None
-    assert found.slug == "findme"
-    assert found.name == "Find Me"
-    assert found.protected == True
+    assert found.slug == params["slug"]
+    assert found.name == params["name"]
+    assert found.protected == params["protected"]
 
     # Find failure
     found = pk.workspaces.find(lambda ws: expr.search(ws.data["name"]) is not None)
@@ -100,56 +101,54 @@ def test_find_workspaces(app, workspace_factory):
     found = pk.workspaces.find(slug="findme", name="Find me")
     assert found is None
 
-def test_query_workspaces(app, workspace_factory):
+def test_query(app, workspace_generator):
     pk = app.pk
 
-    workspace_factory([
-        ("test-1", "Test 1"),
-        ("test-2", "Test 2", False),
-    ])
+    params1, _ = workspace_generator()
+    params2, _ = workspace_generator()
 
     # Verify test 1
     for workspace in pk.workspaces.query():
-        if workspace.slug == "test-1":
+        if workspace.slug == params1["slug"]:
             match = workspace
             break
     else:
         match = None
     assert match is not None
-    assert match.slug == "test-1"
-    assert match.name == "Test 1"
-    assert match.protected == True
+    assert match.slug == params1["slug"]
+    assert match.name == params1["name"]
+    assert match.protected == params1["protected"]
 
     # Verify test 2
     for workspace in pk.workspaces.query():
-        if workspace.slug == "test-2":
+        if workspace.slug == params2["slug"]:
             match = workspace
             break
     else:
         match = None
     assert match is not None
-    assert match.slug == "test-2"
-    assert match.name == "Test 2"
-    assert match.protected == False
+    assert match.slug == params2["slug"]
+    assert match.name == params2["name"]
+    assert match.protected == params2["protected"]
 
-def test_resolve(app, workspace_factory):
+def test_resolve(app, workspace_generator):
     pk = app.pk
 
-    workspace = workspace_factory([("resolve-test-1", "Resolve Test 1")])[0]
+    params, workspace = workspace_generator()
 
     # Test resolve by id
     resolved = pk.workspaces.resolve(workspace.id)
     assert resolved is not None
-    assert resolved.slug == "resolve-test-1"
-    assert resolved.name == "Resolve Test 1"
-    assert resolved.protected == True
+    assert resolved.slug == params["slug"]
+    assert resolved.name == params["name"]
+    assert resolved.protected == params["protected"]
 
     # Test resolve by name
-    resolved = pk.workspaces.resolve("Resolve Test 1")
+    resolved = pk.workspaces.resolve(params["name"])
     assert resolved is not None
-    assert resolved.slug == "resolve-test-1"
-    assert resolved.name == "Resolve Test 1"
-    assert resolved.protected == True
+    assert resolved.slug == params["slug"]
+    assert resolved.name == params["name"]
+    assert resolved.protected == params["protected"]
 
 def test_resolve_failure(app):
     pk = app.pk
@@ -164,16 +163,16 @@ def test_resolve_failure(app):
         pk.workspaces.resolve("My Workspace")
     assert err_wrapper.value.message == "Workspace with name `My Workspace` not found."
 
-def test_resolve_by_id(app, workspace_factory):
+def test_resolve_by_id(app, workspace_generator):
     pk = app.pk
 
-    workspace = workspace_factory([("resolve-by-id-test-1", "Resolve By Id Test 1")])[0]
+    params, workspace = workspace_generator()
 
     resolved = pk.workspaces.resolve_by_id(workspace.id)
     assert resolved is not None
-    assert resolved.slug == "resolve-by-id-test-1"
-    assert resolved.name == "Resolve By Id Test 1"
-    assert resolved.protected == True
+    assert resolved.slug == params["slug"]
+    assert resolved.name == params["name"]
+    assert resolved.protected == params["protected"]
 
 def test_resolve_by_id_failure(app):
     pk = app.pk
@@ -182,16 +181,16 @@ def test_resolve_by_id_failure(app):
         pk.workspaces.resolve_by_id("00000000000000000000000000000000")
     assert err_wrapper.value.message == "Workspace with id `00000000000000000000000000000000` not found."
 
-def test_resolve_by_name(app, workspace_factory):
+def test_resolve_by_name(app, workspace_generator):
     pk = app.pk
 
-    workspace = workspace_factory([("resolve-by-name-test-1", "Resolve By Name Test 1")])[0]
+    params, workspace = workspace_generator()
 
-    resolved = pk.workspaces.resolve_by_name("Resolve By Name Test 1")
+    resolved = pk.workspaces.resolve_by_name(params["name"])
     assert resolved is not None
-    assert resolved.slug == "resolve-by-name-test-1"
-    assert resolved.name == "Resolve By Name Test 1"
-    assert resolved.protected == True
+    assert resolved.slug == params["slug"]
+    assert resolved.name == params["name"]
+    assert resolved.protected == params["protected"]
 
 def test_resolve_by_name_failure(app):
     pk = app.pk
@@ -200,37 +199,38 @@ def test_resolve_by_name_failure(app):
         pk.workspaces.resolve("My Workspace")
     assert err_wrapper.value.message == "Workspace with name `My Workspace` not found."
 
-def test_update_workspaces(app, workspace_factory):
+def test_update(app, workspace_generator):
     pk = app.pk
+    resource_prefix = app.resource_prefix
 
-    workspace = workspace_factory([("updateme", "Update Me")])[0]
+    params, workspace = workspace_generator()
 
     # Verify workspace was updated successfully
-    workspace.slug = "updated"
+    workspace.slug = resource_prefix + "updated"
     workspace.name = "Updated Workspace Name"
-    workspace.protected = False
+    workspace.protected = True
     workspace.save()
     workspaces = pk.workspaces.query()
     for workspace in workspaces:
-        if workspace.slug == "updated":
+        if workspace.slug == resource_prefix + "updated":
             workspace_match = workspace
             break
     else:
         workspace_match = None
     assert workspace_match is not None
-    assert workspace_match.slug == "updated"
+    assert workspace_match.slug == resource_prefix + "updated"
     assert workspace_match.name == "Updated Workspace Name"
-    assert workspace_match.protected == False
+    assert workspace_match.protected == True
 
-def test_update_workspaces_failure(app, workspace_factory):
+def test_update_failure(app, workspace_generator):
     pk = app.pk
 
-    workspace_factory(("updateme-failure", "Update Me Failure", True))
+    params, _ = workspace_generator()
+    _, workspace = workspace_generator()
 
     # Assert error is raised for duplicate workspace
-    workspace = pk.workspaces.find(slug="updateme-failure")
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
-        workspace.slug = "clinical"
+        workspace.slug = params["slug"]
         workspace.save()
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'Workspace already exists with slug "clinical"'
+    assert err_wrapper.value.body == 'Workspace already exists with slug "' + params["slug"] + '"'

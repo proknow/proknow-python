@@ -12,7 +12,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/proknow/proknow-python",
-    packages=["proknow"],
+    packages=setuptools.find_packages(),
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",

@@ -3,16 +3,11 @@ import re
 
 from proknow import Exceptions
 
-def test_create(app, workspace_factory, custom_metric_factory):
+def test_create(app, entity_generator, custom_metric_generator):
     pk = app.pk
 
-    workspace_factory(("patient-scorecards-create-test", "Patient Scorecards Create Test", False))
-    custom_metric_factory(("Numeric Metric (Scorecard Create)", "patient", {"number": {}}))
-    pk.uploads.upload("Patient Scorecards Create Test", "./tests/data/Becker^Matthew")
-    patients = pk.patients.lookup("Patient Scorecards Create Test", ["HNC-0522c0009"])
-    patient = patients[0].get()
-    entities = patient.find_entities(type="dose")
-    entity = entities[0].get()
+    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    _, custom_metric = custom_metric_generator()
 
     scorecard = entity.scorecards.create("My Scorecard", [], [])
     assert scorecard.name == "My Scorecard"
@@ -50,21 +45,16 @@ def test_create(app, workspace_factory, custom_metric_factory):
             "color": [255, 0, 0]
         }]
     }], [{
-        "id": pk.custom_metrics.resolve_by_name("Numeric Metric (Scorecard Create)").id
+        "id": custom_metric.id
     }])
     assert scorecard.name == "My Scorecard 2"
     assert len(scorecard.computed) == 2
     assert len(scorecard.custom) == 1
 
-def test_create_failure(app, workspace_factory):
+def test_create_failure(app, entity_generator):
     pk = app.pk
 
-    workspace_factory(("patient-scorecards-create-test-failure", "Patient Scorecards Create Failure Test", False))
-    pk.uploads.upload("Patient Scorecards Create Failure Test", "./tests/data/Becker^Matthew")
-    patients = pk.patients.lookup("Patient Scorecards Create Failure Test", ["HNC-0522c0009"])
-    patient = patients[0].get()
-    entities = patient.find_entities(type="dose")
-    entity = entities[0].get()
+    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("My Scorecard", [], [])
 
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
@@ -72,15 +62,10 @@ def test_create_failure(app, workspace_factory):
     assert err_wrapper.value.status_code == 409
     assert err_wrapper.value.body == 'Entity metric set already exists with name "My Scorecard"'
 
-def test_delete(app, workspace_factory):
+def test_delete(app, entity_generator):
     pk = app.pk
 
-    workspace_factory(("patient-scorecards-delete-test", "Patient Scorecards Delete Test", False))
-    pk.uploads.upload("Patient Scorecards Delete Test", "./tests/data/Becker^Matthew")
-    patients = pk.patients.lookup("Patient Scorecards Delete Test", ["HNC-0522c0009"])
-    patient = patients[0].get()
-    entities = patient.find_entities(type="dose")
-    entity = entities[0].get()
+    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("My Scorecard", [], [])
 
     # Verify scorecard was deleted successfully
@@ -93,15 +78,10 @@ def test_delete(app, workspace_factory):
         match = None
     assert match is None
 
-def test_delete_failure(app, workspace_factory):
+def test_delete_failure(app, entity_generator):
     pk = app.pk
 
-    workspace_factory(("patient-scorecards-delete-failure-test", "Patient Scorecards Delete Failure Test", False))
-    pk.uploads.upload("Patient Scorecards Delete Failure Test", "./tests/data/Becker^Matthew")
-    patients = pk.patients.lookup("Patient Scorecards Delete Failure Test", ["HNC-0522c0009"])
-    patient = patients[0].get()
-    entities = patient.find_entities(type="dose")
-    entity = entities[0].get()
+    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("My Scorecard", [], [])
     scorecard.delete()
 
@@ -111,15 +91,10 @@ def test_delete_failure(app, workspace_factory):
     assert err_wrapper.value.status_code == 404
     assert err_wrapper.value.body == 'Metric set "' + scorecard.id + '" not found in entity "' + entity.id + '"'
 
-def test_find(app, workspace_factory):
+def test_find(app, entity_generator):
     pk = app.pk
 
-    workspace_factory(("find-patient-scorecards-test", "Find Patient Scorecards Test", False))
-    pk.uploads.upload("Find Patient Scorecards Test", "./tests/data/Becker^Matthew")
-    patients = pk.patients.lookup("Find Patient Scorecards Test", ["HNC-0522c0009"])
-    patient = patients[0].get()
-    entities = patient.find_entities(type="dose")
-    entity = entities[0].get()
+    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("Find Scorecards Test", [], [])
     expr = re.compile(r"nd Score")
     expr2 = re.compile(r"score")
@@ -158,15 +133,10 @@ def test_find(app, workspace_factory):
     found = entity.scorecards.find(name="Find Scorecards")
     assert found is None
 
-def test_query(app, workspace_factory):
+def test_query(app, entity_generator):
     pk = app.pk
 
-    workspace_factory(("query-patient-scorecards-test", "Query Patient Scorecards Test", False))
-    pk.uploads.upload("Query Patient Scorecards Test", "./tests/data/Becker^Matthew")
-    patients = pk.patients.lookup("Query Patient Scorecards Test", ["HNC-0522c0009"])
-    patient = patients[0].get()
-    entities = patient.find_entities(type="dose")
-    entity = entities[0].get()
+    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("My Scorecard 1", [], [])
     scorecard = entity.scorecards.create("My Scorecard 2", [], [])
 
@@ -190,16 +160,11 @@ def test_query(app, workspace_factory):
     assert scorecard is not None
     assert scorecard.name == "My Scorecard 2"
 
-def test_update(app, workspace_factory, custom_metric_factory):
+def test_update(app, entity_generator, custom_metric_generator):
     pk = app.pk
 
-    workspace_factory(("patient-scorecards-update-test", "Patient Scorecards Update Test", False))
-    custom_metric_factory(("Numeric Metric (Scorecard Update)", "patient", {"number": {}}))
-    pk.uploads.upload("Patient Scorecards Update Test", "./tests/data/Becker^Matthew")
-    patients = pk.patients.lookup("Patient Scorecards Update Test", ["HNC-0522c0009"])
-    patient = patients[0].get()
-    entities = patient.find_entities(type="dose")
-    entity = entities[0].get()
+    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    _, custom_metric = custom_metric_generator()
     scorecard = entity.scorecards.create("My Scorecard", [], [])
 
     # Verify patient scorecard was updated successfully
@@ -236,7 +201,7 @@ def test_update(app, workspace_factory, custom_metric_factory):
         }]
     }]
     scorecard.custom = [{
-        "id": pk.custom_metrics.resolve_by_name("Numeric Metric (Scorecard Update)").id
+        "id": custom_metric.id
     }]
     scorecard.save()
     scorecards = entity.scorecards.query()
@@ -252,15 +217,10 @@ def test_update(app, workspace_factory, custom_metric_factory):
     assert len(scorecard_item.computed) == 2
     assert len(scorecard_item.custom) == 1
 
-def test_update_failure(app, workspace_factory):
+def test_update_failure(app, entity_generator):
     pk = app.pk
 
-    workspace_factory(("patient-scorecards-update-failure-test", "Patient Scorecards Update Failure Test", False))
-    pk.uploads.upload("Patient Scorecards Update Failure Test", "./tests/data/Becker^Matthew")
-    patients = pk.patients.lookup("Patient Scorecards Update Failure Test", ["HNC-0522c0009"])
-    patient = patients[0].get()
-    entities = patient.find_entities(type="dose")
-    entity = entities[0].get()
+    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard1 = entity.scorecards.create("My Scorecard 1", [], [])
     scorecard2 = entity.scorecards.create("My Scorecard 2", [], [])
 

@@ -1,5 +1,6 @@
 import six
 
+
 class EntityScorecards(object):
     """
 
@@ -147,7 +148,7 @@ class EntityScorecards(object):
         return None
 
     def get(self, scorecard_id):
-        """Gets a scorecard.
+        """Gets a scorecard by id.
 
         Parameters:
             scorecard_id (str): The id of the scorecard to get.

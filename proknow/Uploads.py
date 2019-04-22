@@ -212,6 +212,9 @@ class UploadBatch(object):
     This class is instantiated by the :meth:`proknow.Uploads.Uploads.upload` method and is used as
     an interface for looking up patients and entities within a batch of resolved uploads.
 
+    Attributes
+        patients (list): A list of :class:`proknow.Patients.UploadPatientSummary` items.
+
     """
 
     def __init__(self, uploads, workspace_id, files):

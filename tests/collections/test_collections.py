@@ -4,10 +4,10 @@ import os
 
 from proknow import Exceptions
 
-def test_create_collections(app, workspace_factory):
+def test_create_collections(app, workspace_generator):
     pk = app.pk
 
-    workspace = workspace_factory(("create-collections-test", "Create Collections Test", False))[0]
+    _, workspace = workspace_generator()
 
     # Verify returned PatientItem for organization collection
     collection = pk.collections.create("Create Organization Collection 1", "Test Desc", "organization", [])
@@ -34,7 +34,7 @@ def test_create_collections(app, workspace_factory):
     assert collection.description == ""
 
     # Assert item can be found in query
-    collections = pk.collections.query("Create Collections Test")
+    collections = pk.collections.query(workspace.id)
     for collection in collections:
         if collection.name == "Create Workspace Collection 1":
             collection_match = collection
@@ -45,36 +45,36 @@ def test_create_collections(app, workspace_factory):
     assert collection_match.name == "Create Workspace Collection 1"
     assert collection_match.description == ""
 
-def test_create_collections_failure(app, collection_factory):
+def test_create_collections_failure(app, collection_generator):
     pk = app.pk
 
-    collection_factory(("Duplicate Me 1", "", "organization", []))
+    params, _ = collection_generator()
 
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
-        pk.collections.create("Duplicate Me 1", "", "organization", [])
+        pk.collections.create(**params)
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'Collection already exists with name "Duplicate Me 1"'
+    assert err_wrapper.value.body == 'Collection already exists with name "' + params["name"] + '"'
 
 
-def test_delete_collections(app, collection_factory):
+def test_delete_collections(app, collection_generator):
     pk = app.pk
 
-    collection = collection_factory(("Delete Me", "", "organization", []), do_not_mark=True)[0]
+    params, collection = collection_generator(do_not_mark=True)
 
     # Verify collection was deleted successfully
     collection.delete()
     for collection in pk.collections.query():
-        if collection.name == "Delete Me":
+        if collection.name == params["name"]:
             match = collection
             break
     else:
         match = None
     assert match is None
 
-def test_delete_collections_failure(app, collection_factory):
+def test_delete_collections_failure(app, collection_generator):
     pk = app.pk
 
-    collection = collection_factory(("Delete Me Failure", "", "organization", []), do_not_mark=True)[0]
+    params, collection = collection_generator(do_not_mark=True)
 
     collection.delete()
 
@@ -84,10 +84,10 @@ def test_delete_collections_failure(app, collection_factory):
     assert err_wrapper.value.status_code == 404
     assert err_wrapper.value.body == 'Collection "' + collection.id + '" not found.'
 
-def test_find_collections(app, collection_factory):
+def test_find_collections(app, collection_generator):
     pk = app.pk
 
-    collection = collection_factory(("Find Me", "", "organization", []))[0]
+    params, collection = collection_generator(name="Find Me")
     expr = re.compile(r"ind")
 
     # Find with no args
@@ -97,142 +97,138 @@ def test_find_collections(app, collection_factory):
     # Find using predicate
     found = pk.collections.find(predicate=lambda ws: expr.search(ws.data["name"]) is not None)
     assert found is not None
-    assert found.name == "Find Me"
-    assert found.description == ""
+    assert found.name == params["name"]
+    assert found.description == params["description"]
 
     # Find using props
-    found = pk.collections.find(id=collection.id, name="Find Me")
+    found = pk.collections.find(id=collection.id, name=params["name"])
     assert found is not None
-    assert found.name == "Find Me"
-    assert found.description == ""
+    assert found.name == params["name"]
+    assert found.description == params["description"]
 
     # Find using both
-    found = pk.collections.find(predicate=lambda ws: expr.search(ws.data["name"]) is not None, id=collection.id, name="Find Me")
+    found = pk.collections.find(predicate=lambda ws: expr.search(ws.data["name"]) is not None, id=collection.id, name=params["name"])
     assert found is not None
-    assert found.name == "Find Me"
-    assert found.description == ""
+    assert found.name == params["name"]
+    assert found.description == params["description"]
 
     # Find failure
     found = pk.collections.find(predicate=lambda ws: expr.search(ws.data["id"]) is not None)
     assert found is None
-    found = pk.collections.find(id=collection.id, name="Find me")
+    found = pk.collections.find(id=collection.id, name=params["name"].lower())
     assert found is None
 
-def test_query_collections(app, workspace_factory, collection_factory):
+def test_query_collections(app, workspace_generator, collection_generator):
     pk = app.pk
 
-    result = collection_factory([
-        ("Test Collection 1", "", "organization", []),
-        ("Test Collection 2", "", "organization", []),
-    ])
+    params1, collection1 = collection_generator()
+    params2, collection2 = collection_generator()
 
     # Verify test 1
     for collection in pk.collections.query():
-        if collection.name == "Test Collection 1":
+        if collection.name == params1["name"]:
             match = collection
             break
     else:
         match = None
     assert match is not None
-    assert match.id == result[0].id
-    assert match.name == "Test Collection 1"
-    assert match.description == ""
+    assert match.id == collection1.id
+    assert match.name == params1["name"]
+    assert match.description == params1["description"]
 
     # Verify test 2
     for collection in pk.collections.query():
-        if collection.name == "Test Collection 2":
+        if collection.name == params2["name"]:
             match = collection
             break
     else:
         match = None
     assert match is not None
-    assert match.id == result[1].id
-    assert match.name == "Test Collection 2"
-    assert match.description == ""
+    assert match.id == collection2.id
+    assert match.name == params2["name"]
+    assert match.description == params2["description"]
 
-    workspace = workspace_factory(("query-collections-test", "Query Collections Test", False))[0]
-    result = collection_factory([
-        ("Test Collection 3", "", "workspace", [workspace.id]),
-        ("Test Collection 4", "", "workspace", [workspace.id]),
-    ])
+    _, workspace = workspace_generator()
+    params3, collection3 = collection_generator(type="workspace", workspaces=[workspace.id])
+    params4, collection4 = collection_generator(type="workspace", workspaces=[workspace.id])
 
-    # Verify test 1
-    for collection in pk.collections.query("Query Collections Test"):
-        if collection.name == "Test Collection 3":
+    # Verify test 3
+    for collection in pk.collections.query(workspace.id):
+        if collection.name == params3["name"]:
             match = collection
             break
     else:
         match = None
     assert match is not None
-    assert match.id == result[0].id
-    assert match.name == "Test Collection 3"
-    assert match.description == ""
+    assert match.id == collection3.id
+    assert match.name == params3["name"]
+    assert match.description == params3["description"]
 
-    # Verify test 2
-    for collection in pk.collections.query("Query Collections Test"):
-        if collection.name == "Test Collection 4":
+    # Verify test 3
+    for collection in pk.collections.query(workspace.id):
+        if collection.name == params4["name"]:
             match = collection
             break
     else:
         match = None
     assert match is not None
-    assert match.id == result[1].id
-    assert match.name == "Test Collection 4"
-    assert match.description == ""
+    assert match.id == collection4.id
+    assert match.name == params4["name"]
+    assert match.description == params4["description"]
 
-def test_update_collections(app, collection_factory):
+def test_update_collections(app, collection_generator):
     pk = app.pk
+    resource_prefix = app.resource_prefix
 
-    collection = collection_factory(("Update Me", "", "organization", []))[0]
+    params, collection = collection_generator()
 
     # Verify collection was updated successfully
-    collection.name = "Updated Collection Name"
+    updated_name = resource_prefix + "Updated Collection Name"
+    collection.name = updated_name
     collection.description = "Updated Collection Description"
     collection.save()
     for collection in pk.collections.query():
-        if collection.name == "Updated Collection Name":
+        if collection.name == updated_name:
             collection_match = collection
             break
     else:
         collection_match = None
     assert collection_match is not None
     collection = collection_match.get()
-    assert collection.name == "Updated Collection Name"
+    assert collection.name == updated_name
     assert collection.description == "Updated Collection Description"
 
-def test_update_collections_failure(app, collection_factory):
+def test_update_collections_failure(app, collection_generator):
     pk = app.pk
 
-    collection = collection_factory([
-        ("Update Me Failure", "", "organization", []),
-        ("Duplicate Me 2", "", "organization", []),
-    ])[0]
+    params, _ = collection_generator()
+    _, collection = collection_generator()
 
     # Assert error is raised for duplicate workspace
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
-        collection.name = "Duplicate Me 2"
+        collection.name = params["name"]
         collection.save()
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'Collection already exists with name "Duplicate Me 2"'
+    assert err_wrapper.value.body == 'Collection already exists with name "' + params["name"] + '"'
 
-def test_collection_patients(app, workspace_factory, collection_factory):
+def test_collection_patients(app, workspace_generator, collection_generator):
     pk = app.pk
 
-    workspace = workspace_factory(("patients-test", "Patients Test", False))[0]
-    batch = pk.uploads.upload("Patients Test", "./tests/data/Becker^Matthew")
+    _, workspace = workspace_generator()
+    batch = pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew")
     path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     patient_summary = batch.find_patient(path)
     entity_summary = batch.find_entity(path)
 
     # Create workspace collection
-    collection = collection_factory(("Patients Test Collection", "", "workspace", [workspace.id]))[0]
+    _, collection = collection_generator(type="workspace", workspaces=[workspace.id])
 
     # Verify collection is empty
     patients = collection.patients.query()
     assert len(patients) == 0
 
     # Verify patient added to the collection
-    collection.patients.add("Patients Test", [{
+    collection.patients.add(workspace.id, [{
         "patient": patient_summary.id,
         "entity": entity_summary.id,
     }])
@@ -243,21 +239,21 @@ def test_collection_patients(app, workspace_factory, collection_factory):
     assert patient.entity_id == entity_summary.id
 
     # Verify patient is removed from collection
-    collection.patients.remove("Patients Test", [{
+    collection.patients.remove(workspace.id, [{
         "patient": patient_summary.id
     }])
     patients = collection.patients.query()
     assert len(patients) == 0
 
     # Create organization collection
-    collection = collection_factory(("Patients Test Collection", "", "organization", [workspace.id]))[0]
+    _, collection = collection_generator(workspaces=[workspace.id])
 
     # Verify collection is empty
     patients = collection.patients.query()
     assert len(patients) == 0
 
     # Verify patient added to the collection
-    collection.patients.add("Patients Test", [{
+    collection.patients.add(workspace.id, [{
         "patient": patient_summary.id,
         "entity": entity_summary.id,
     }])
@@ -268,18 +264,18 @@ def test_collection_patients(app, workspace_factory, collection_factory):
     assert patient.entity_id == entity_summary.id
 
     # Verify patient is removed from collection
-    collection.patients.remove("Patients Test", [{
+    collection.patients.remove(workspace.id, [{
         "patient": patient_summary.id
     }])
     patients = collection.patients.query()
     assert len(patients) == 0
 
-def test_collection_patients_failure(app, workspace_factory, collection_factory):
+def test_collection_patients_failure(app, workspace_generator, collection_generator):
     pk = app.pk
 
-    workspace = workspace_factory(("patients-failure-test", "Patients Failure Test", False))[0]
-    collection = collection_factory(("Patients Failure Test Collection", "", "organization", [workspace.id]))[0]
-    batch = pk.uploads.upload("Patients Failure Test", "./tests/data/Becker^Matthew")
+    _, workspace = workspace_generator()
+    _, collection = collection_generator(workspaces=[workspace.id])
+    batch = pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew")
     path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     patient_summary = batch.find_patient(path)
     entity_summary = batch.find_entity(path)
@@ -299,16 +295,16 @@ def test_collection_patients_failure(app, workspace_factory, collection_factory)
         }])
     assert err_wrapper.value.message == 'Workspace with name `Does Not Exist` not found.'
 
-def test_collection_patients_get(app, workspace_factory, collection_factory):
+def test_collection_patients_get(app, workspace_generator, collection_generator):
     pk = app.pk
 
-    workspace = workspace_factory(("patients-get-test", "Patients Get Test", False))[0]
-    collection = collection_factory(("Patients Get Test Collection", "", "organization", [workspace.id]))[0]
-    batch = pk.uploads.upload("Patients Get Test", "./tests/data/Becker^Matthew")
+    _, workspace = workspace_generator()
+    _, collection = collection_generator(workspaces=[workspace.id])
+    batch = pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew")
     path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     patient_summary = batch.find_patient(path)
     entity_summary = batch.find_entity(path)
-    collection.patients.add("Patients Get Test", [{
+    collection.patients.add(workspace.id, [{
         "patient": patient_summary.id,
         "entity": entity_summary.id,
     }])
