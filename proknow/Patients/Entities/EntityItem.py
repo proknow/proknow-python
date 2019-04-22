@@ -8,7 +8,9 @@ class EntityItem(object):
 
     Attributes:
         id (str): The id of the entity (readonly).
-        data (dict): The summary representation of the entity as returned from the API (readonly).
+        workspace_id (str): The id of the workspace (readonly).
+        patient_id (str): The id of the patient (readonly).
+        data (dict): The complete representation of the entity as returned from the API (readonly).
 
     """
 
@@ -33,6 +35,14 @@ class EntityItem(object):
     @property
     def id(self):
         return self._id
+
+    @property
+    def workspace_id(self):
+        return self._workspace_id
+
+    @property
+    def patient_id(self):
+        return self._patient_id
 
     @property
     def data(self):

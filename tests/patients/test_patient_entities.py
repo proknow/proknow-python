@@ -37,27 +37,6 @@ def test_download_image_set(app, entity_generator, temp_directory):
         download_path = image_set.download("/path/to/nowhere/")
     assert err_wrapper.value.message == "`/path/to/nowhere/` is invalid"
 
-def test_download_structure_set(app, entity_generator, temp_directory):
-    pk = app.pk
-
-    structure_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
-    structure_set = entity_generator(structure_set_path)
-
-    # Download to directory
-    download_path = structure_set.download(temp_directory.path)
-    assert filecmp.cmp(structure_set_path, download_path, shallow=False)
-
-    # Download to specific file
-    specific_path = os.path.join(temp_directory.path, "structure_set.dcm")
-    download_path = structure_set.download(specific_path)
-    assert specific_path == download_path
-    assert filecmp.cmp(structure_set_path, download_path, shallow=False)
-
-    # File does not exist
-    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
-        download_path = structure_set.download("/path/to/nowhere/structure_set.dcm")
-    assert err_wrapper.value.message == "`/path/to/nowhere/structure_set.dcm` is invalid"
-
 def test_download_plan(app, entity_generator, temp_directory):
     pk = app.pk
 

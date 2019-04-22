@@ -13,7 +13,7 @@ class PlanItem(EntityItem):
 
     Attributes:
         id (str): The id of the entity (readonly).
-        data (dict): The summary representation of the entity as returned from the API (readonly).
+        data (dict): The complete representation of the entity as returned from the API (readonly).
 
     """
 

@@ -3,4 +3,3 @@
 
 .. automodule:: proknow.Uploads
    :members: Uploads, UploadBatch, UploadPatientSummary, UploadEntitySummary
-   :special-members: __init__

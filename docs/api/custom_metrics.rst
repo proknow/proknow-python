@@ -3,4 +3,3 @@
 
 .. automodule:: proknow.CustomMetrics
    :members: CustomMetrics, CustomMetricItem
-   :special-members: __init__

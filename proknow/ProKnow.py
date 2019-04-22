@@ -30,9 +30,11 @@ class ProKnow(object):
         patients (:class:`proknow.Patients.Patients`): An instance of the Patients class.
         collections (:class:`proknow.Collections.Collections`): An instance of the Collections
             class.
+        LOCK_RENEWAL_BUFFER (int): The number of seconds to use as a buffer when renewing a lock for
+            a draft structure set.
     """
 
-    def __init__(self, base_url, credentials_file=None, credentials_id=None, credentials_secret=None):
+    def __init__(self, base_url, credentials_file=None, credentials_id=None, credentials_secret=None, LOCK_RENEWAL_BUFFER=30):
         """Initializes the ProKnow class.
 
         The `base_url` must be provided as should either the `credentials_file` or both the
@@ -45,6 +47,10 @@ class ProKnow(object):
                 with the fields `id` and `secret`.
             credentials_id (str): An API key id.
             credentials_secret (str): An API key secret.
+            LOCK_RENEWAL_BUFFER (int, optional): The number of seconds to use as a buffer when
+                renewing a lock for a draft structure set. As an example, the default value of 30
+                means that the renewer will attempt to renew the lock 30 seconds before it actually
+                expires.
 
         Raises:
             AssertionError: If the input parameters are invalid.
@@ -63,6 +69,8 @@ class ProKnow(object):
                 assert "secret" in data, "`credentials_file` does not contain secret"
                 credentials_id = data["id"]
                 credentials_secret = data["secret"]
+
+        self.LOCK_RENEWAL_BUFFER = LOCK_RENEWAL_BUFFER
 
         self.requestor = Requestor(base_url, credentials_id, credentials_secret)
 

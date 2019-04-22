@@ -62,6 +62,25 @@ class CustomMetricLookupError(ProKnowError):
     def __repr__(self):
         return 'CustomMetricLookupError({!r})'.format(self.message)
 
+class InvalidOperationError(ProKnowError):
+    """Indicates that the operation is not valid for the current object or with the given inputs.
+
+    Attributes:
+        message (str): An explanation of the error.
+    """
+
+    def __init__(self, message):
+        """Initializes the InvalidOperationError class.
+
+        Parameters:
+            message (str): An explanation of the error.
+        """
+        super(InvalidOperationError, self).__init__(message)
+        self.message = message
+
+    def __repr__(self):
+        return 'InvalidOperationError({!r})'.format(self.message)
+
 class InvalidPathError(ProKnowError):
     """Indicates that the provided path is not valid.
 
