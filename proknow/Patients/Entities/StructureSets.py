@@ -561,6 +561,10 @@ class StructureSetRoiData(object):
     This class represents the data for a stucture set ROI. It's returned by calls to the
     :meth:`proknow.Patients.StructureSetRoiItem.get_data` method.
 
+    Note:
+        For information on how to use contour data, please check out the :ref:`contouring-data`
+        guide.
+
     Attributes:
         contours (list): The list of contours for the ROI.
         lines (list): The list of lines for the ROI.

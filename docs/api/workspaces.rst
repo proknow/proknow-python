@@ -1,5 +1,14 @@
-:mod:`proknow.Workspaces` -- Workspaces
-=======================================
+proknow.Workspaces
+==================
 
-.. automodule:: proknow.Workspaces
-   :members: Workspaces, WorkspaceItem
+Workspaces
+----------
+
+.. autoclass:: proknow.Workspaces.Workspaces
+   :members:
+
+WorkspaceItem
+-------------
+
+.. autoclass:: proknow.Workspaces.WorkspaceItem
+   :members:

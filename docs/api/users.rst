@@ -1,5 +1,20 @@
-:mod:`proknow.Users` -- Users
-=======================================
+proknow.Users
+=============
 
-.. automodule:: proknow.Users
-   :members: Users, UserSummary, UserItem
+Users
+-----
+
+.. autoclass:: proknow.Users.Users
+   :members:
+
+UserSummary
+-----------
+
+.. autoclass:: proknow.Users.UserSummary
+   :members:
+
+UserItem
+--------
+
+.. autoclass:: proknow.Users.UserItem
+   :members:

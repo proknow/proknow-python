@@ -122,6 +122,9 @@ class Roles(object):
     def find(self, predicate=None, **props):
         """Finds the first role that matches the input paramters.
 
+        Note:
+            For more information on how to use this method, see :ref:`find-methods`.
+
         Parameters:
             predicate (func): A function that is passed a role as input and which should return
                 a bool indicating whether the role is a match.

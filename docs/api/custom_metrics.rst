@@ -1,5 +1,14 @@
-:mod:`proknow.CustomMetrics` -- Custom Metrics
-==============================================
+proknow.CustomMetrics
+=====================
 
-.. automodule:: proknow.CustomMetrics
-   :members: CustomMetrics, CustomMetricItem
+CustomMetrics
+-------------
+
+.. autoclass:: proknow.CustomMetrics.CustomMetrics
+   :members:
+
+CustomMetricItem
+----------------
+
+.. autoclass:: proknow.CustomMetrics.CustomMetricItem
+   :members:

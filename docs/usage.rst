@@ -8,7 +8,7 @@ Installation
 
 Use ``pip`` to install::
 
-	pip install --upgrade proknow
+    pip install --upgrade proknow
 
 Basic Usage
 -----------
@@ -20,13 +20,13 @@ To use the SDK, you'll need two important items:
 
 The code snippet below can be used to test your installation of the ``proknow`` package. Please be sure to replace ``https://example.proknow.com`` with your organization's Base URL described above, and replace ``./credentials.json`` with the path to your credentials file::
 
-	from proknow import ProKnow
+    from proknow import ProKnow
 
-	pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-	workspaces = pk.workspaces.query()
-	print("The workspaces are as follows:")
-	for workspace in workspaces:
-		print(workspace.name)
+    pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+    workspaces = pk.workspaces.query()
+    print("The workspaces are as follows:")
+    for workspace in workspaces:
+        print(workspace.name)
 
 If an adaptation of the script above does not work for you see the troubleshooting section below.
 
@@ -47,6 +47,29 @@ If you specified a ``credentials_file`` in the ProKnow constructor, but are rece
 
 These indicate that you've provided invalid parameters to the ``ProKnow`` contructor. The error message can usually point you in the right direction. Correct the parameters, and try again.
 
+**Copying examples without modification**
+
+The examples shown throughout this documentation are meant to be representative and are not likely to work without modification. Let's take a look at the example for the method :meth:`proknow.Patients.PatientItem.set_metadata`::
+
+    from proknow import ProKnow
+
+    pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+    patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+    patient = patients[0].get()
+    meta = patient.get_metadata()
+    meta["Genetic Type"] = "Type II"
+    patient.set_metadata(meta)
+    patient.save()
+
+This script will not work in your set up for several reasons:
+
+* Your ``base_url`` for your ProKnow account is not ``https://example.proknow.com``.
+* Your ``credentials.json`` file may not be located at the path "./credentials.json."
+* You probably do not have a patient with the MRN "HNC-0522c0009" in a workspace called "Clinical."
+* You probably do not have a custom metric called "Genetric Type."
+
+If you run into problems while running your script, examine the error message and make sure you didn't copy a code example without making the proper modifications. Values may need to be replaced or additional setup code may need to be added before the code you copied in order for your script to function properly.
+
 Guides
 ------
 
@@ -55,3 +78,6 @@ Guides
    :maxdepth: 2
 
    usage/computed_metrics
+   usage/find_methods
+   usage/contouring_data
+   usage/pydicom-primer

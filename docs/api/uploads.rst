@@ -1,5 +1,26 @@
-:mod:`proknow.Uploads` -- Uploads
-===================================
+proknow.Uploads
+===============
 
-.. automodule:: proknow.Uploads
-   :members: Uploads, UploadBatch, UploadPatientSummary, UploadEntitySummary
+Uploads
+-------
+
+.. autoclass:: proknow.Uploads.Uploads
+   :members:
+
+UploadBatch
+-----------
+
+.. autoclass:: proknow.Uploads.UploadBatch
+   :members:
+
+UploadPatientSummary
+--------------------
+
+.. autoclass:: proknow.Uploads.UploadPatientSummary
+   :members:
+
+UploadEntitySummary
+-------------------
+
+.. autoclass:: proknow.Uploads.UploadEntitySummary
+   :members:

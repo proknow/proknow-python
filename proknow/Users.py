@@ -89,6 +89,9 @@ class Users(object):
     def find(self, predicate=None, **props):
         """Finds a user by id, email, or name.
 
+        Note:
+            For more information on how to use this method, see :ref:`find-methods`.
+
         Parameters:
             predicate (func): A function that is passed a user as input and which should return
                 a bool indicating whether the user is a match.

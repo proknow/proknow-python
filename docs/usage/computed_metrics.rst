@@ -8,26 +8,26 @@ Instructions
 
 The following list can be used when adding computed metrics to a scorecard or dose. Each item in the list corresponds to a different metric type, which is displayed in a nested list below the top-level item. The nested list below each metric item also displays the required arguments. For example, in order to compose a metric for "Dose (Gy) covering specified volume (%) of the specified structure," you need to specify *roi_name* and *arg_1* in the computed metric dict::
 
-	{
-		"type": "DOSE_VOLUME_PERCENT_ROI",
-		"roi_name": "PTV",
-		"arg_1": 99
-	}
+    {
+        "type": "DOSE_VOLUME_PERCENT_ROI",
+        "roi_name": "PTV",
+        "arg_1": 99
+    }
 
 Here's another example with "Volume (%) of the specified structure covered by specified dose (Gy)" that uses *roi_name*, *arg_1*, and *arg_2*::
 
-	{
-		"type": "VOLUME_PERCENT_DOSE_RANGE_ROI",
-		"roi_name": "BRAINSTEM",
-		"arg_1": 0,
-		"arg_2": 10
-	}
+    {
+        "type": "VOLUME_PERCENT_DOSE_RANGE_ROI",
+        "roi_name": "BRAINSTEM",
+        "arg_1": 0,
+        "arg_2": 10
+    }
 
 Some computed metric types may not require any arguments at all::
 
-	{
-		"type": "MAX_DOSE"
-	}
+    {
+        "type": "MAX_DOSE"
+    }
 
 Metric List
 -----------

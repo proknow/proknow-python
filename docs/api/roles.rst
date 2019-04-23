@@ -1,5 +1,20 @@
-:mod:`proknow.Roles` -- Roles
-=======================================
+proknow.Roles
+=============
 
-.. automodule:: proknow.Roles
-   :members: Roles, RoleSummary, RoleItem
+Roles
+-----
+
+.. autoclass:: proknow.Roles.Roles
+   :members:
+
+RoleSummary
+-----------
+
+.. autoclass:: proknow.Roles.RoleSummary
+   :members:
+
+RoleItem
+--------
+
+.. autoclass:: proknow.Roles.RoleItem
+   :members:
