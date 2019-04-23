@@ -18,6 +18,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
   * pydicom Primer
 
 * Improved code coverage
+* Added ``LOCK_RENEWAL_BUFFER`` argument and attribute to main ProKnow class
 
 v0.5.1
 ------
