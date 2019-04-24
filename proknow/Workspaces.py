@@ -87,6 +87,9 @@ class Workspaces(object):
         """Finds the first workspace that matches the input paramters.
 
         Note:
+            For more information on how to use this method, see :ref:`find-methods`.
+
+        Note:
             This method utilizes a cache of workspaces. Once it has a cache of workspaces, it will
             use that cache until the :meth:`proknow.Workspaces.Workspaces.query` method is called
             to refresh the cache. If you wish to make your code resilient to workspaces changes

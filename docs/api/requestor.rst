@@ -1,5 +1,8 @@
-:mod:`proknow.Requestor` -- Requestor
-=====================================
+proknow.Requestor
+=================
 
-.. automodule:: proknow.Requestor
+Requestor
+---------
+
+.. autoclass:: proknow.Requestor.Requestor
    :members:

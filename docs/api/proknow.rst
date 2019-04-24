@@ -1,6 +1,9 @@
-:mod:`proknow.ProKnow` -- ProKnow
-=================================
+proknow.ProKnow
+===============
 
-.. automodule:: proknow.ProKnow
+ProKnow
+-------
+
+.. autoclass:: proknow.ProKnow.ProKnow
    :members:
    :special-members: __init__

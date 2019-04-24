@@ -98,6 +98,9 @@ class CustomMetrics(object):
         """Finds the first custom metric that matches the input paramters.
 
         Note:
+            For more information on how to use this method, see :ref:`find-methods`.
+
+        Note:
             This method utilizes a cache of custom metrics. Once it has a cache of custom metrics,
             it will use that cache until the :meth:`proknow.CustomMetrics.CustomMetrics.query`
             method is called to refresh the cache. If you wish to make your code resilient to

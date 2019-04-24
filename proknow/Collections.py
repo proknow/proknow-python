@@ -30,7 +30,7 @@ class Collections(object):
         Parameters:
             name (str): The name of the collection.
             description (str): The description of the collection.
-            type (str): The type of the collection (either "workspace" or "organization".
+            type (str): The type of the collection (either "workspace" or "organization").
             workspaces (list): A list of workspace ids. For workspace collections, there must be
                 exactly one workspace id in this list.
 
@@ -97,6 +97,9 @@ class Collections(object):
 
     def find(self, workspace=None, predicate=None, **props):
         """Finds the first collection that matches the input paramters.
+
+        Note:
+            For more information on how to use this method, see :ref:`find-methods`.
 
         Parameters:
             workspace (str, optional): An id or name of the workspace in which to query for

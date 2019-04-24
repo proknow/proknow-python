@@ -11,6 +11,14 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 **New Features and Enhancements**
 
 * Augmented ``StructureSetItem`` class to include methods for interacting with ROIs, versions, and structure set drafts. New classes ``StructureSetRoiItem``, ``StructureSetRoiData``, ``StructureSetVersions``, and ``StructureSetVersionItem`` were created in support of these features.
+* Added additional guides:
+
+  * Using Find Methods
+  * Using Contouring Data
+  * pydicom Primer
+
+* Improved code coverage
+* Added ``LOCK_RENEWAL_BUFFER`` argument and attribute to main ProKnow class
 
 v0.5.1
 ------

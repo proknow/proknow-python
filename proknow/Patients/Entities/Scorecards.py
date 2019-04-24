@@ -118,6 +118,9 @@ class EntityScorecards(object):
     def find(self, predicate=None, **props):
         """Finds the first scorecard that matches the input paramters.
 
+        Note:
+            For more information on how to use this method, see :ref:`find-methods`.
+
         Parameters:
             predicate (func): A function that is passed a scorecard as input and which should return
                 a bool indicating whether the scorecard is a match.

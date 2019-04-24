@@ -100,6 +100,9 @@ class Patients(object):
     def find(self, workspace, predicate=None, **props):
         """Finds the first patient that matches the input paramters.
 
+        Note:
+            For more information on how to use this method, see :ref:`find-methods`.
+
         Parameters:
             workspace (str): An id or name of the workspace in which to query for patients.
             predicate (func): A function that is passed a metric as input and which should return
@@ -415,8 +418,11 @@ class PatientItem(object):
     def find_entities(self, predicate=None, **props):
         """Finds the entities for the patient matching the input paramters.
 
+        Note:
+            For more information on how to use this method, see :ref:`find-methods`.
+
         Parameters:
-            predicate (func): A function that is passed a entity as input and which should return
+            predicate (func): A function that is passed an entity as input and which should return
                 a bool indicating whether the entity is a match.
             **props: A dictionary of keyword arguments that may include any entity attribute to
                 match. These arguments are considered in turn to find matching entities.
