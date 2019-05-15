@@ -363,15 +363,15 @@ class CollectionItemPatients(object):
         self._requestor = self._collection._requestor
 
     def _query(self, query=None):
-        _, data = self._requestor.get('/collections/' + self._collection.id + '/patients', query=query)
-        if data["has_more"]:
+        res, data = self._requestor.get('/collections/' + self._collection.id + '/patients', query=query)
+        if res.headers['proknow-has-more'] == 'true':
             if query is None:
                 query = {}
             next_query = dict(query)
-            next_query["start"] = data["next"]
-            return data["data"] + self._query(next_query)
+            next_query["next"] = res.headers['proknow-next']
+            return data + self._query(next_query)
         else:
-            return data["data"]
+            return data
 
     def add(self, workspace, items):
         """Add patients (with optional representative entities) within a workspace to the collection.

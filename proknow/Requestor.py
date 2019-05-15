@@ -26,9 +26,9 @@ class Requestor(object):
         if r.status_code >= 400:
             raise HttpError(r.status_code, r.text)
         try:
-            return (r.status_code, r.json())
+            return (r, r.json())
         except ValueError:
-            return (r.status_code, r.text)
+            return (r, r.text)
 
     def get_auth(self):
         return (self._username, self._password)
@@ -47,9 +47,9 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (status_code, msg).
+            tuple: A tuple (response, msg).
 
-            1. status_code (int): the response code
+            1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
@@ -69,9 +69,9 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (status_code, msg).
+            tuple: A tuple (response, msg).
 
-            1. status_code (int): the response code
+            1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
@@ -91,9 +91,9 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (status_code, msg).
+            tuple: A tuple (response, msg).
 
-            1. status_code (int): the response code
+            1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
@@ -113,9 +113,9 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (status_code, msg).
+            tuple: A tuple (response, msg).
 
-            1. status_code (int): the response code
+            1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
@@ -135,9 +135,9 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (status_code, msg).
+            tuple: A tuple (response, msg).
 
-            1. status_code (int): the response code
+            1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
