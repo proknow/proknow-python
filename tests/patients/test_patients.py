@@ -12,11 +12,10 @@ def test_create(app, workspace_generator):
     _, workspace = workspace_generator()
 
     # Verify returned PatientItem
-    patient = pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "123456.000000", "M")
+    patient = pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
     assert patient.mrn == "1000"
     assert patient.name == "Last^First"
     assert patient.birth_date == "2018-01-01"
-    assert patient.birth_time == "123456.000000"
     assert patient.sex == "M"
 
     # Assert item can be found in query
@@ -31,7 +30,6 @@ def test_create(app, workspace_generator):
     assert patient_match.mrn == "1000"
     assert patient_match.name == "Last^First"
     assert patient_match.birth_date == "2018-01-01"
-    assert patient_match.birth_time == "123456.000000"
     assert patient_match.sex == "M"
 
 def test_create_failure(app, workspace_generator):
@@ -94,7 +92,6 @@ def test_find(app, workspace_generator):
     assert found.mrn == "1000"
     assert found.name == "Last^First"
     assert found.birth_date == None
-    assert found.birth_time == None
     assert found.sex == None
 
     # Find using props
@@ -103,7 +100,6 @@ def test_find(app, workspace_generator):
     assert found.mrn == "1000"
     assert found.name == "Last^First"
     assert found.birth_date == None
-    assert found.birth_time == None
     assert found.sex == None
 
     # Find using both
@@ -112,7 +108,6 @@ def test_find(app, workspace_generator):
     assert found.mrn == "1000"
     assert found.name == "Last^First"
     assert found.birth_date == None
-    assert found.birth_time == None
     assert found.sex == None
 
     # Find failure
@@ -125,7 +120,7 @@ def test_lookup(app, workspace_generator):
     pk = app.pk
 
     _, workspace = workspace_generator()
-    pk.patients.create(workspace.id, "1000", "Test^1", "2018-01-01", "123456.000000", "M")
+    pk.patients.create(workspace.id, "1000", "Test^1", "2018-01-01", "M")
     pk.patients.create(workspace.id, "1001", "Test^2")
 
     patients = pk.patients.lookup(workspace.id, ["1000", "1001"])
@@ -135,13 +130,11 @@ def test_lookup(app, workspace_generator):
             assert patient.mrn == "1000"
             assert patient.name == "Test^1"
             assert patient.birth_date == "2018-01-01"
-            assert patient.birth_time == "123456.000000"
             assert patient.sex == "M"
         elif patient.mrn == "1001":
             assert patient.mrn == "1001"
             assert patient.name == "Test^2"
             assert patient.birth_date == None
-            assert patient.birth_time == None
             assert patient.sex == None
 
 def test_query(app, workspace_generator):
@@ -149,7 +142,7 @@ def test_query(app, workspace_generator):
 
     _, workspace = workspace_generator()
 
-    pk.patients.create(workspace.id, "1000", "Test^1", "2018-01-01", "123456.000000", "M")
+    pk.patients.create(workspace.id, "1000", "Test^1", "2018-01-01", "M")
     pk.patients.create(workspace.id, "1001", "Test^2")
 
     # Verify test 1
@@ -164,7 +157,6 @@ def test_query(app, workspace_generator):
     assert match.mrn == "1000"
     assert match.name == "Test^1"
     assert match.birth_date == "2018-01-01"
-    assert match.birth_time == "123456.000000"
     assert match.sex == "M"
 
     # Verify test 2
@@ -179,7 +171,6 @@ def test_query(app, workspace_generator):
     assert match.mrn == "1001"
     assert match.name == "Test^2"
     assert match.birth_date == None
-    assert match.birth_time == None
     assert match.sex == None
 
 def test_update(app, custom_metric_generator, workspace_generator):
@@ -195,7 +186,6 @@ def test_update(app, custom_metric_generator, workspace_generator):
     patient.mrn = "1000-AAAA-2000"
     patient.name = "Modified^Name"
     patient.birth_date = "2018-01-01"
-    patient.birth_time = "123456.000000"
     patient.sex = "M"
     meta = patient.get_metadata()
     meta[custom_metric_string.name] = "test"
@@ -215,7 +205,6 @@ def test_update(app, custom_metric_generator, workspace_generator):
     assert patient_item.mrn == "1000-AAAA-2000"
     assert patient_item.name == "Modified^Name"
     assert patient_item.birth_date == "2018-01-01"
-    assert patient_item.birth_time == "123456.000000"
     assert patient_item.sex == "M"
     assert patient_item.get_metadata() == {
         custom_metric_string.name: "test",

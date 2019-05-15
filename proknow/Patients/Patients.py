@@ -22,16 +22,17 @@ class Patients(object):
         self._proknow = proknow
         self._requestor = requestor
 
-    def create(self, workspace, mrn, name, birth_date=None, birth_time=None, sex=None):
+    def create(self, workspace, mrn, name, birth_date=None, sex=None):
         """Creates a new patient.
 
         Parameters:
             workspace (str): An id or name of the workspace in which to create the patient.
             mrn (str): The MRN of the patient.
             name (str): The name of the patient.
-            birth_date (str, optional): The birth date of the patient.
-            birth_time (str, optional): The birth time of the patient.
-            sex (str, optional): The sex of the patient.
+            birth_date (str, optional): The birth date of the patient. If provided, this should be
+                of the form ``"YYYY-MM-DD"`` or ``None``.
+            sex (str, optional): The sex of the patient. This should be one of ``"M"``, ``"F"``,
+                ``"O"``, or ``None``.
 
         Returns:
             :class:`proknow.Patients.PatientItem`: A representation of the created patient.
@@ -55,8 +56,6 @@ class Patients(object):
         assert isinstance(name, six.string_types), "`name` is required as a string."
         if birth_date is not None:
             assert isinstance(birth_date, six.string_types), "`birth_date` is required as a string."
-        if birth_time is not None:
-            assert isinstance(birth_time, six.string_types), "`birth_time` is required as a string."
         if sex is not None:
             assert isinstance(sex, six.string_types), "`sex` is required as a string."
 
@@ -66,7 +65,6 @@ class Patients(object):
             "mrn": mrn,
             "name": name,
             "birth_date": birth_date,
-            "birth_time": birth_time,
             "sex": sex,
         }
 
@@ -238,7 +236,6 @@ class PatientSummary(object):
             this is referred to as the Patient ID.
         name (str): The name of the patient (readonly).
         birth_date (str): The birth_date of the patient (readonly).
-        birth_time (str): The birth_time of the patient (readonly).
         sex (str): The sex of the patient (readonly).
         data (dict): The summary representation of the patient as returned from the API (readonly).
 
@@ -260,7 +257,6 @@ class PatientSummary(object):
         self._mrn = patient["mrn"]
         self._name = patient["name"]
         self._birth_date = patient["birth_date"]
-        self._birth_time = patient["birth_time"]
         self._sex = patient["sex"]
         self._data = patient
 
@@ -279,10 +275,6 @@ class PatientSummary(object):
     @property
     def birth_date(self):
         return self._birth_date
-
-    @property
-    def birth_time(self):
-        return self._birth_time
 
     @property
     def sex(self):
@@ -325,7 +317,6 @@ class PatientItem(object):
         mrn (str): The MRN of the patient.
         name (str): The name of the patient.
         birth_date (str): The birth_date of the patient.
-        birth_time (str): The birth_time of the patient.
         sex (str): The sex of the patient.
         metadata (dict): The metadata of the patient.
     """
@@ -348,7 +339,6 @@ class PatientItem(object):
         self.mrn = patient["mrn"]
         self.name = patient["name"]
         self.birth_date = patient["birth_date"]
-        self.birth_time = patient["birth_time"]
         self.sex = patient["sex"]
         self.metadata = patient["metadata"]
         self.studies = [StudySummary(self._patients, self._workspace_id, self._id, study) for study in patient["studies"]]
@@ -401,7 +391,6 @@ class PatientItem(object):
             "mrn": self.mrn,
             "name": self.name,
             "birth_date": self.birth_date,
-            "birth_time": self.birth_time,
             "sex": self.sex,
             "metadata": self.metadata
         }
@@ -410,7 +399,6 @@ class PatientItem(object):
         self.mrn = patient["mrn"]
         self.name = patient["name"]
         self.birth_date = patient["birth_date"]
-        self.birth_time = patient["birth_time"]
         self.sex = patient["sex"]
         self.metadata = patient["metadata"]
         self.studies = [StudySummary(self._patients, self._workspace_id, self._id, study) for study in patient["studies"]]
