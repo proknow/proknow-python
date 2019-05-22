@@ -319,7 +319,7 @@ class PatientItem(object):
         birth_date (str): The birth_date of the patient.
         sex (str): The sex of the patient.
         metadata (dict): The metadata of the patient.
-        studies (list): A list of :class:`proknow.Patients.Studies` objects for the patient.
+        studies (list): A list of :class:`proknow.Patients.StudySummary` objects for the patient.
     """
 
     def __init__(self, patients, workspace_id, patient):
