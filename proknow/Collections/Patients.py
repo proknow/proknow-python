@@ -20,7 +20,7 @@ class CollectionPatients(object):
 
     def _query(self, query=None):
         res, data = self._requestor.get('/collections/' + self._collection.id + '/patients', query=query)
-        if res.headers['proknow-has-more'] == 'true':
+        if res.headers['proknow-has-more'] == 'true': # pragma: no cover (difficult to test w/o lg num of patients)
             if query is None:
                 query = {}
             next_query = dict(query)

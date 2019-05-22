@@ -276,7 +276,6 @@ class EntityScorecardSummary(object):
                 scorecards = [scorecard.get() for scorecard in entity.scorecards.query()]
         """
         return self._scorecards.get(self._id)
-        
 
 class EntityScorecardItem(object):
     """

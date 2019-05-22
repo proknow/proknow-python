@@ -249,6 +249,7 @@ def test_find_entities(app, patient_generator):
     # Find image set
     entities = patient.find_entities(lambda entity: entity.data["type"] == "image_set")
     assert len(entities) == 1
+    assert isinstance(entities[0].id, six.string_types)
     entities = patient.find_entities(type="image_set")
     assert len(entities) == 1
 
@@ -275,3 +276,16 @@ def test_find_entities(app, patient_generator):
     assert len(entities) == 4
     entities = patient.find_entities(lambda entity: entity.data["type"] == "dose" or entity.data["type"] == "plan")
     assert len(entities) == 2
+
+def test_studies(app, patient_generator):
+    ###
+    # This test was written specifically to cover the id and data properties in the
+    # `proknow/Patients/Studies.py` file.
+    ###
+    pk = app.pk
+
+    patient = patient_generator("./tests/data/Becker^Matthew")
+    assert len(patient.studies) == 1
+    study = patient.studies[0]
+    assert isinstance(study.id, six.string_types)
+    assert isinstance(study.data, dict)

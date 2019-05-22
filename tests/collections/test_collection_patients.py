@@ -29,6 +29,25 @@ def test_collection_patients(app, workspace_generator, collection_generator):
     patient = patients[0]
     assert patient.id == patient_summary.id
     assert patient.entity_id == entity_summary.id
+    assert isinstance(patient.data, dict)
+
+    # Verify patient is removed from collection
+    collection.patients.remove(workspace.id, [{
+        "patient": patient_summary.id
+    }])
+    patients = collection.patients.query()
+    assert len(patients) == 0
+
+    # Verify patient without representative entity is added to the collection
+    collection.patients.add(workspace.id, [{
+        "patient": patient_summary.id
+    }])
+    patients = collection.patients.query()
+    assert len(patients) == 1
+    patient = patients[0]
+    assert patient.id == patient_summary.id
+    assert patient.entity_id is None
+    assert isinstance(patient.data, dict)
 
     # Verify patient is removed from collection
     collection.patients.remove(workspace.id, [{
@@ -54,6 +73,25 @@ def test_collection_patients(app, workspace_generator, collection_generator):
     patient = patients[0]
     assert patient.id == patient_summary.id
     assert patient.entity_id == entity_summary.id
+    assert isinstance(patient.data, dict)
+
+    # Verify patient is removed from collection
+    collection.patients.remove(workspace.id, [{
+        "patient": patient_summary.id
+    }])
+    patients = collection.patients.query()
+    assert len(patients) == 0
+
+    # Verify patient without representative entity is added to the collection
+    collection.patients.add(workspace.id, [{
+        "patient": patient_summary.id
+    }])
+    patients = collection.patients.query()
+    assert len(patients) == 1
+    patient = patients[0]
+    assert patient.id == patient_summary.id
+    assert patient.entity_id is None
+    assert isinstance(patient.data, dict)
 
     # Verify patient is removed from collection
     collection.patients.remove(workspace.id, [{

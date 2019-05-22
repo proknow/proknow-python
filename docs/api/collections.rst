@@ -19,14 +19,32 @@ CollectionItem
 .. autoclass:: proknow.Collections.CollectionItem
    :members:
 
-CollectionItemPatients
-----------------------
+CollectionPatients
+------------------
 
-.. autoclass:: proknow.Collections.CollectionItemPatients
+.. autoclass:: proknow.Collections.CollectionPatients
    :members:
 
-CollectionItemPatientSummary
-----------------------------
+CollectionPatientSummary
+------------------------
 
-.. autoclass:: proknow.Collections.CollectionItemPatientSummary
+.. autoclass:: proknow.Collections.CollectionPatientSummary
+   :members:
+
+CollectionScorecards
+--------------------
+
+.. autoclass:: proknow.Collections.CollectionScorecards
+   :members:
+
+CollectionScorecardSummary
+--------------------------
+
+.. autoclass:: proknow.Collections.CollectionScorecardSummary
+   :members:
+
+CollectionScorecardItem
+-----------------------
+
+.. autoclass:: proknow.Collections.CollectionScorecardItem
    :members:

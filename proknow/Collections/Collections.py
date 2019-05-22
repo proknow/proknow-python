@@ -1,10 +1,7 @@
-__all__ = [
-    'Collections',
-]
-
 import six
 
 from .Patients import CollectionPatients
+from .Scorecards import CollectionScorecards
 
 
 class Collections(object):
@@ -274,6 +271,10 @@ class CollectionItem(object):
             (readonly).
         name (str): The name of the collection.
         description (str): The description of the collection.
+        patients (proknow.Collections.CollectionPatients): An object for interacting with the
+            patients within a collection.
+        scorecards (proknow.Collections.CollectionScorecards): An object for interacting with the
+            scorecards belonging to the collection.
 
     """
 
@@ -292,6 +293,7 @@ class CollectionItem(object):
         self.name = collection["name"]
         self.description = collection["description"]
         self.patients = CollectionPatients(self._collections, self)
+        self.scorecards = CollectionScorecards(self._collections, self)
 
     @property
     def id(self):
