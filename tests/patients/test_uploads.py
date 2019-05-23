@@ -1,6 +1,7 @@
 import pytest
 import re
 import os
+import six
 
 from proknow import Exceptions
 

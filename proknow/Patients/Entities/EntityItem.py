@@ -11,6 +11,8 @@ class EntityItem(object):
         workspace_id (str): The id of the workspace (readonly).
         patient_id (str): The id of the patient (readonly).
         data (dict): The complete representation of the entity as returned from the API (readonly).
+        scorecards (proknow.Patients.EntityScorecards): An object for interacting with the
+            scorecards belonging to the entity.
 
     """
 

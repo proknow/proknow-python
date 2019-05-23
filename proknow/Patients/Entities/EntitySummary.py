@@ -80,3 +80,5 @@ class EntitySummary(object):
         elif entity_type == "dose":
             _, dose = self._requestor.get('/workspaces/' + self._workspace_id + '/doses/' + self._id)
             return DoseItem(self._patients, self._workspace_id, self._patient_id, dose)
+        else: # pragma: no cover (included for completeness)
+            assert entity_type in ("image_set", "structure_set", "plan", "dose"), 'Expected the entity type to be one of ("image_set", "structure_set", "plan", "dose")'

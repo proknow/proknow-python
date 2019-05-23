@@ -1,6 +1,19 @@
 Release History
 ===============
 
+v0.7.0
+------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**New Features and Enhancements**
+
+* Improved code coverage
+* Added support for interacting with scorecards for collections
+* Renamed ``CollectionItemPatients`` and ``CollectionItemPatientSummary`` classes to ``CollectionPatients`` and ``CollectionPatientSummary``, respectively.
+
 v0.6.1
 ------
 
