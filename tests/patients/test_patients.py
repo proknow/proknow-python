@@ -173,6 +173,14 @@ def test_query(app, workspace_generator):
     assert match.birth_date == None
     assert match.sex == None
 
+    # Verify with search parameter 1
+    patients = pk.patients.query(workspace.id, "1001")
+    assert len(patients) == 1
+
+    # Verify with search parameter 2
+    patients = pk.patients.query(workspace.id, "Test^1")
+    assert len(patients) == 1
+
 def test_update(app, custom_metric_generator, workspace_generator):
     pk = app.pk
 

@@ -22,7 +22,10 @@ class HttpError(ProKnowError):
         self.body = body
 
     def __repr__(self):
-        return 'HttpError({}, {!r})'.format(self.status_code, self.body)
+        return 'HttpError({!r}, {!r})'.format(self.status_code, self.body)
+
+    def __str__(self):
+        return repr(self)
 
 class WorkspaceLookupError(ProKnowError):
     """Indicates that there was a problem looking up the workspace by the given identifier.
@@ -43,6 +46,9 @@ class WorkspaceLookupError(ProKnowError):
     def __repr__(self):
         return 'WorkspaceLookupError({!r})'.format(self.message)
 
+    def __str__(self):
+        return repr(self)
+
 class CustomMetricLookupError(ProKnowError):
     """Indicates that there was a problem looking up the custom metric by the given identifier.
 
@@ -61,6 +67,9 @@ class CustomMetricLookupError(ProKnowError):
 
     def __repr__(self):
         return 'CustomMetricLookupError({!r})'.format(self.message)
+
+    def __str__(self):
+        return repr(self)
 
 class InvalidOperationError(ProKnowError):
     """Indicates that the operation is not valid for the current object or with the given inputs.
@@ -81,6 +90,9 @@ class InvalidOperationError(ProKnowError):
     def __repr__(self):
         return 'InvalidOperationError({!r})'.format(self.message)
 
+    def __str__(self):
+        return repr(self)
+
 class InvalidPathError(ProKnowError):
     """Indicates that the provided path is not valid.
 
@@ -100,6 +112,9 @@ class InvalidPathError(ProKnowError):
     def __repr__(self):
         return 'InvalidPathError({!r})'.format(self.message)
 
+    def __str__(self):
+        return repr(self)
+
 class TimeoutExceededError(ProKnowError):
     """Indicates that the current operation exceeded the timeout limits.
 
@@ -118,4 +133,7 @@ class TimeoutExceededError(ProKnowError):
 
     def __repr__(self):
         return 'TimeoutExceededError({!r})'.format(self.message)
+
+    def __str__(self):
+        return repr(self)
 

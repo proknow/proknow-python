@@ -62,7 +62,7 @@ class ProKnow(object):
 
         assert isinstance(base_url, six.string_types), "`base_url` must be a string."
         assert (idValid and tokenValid) or fileValid, "`credentials_id`/`credentials_secret` or `credentials_file` are required as strings."
-        if credentials_id is None or credentials_secret is None:
+        if credentials_id is None or credentials_secret is None: # pragma: no cover (not testing with file in unit tests)
             with open(credentials_file, 'r') as file:
                 data = json.load(file)
                 assert "id" in data, "`credentials_file` does not contain id"
