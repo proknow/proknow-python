@@ -52,7 +52,9 @@ class EntityScorecards(object):
                 entity = entities[0].get()
                 entity.scorecards.create("My Scorecard", [{
                     "type": "VOLUME",
-                    "roi_name": "BRAINSTEM"
+                    "roi_name": "BRAINSTEM",
+                    "arg_1": None,
+                    "arg_2": None
                 }, {
                     "type": "VOLUME_CC_DOSE_RANGE_ROI",
                     "roi_name": "BRAINSTEM",

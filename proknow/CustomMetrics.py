@@ -294,8 +294,7 @@ class CustomMetricItem(object):
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 metric = pk.custom_metric.find(name='Type')
-                metric.name = "Genetic Type"
-                metric.save()
+                metric.delete()
         """
         self._custom_metrics.delete(self._id)
 

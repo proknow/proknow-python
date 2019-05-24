@@ -11,7 +11,8 @@ The following list can be used when adding computed metrics to a scorecard or do
     {
         "type": "DOSE_VOLUME_PERCENT_ROI",
         "roi_name": "PTV",
-        "arg_1": 99
+        "arg_1": 99,
+        "arg_2": None
     }
 
 Here's another example with "Volume (%) of the specified structure covered by specified dose (Gy)" that uses *roi_name*, *arg_1*, and *arg_2*::
@@ -26,7 +27,10 @@ Here's another example with "Volume (%) of the specified structure covered by sp
 Some computed metric types may not require any arguments at all::
 
     {
-        "type": "MAX_DOSE"
+        "type": "MAX_DOSE",
+        "roi_name": None,
+        "arg_1": None,
+        "arg_2": None
     }
 
 Metric List
