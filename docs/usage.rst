@@ -30,6 +30,11 @@ The code snippet below can be used to test your installation of the ``proknow`` 
 
 If an adaptation of the script above does not work for you see the troubleshooting section below.
 
+Feature List
+------------
+
+For an updated picture of the pieces of the API that have been implemented in the Python SDK, please visit our `Feature List <https://github.com/proknow/proknow-python/wiki/Feature-List>`_ page on the project Wiki.
+
 Troubleshooting
 ---------------
 
