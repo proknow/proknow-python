@@ -22,6 +22,15 @@ class Patients(object):
         self._proknow = proknow
         self._requestor = requestor
 
+    def _query(self, workspace, query):
+        res, data = self._requestor.get('/workspaces/' + workspace.id + '/patients', query=query)
+        if res.headers['proknow-has-more'] == 'true': # pragma: no cover (difficult to test w/o lg num of patients)
+            next_query = dict(query)
+            next_query["next"] = res.headers['proknow-next']
+            return data + self._query(workspace, next_query)
+        else:
+            return data
+
     def create(self, workspace, mrn, name, birth_date=None, sex=None):
         """Creates a new patient.
 
@@ -192,11 +201,13 @@ class Patients(object):
         _, patient = self._requestor.get('/workspaces/' + workspace_id + '/patients/' + patient_id)
         return PatientItem(self, workspace_id, patient)
 
-    def query(self, workspace):
+    def query(self, workspace, search=None):
         """Queries for patients.
 
         Parameters:
             workspace (str): An id or name of the workspace in which to query for patients.
+            search (str, optional): If provided, returns only the patients whose MRN or name match
+                the parameter.
 
         Returns:
             list: A list of :class:`proknow.Patients.PatientSummary` objects, each representing a
@@ -219,9 +230,10 @@ class Patients(object):
         assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
 
         item = self._proknow.workspaces.resolve(workspace)
-
-        _, patients = self._requestor.get('/workspaces/' + item.id + '/patients')
-        return [PatientSummary(self, item.id, patient) for patient in patients]
+        query = {}
+        if search is not None:
+            query["search"] = search
+        return [PatientSummary(self, item.id, patient) for patient in self._query(item, query)]
 
 class PatientSummary(object):
     """

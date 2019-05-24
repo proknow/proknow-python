@@ -12,7 +12,12 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 * Improved code coverage
 * Added support for interacting with scorecards for collections
-* Renamed ``CollectionItemPatients`` and ``CollectionItemPatientSummary`` classes to ``CollectionPatients`` and ``CollectionPatientSummary``, respectively.
+* Renamed ``CollectionItemPatients`` and ``CollectionItemPatientSummary`` classes to ``CollectionPatients`` and ``CollectionPatientSummary``, respectively
+* Implemented paging and the search parameter in ``Patients.query`` method
+
+**Bug Fixes**
+
+* Fixed issues in some code examples
 
 v0.6.1
 ------
@@ -23,8 +28,8 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 **New Features and Enhancements**
 
-* Clarified documentation for the patient date and patient sex fields.
-* Updated ``CollectionItemPatients.query`` method to support API changes in ProKnow DS v1.8.0.
+* Clarified documentation for the patient date and patient sex fields
+* Updated ``CollectionItemPatients.query`` method to support API changes in ProKnow DS v1.8.0
 
 v0.6.0
 ------
