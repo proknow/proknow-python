@@ -213,7 +213,7 @@ class UploadBatch(object):
     an interface for looking up patients and entities within a batch of resolved uploads.
 
     Attributes
-        patients (list): A list of :class:`proknow.Patients.UploadPatientSummary` items.
+        patients (list): A list of :class:`proknow.Uploads.UploadPatientSummary` items.
 
     """
 

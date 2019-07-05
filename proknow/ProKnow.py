@@ -4,7 +4,9 @@ import json
 import six
 
 from .Requestor import Requestor
+from .Session import Session
 from .CustomMetrics import CustomMetrics
+from .ScorecardTemplates import ScorecardTemplates
 from .Workspaces import Workspaces
 from .Roles import Roles
 from .Users import Users
@@ -74,7 +76,9 @@ class ProKnow(object):
 
         self.requestor = Requestor(base_url, credentials_id, credentials_secret)
 
+        self.session = Session(self, self.requestor)
         self.custom_metrics = CustomMetrics(self, self.requestor)
+        self.scorecard_templates = ScorecardTemplates(self, self.requestor)
         
         self.workspaces = Workspaces(self, self.requestor)
         self.roles = Roles(self, self.requestor)

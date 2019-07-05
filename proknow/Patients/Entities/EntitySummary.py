@@ -82,3 +82,25 @@ class EntitySummary(object):
             return DoseItem(self._patients, self._workspace_id, self._patient_id, dose)
         else: # pragma: no cover (included for completeness)
             assert entity_type in ("image_set", "structure_set", "plan", "dose"), 'Expected the entity type to be one of ("image_set", "structure_set", "plan", "dose")'
+
+    def delete(self):
+        """Deletes the entity.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This examples shows how you can delete the entities within a patient while leaving the
+            patient intact::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(lambda entity: True)
+                for entity in entities:
+                    entity.delete()
+        """
+        self._requestor.delete('/workspaces/' + self._workspace_id + '/entities/' + self._id)
