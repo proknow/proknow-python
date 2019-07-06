@@ -11,7 +11,9 @@ This collection of pages includes a complete API reference. For an updated pictu
    api/proknow
    api/requestor
    api/exceptions
+   api/session
    api/custom_metrics
+   api/scorecard_templates
    api/workspaces
    api/roles
    api/users

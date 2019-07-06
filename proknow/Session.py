@@ -40,5 +40,5 @@ class Session(object):
                 session = pk.session.get()
                 print(session["name"])
         """
-        _, session = self._requestor('/user')
+        _, session = self._requestor.get('/user')
         return session

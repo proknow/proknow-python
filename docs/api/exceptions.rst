@@ -37,6 +37,12 @@ InvalidOperationError
 .. autoclass:: proknow.Exceptions.InvalidOperationError
    :members:
 
+ScorecardTemplateLookupError
+----------------------------
+
+.. autoclass:: proknow.Exceptions.ScorecardTemplateLookupError
+   :members:
+
 TimeoutExceededError
 --------------------
 

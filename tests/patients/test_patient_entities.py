@@ -5,6 +5,74 @@ import filecmp
 
 from proknow import Exceptions
 
+def test_delete_entity_summary(app, workspace_generator):
+    pk = app.pk
+
+    directory = os.path.abspath("./tests/data/Becker^Matthew/")
+    _, workspace = workspace_generator()
+    batch = pk.uploads.upload(workspace.id, directory)
+    assert len(batch.patients) == 1
+    patient_id = batch.patients[0].id
+
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 4
+    image_set = patient.find_entities(type="image_set")[0]
+    image_set.delete()
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 3
+    assert len(patient.find_entities(type="image_set")) == 0
+
+    structure_set = patient.find_entities(type="structure_set")[0]
+    structure_set.delete()
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 2
+    assert len(patient.find_entities(type="structure_set")) == 0
+
+    plan = patient.find_entities(type="plan")[0]
+    plan.delete()
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 1
+    assert len(patient.find_entities(type="plan")) == 0
+
+    dose = patient.find_entities(type="dose")[0]
+    dose.delete()
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 0
+
+def test_delete_entity_item(app, workspace_generator):
+    pk = app.pk
+
+    directory = os.path.abspath("./tests/data/Becker^Matthew/")
+    _, workspace = workspace_generator()
+    batch = pk.uploads.upload(workspace.id, directory)
+    assert len(batch.patients) == 1
+    patient_id = batch.patients[0].id
+
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 4
+    image_set = patient.find_entities(type="image_set")[0]
+    image_set.get().delete()
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 3
+    assert len(patient.find_entities(type="image_set")) == 0
+
+    structure_set = patient.find_entities(type="structure_set")[0]
+    structure_set.get().delete()
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 2
+    assert len(patient.find_entities(type="structure_set")) == 0
+
+    plan = patient.find_entities(type="plan")[0]
+    plan.get().delete()
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 1
+    assert len(patient.find_entities(type="plan")) == 0
+
+    dose = patient.find_entities(type="dose")[0]
+    dose.get().delete()
+    patient = pk.patients.get(workspace.id, patient_id)
+    assert len(patient.find_entities(lambda entity: True)) == 0
+
 def test_download_image_set(app, entity_generator, temp_directory):
     pk = app.pk
 

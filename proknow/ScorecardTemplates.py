@@ -1,4 +1,7 @@
 import six
+import re
+
+from .Exceptions import ScorecardTemplateLookupError
 
 
 class ScorecardTemplates(object):
@@ -20,6 +23,7 @@ class ScorecardTemplates(object):
         """
         self._proknow = proknow
         self._requestor = requestor
+        self._cache = None
 
     def create(self, name, computed, custom):
         """Creates a new scorecard template.
@@ -83,6 +87,7 @@ class ScorecardTemplates(object):
 
         body = {'name': name, 'computed': computed, 'custom': custom}
         _, scorecard = self._requestor.post('/metrics/templates', body=body)
+        self._cache = None
         return ScorecardTemplateItem(self, scorecard)
 
     def delete(self, scorecard_id):
@@ -106,6 +111,7 @@ class ScorecardTemplates(object):
         """
         assert isinstance(scorecard_id, six.string_types), "`scorecard_id` is required as a string."
         self._requestor.delete('/metrics/templates/' + scorecard_id)
+        self._cache = None
 
     def find(self, predicate=None, **props):
         """Finds the first scorecard that matches the input paramters.
@@ -120,17 +126,18 @@ class ScorecardTemplates(object):
                 These arguments are considered in turn to find matching scorecards.
 
         Returns:
-            :class:`proknow.Patients.ScorecardTemplateSummary`: A summary representation of the
-            matching scorecard.
+            :class:`proknow.ScorecardTemplates.ScorecardTemplateSummary`: A summary representation
+            of the matching scorecard.
 
         Raises: 
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
+        if self._cache is None:
+            self.query()
         if predicate is None and len(props) == 0:
             return None
 
-        scorecards = self.query()
-        for scorecard in scorecards:
+        for scorecard in self._cache:
             match = True
             if predicate is not None and not predicate(scorecard):
                 match = False
@@ -169,6 +176,76 @@ class ScorecardTemplates(object):
         _, scorecard = self._requestor.get('/metrics/templates/' + scorecard_id)
         return ScorecardTemplateItem(self, scorecard)
 
+    def resolve(self, scorecard_template):
+        """Resolves a scorecard template by id or name.
+
+        Parameters:
+            scorecard_template (str): The scorecard template id or name.
+
+        Returns:
+            :class:`proknow.ScorecardTemplates.ScorecardTemplateSummary`: A summary representation
+            of the resolved scorecard.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.ScorecardTemplateLookupError`: If the scorecard template
+                with the given id or name could not be found.
+        """
+        assert isinstance(scorecard_template, six.string_types), "`scorecard_template` is required as a string."
+
+        pattern = re.compile(r"^[0-9a-f]{32}$")
+        if pattern.match(scorecard_template) is not None:
+            return self.resolve_by_id(scorecard_template)
+        else:
+            return self.resolve_by_name(scorecard_template)
+
+    def resolve_by_name(self, name):
+        """Resolves a scorecard template name to a scorecard template.
+
+        Parameters:
+            name (str): The scorecard template name.
+
+        Returns:
+            :class:`proknow.ScorecardTemplates.ScorecardTemplateSummary`: A summary representation
+            of the resolved scorecard.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.ScorecardTemplateLookupError`: If the scorecard template
+                with the given name could not be found.
+        """
+        assert isinstance(name, six.string_types), "`name` is required as a string."
+
+        scorecard_template = self.find(name=name)
+        if scorecard_template is None:
+            raise ScorecardTemplateLookupError("Scorecard template with name `" + name + "` not found.")
+        return scorecard_template
+
+    def resolve_by_id(self, scorecard_template_id):
+        """Resolves a scorecard template id to a scorecard template.
+
+        Parameters:
+            scorecard_template_id (str): The scorecard template id.
+
+        Returns:
+            :class:`proknow.ScorecardTemplates.ScorecardTemplateSummary`: A summary representation
+            of the resolved scorecard.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.ScorecardTemplateLookupError`: If the scorecard template
+                with the given id could not be found.
+        """
+        assert isinstance(scorecard_template_id, six.string_types), "`scorecard_template_id` is required as a string."
+
+        scorecard_template = self.find(id=scorecard_template_id)
+        if scorecard_template is None:
+            raise ScorecardTemplateLookupError("Scorecard template with id `" + scorecard_template_id + "` not found.")
+        return scorecard_template
+
     def query(self):
         """Queries for scorecards templates.
 
@@ -190,7 +267,8 @@ class ScorecardTemplates(object):
                     print(scorecard.name)
         """
         _, scorecards = self._requestor.get('/metrics/templates')
-        return [ScorecardTemplateSummary(self, scorecard) for scorecard in scorecards]
+        self._cache = [ScorecardTemplateSummary(self, scorecard) for scorecard in scorecards]
+        return self._cache
 
 class ScorecardTemplateSummary(object):
     """
@@ -274,8 +352,8 @@ class ScorecardTemplateItem(object):
         """Initializes the ScorecardTemplateItem class.
 
         Parameters:
-            scorecard_templates (proknow.ScorecardTemplates.ScorecardTemplates): The ScorecardTemplates instance that is
-                instantiating the object.
+            scorecard_templates (proknow.ScorecardTemplates.ScorecardTemplates): The
+                ScorecardTemplates instance that is instantiating the object.
             scorecard (dict): A dictionary of scorecard attributes.
         """
         self._scorecard_templates = scorecard_templates
