@@ -62,7 +62,9 @@ class Uploads(object):
             workspace (str): An id or name of the workspace in which to create the uploads.
             path_or_paths (str or list): A path or list of paths such that each path is a directory
                 of files to upload or a path to a file to upload.
-            overrides (dict, optional): A dictionary of overrides to use when creating uploads.
+            overrides (dict, optional): A dictionary of overrides to use when creating uploads. The
+                object may contain an optional key ``"patient"``, which in turn may contain the
+                optional override parameters ``"mrn"``, ``"name"``, ``"birth_date"``, and ``"sex"``.
             progress_updater (func, optional): A function that should be called when the progress
                 of the upload changes. The function will be called with a dictionary containing the
                 keys ``"total"``, ``"uploaded"``, and ``"processed"``.
