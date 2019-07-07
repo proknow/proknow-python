@@ -285,6 +285,42 @@ def test_find_entities(app, patient_generator):
     entities = patient.find_entities(lambda entity: entity.data["type"] == "dose" or entity.data["type"] == "plan")
     assert len(entities) == 2
 
+def test_upload(app, workspace_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+    patient = pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
+
+    batch = patient.upload("./tests/data/Becker^Matthew")
+    assert len(batch.patients) == 1
+    uploaded_patient = batch.patients[0]
+    assert patient.id == uploaded_patient.id
+    assert len(uploaded_patient.entities) == 4
+    uploaded_patient_item = uploaded_patient.get()
+    assert patient.mrn == uploaded_patient_item.mrn
+    assert patient.name == uploaded_patient_item.name
+    assert patient.birth_date == uploaded_patient_item.birth_date
+    assert patient.sex == uploaded_patient_item.sex
+    entities = uploaded_patient_item.find_entities(lambda entity: True)
+    assert len(entities) == 4
+
+    _, workspace = workspace_generator()
+    pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
+    patient = pk.patients.lookup(workspace.id, ["1000"])[0]
+
+    batch = patient.upload("./tests/data/Becker^Matthew")
+    assert len(batch.patients) == 1
+    uploaded_patient = batch.patients[0]
+    assert patient.id == uploaded_patient.id
+    assert len(uploaded_patient.entities) == 4
+    uploaded_patient_item = uploaded_patient.get()
+    assert patient.mrn == uploaded_patient_item.mrn
+    assert patient.name == uploaded_patient_item.name
+    assert patient.birth_date == uploaded_patient_item.birth_date
+    assert patient.sex == uploaded_patient_item.sex
+    entities = uploaded_patient_item.find_entities(lambda entity: True)
+    assert len(entities) == 4
+
 def test_studies(app, patient_generator):
     ###
     # This test was written specifically to cover the id and data properties in the

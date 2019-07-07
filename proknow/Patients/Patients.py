@@ -263,6 +263,7 @@ class PatientSummary(object):
             patient (dict): A dictionary of patient attributes.
         """
         self._patients = patients
+        self._proknow = self._patients._proknow
         self._requestor = self._patients._requestor
         self._workspace_id = workspace_id
         self._id = patient["id"]
@@ -316,6 +317,45 @@ class PatientSummary(object):
                 patients = [patient.get() for patient in pk.patients.query("Clinical")]
         """
         return self._patients.get(self._workspace_id, self._id)
+
+    def upload(self, path_or_paths, **kwargs):
+        """Initiates an upload or series of uploads to the API for a patient.
+
+        Parameters:
+            path_or_paths (str or list): A path or list of paths such that each path is a directory
+                of files to upload or a path to a file to upload.
+            **kwargs: Keyword arguments to be passed along to the
+                :meth:`proknow.Uploads.Uploads.upload` method.
+
+        Returns:
+            :class:`proknow.Uploads.UploadBatch`: An object used to manage a batch of uploads.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.InvalidPathError`: If the provided file path is invalid.
+            :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given
+                name or id could not be found.
+            :class:`proknow.Exceptions.TimeoutExceededError`: If the timeout was exceeded while
+                waiting for the uploads to complete.
+
+        Example:
+            This examples show how to upload a directory of files to a patient::
+
+                from proknow import ProKnow
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patient = pk.patients.lookup('Clinical', ['HNC-0522c0009'])[0]
+                patient.upload("./DICOM")
+        """
+        kwargs["overrides"] = {
+            "patient": {
+                "mrn": self._mrn,
+                "name": self._name,
+                "birth_date": self._birth_date,
+                "sex": self._sex,
+            },
+        }
+        return self._proknow.uploads.upload(self._workspace_id, path_or_paths, **kwargs)
 
 class PatientItem(object):
     """
@@ -557,3 +597,43 @@ class PatientItem(object):
             metric = self._proknow.custom_metrics.resolve(key)
             encoded[metric.id] = metadata[key]
         self.metadata = encoded
+
+    def upload(self, path_or_paths, **kwargs):
+        """Initiates an upload or series of uploads to the API for a patient.
+
+        Parameters:
+            path_or_paths (str or list): A path or list of paths such that each path is a directory
+                of files to upload or a path to a file to upload.
+            **kwargs: Keyword arguments to be passed along to the
+                :meth:`proknow.Uploads.Uploads.upload` method.
+
+        Returns:
+            :class:`proknow.Uploads.UploadBatch`: An object used to manage a batch of uploads.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.InvalidPathError`: If the provided file path is invalid.
+            :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given
+                name or id could not be found.
+            :class:`proknow.Exceptions.TimeoutExceededError`: If the timeout was exceeded while
+                waiting for the uploads to complete.
+
+        Example:
+            This examples show how to upload a directory of files to a patient::
+
+                from proknow import ProKnow
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup('Clinical', ['HNC-0522c0009'])
+                patient = patients[0].get()
+                patient.upload("./DICOM")
+        """
+        kwargs["overrides"] = {
+            "patient": {
+                "mrn": self.mrn,
+                "name": self.name,
+                "birth_date": self.birth_date,
+                "sex": self.sex,
+            },
+        }
+        return self._proknow.uploads.upload(self._workspace_id, path_or_paths, **kwargs)

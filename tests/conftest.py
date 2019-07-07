@@ -13,6 +13,7 @@ class App():
         self.pk = ProKnow(base_url, credentials_id=credentials_id, credentials_secret=credentials_secret)
         self.resource_prefix = "pkpy"
         self.marked_custom_metrics = []
+        self.marked_scorecard_templates = []
         self.marked_workspaces = []
         self.marked_roles = []
         self.marked_users = []
@@ -30,6 +31,12 @@ class App():
                 custom_metric.delete()
             except:
                 print('Error deleting custom metric: ' + custom_metric.name)
+                pass
+        for scorecard_template in self.marked_scorecard_templates:
+            try:
+                scorecard_template.delete()
+            except:
+                print('Error deleting scorecard template: ' + scorecard_template.name)
                 pass
         for user in self.marked_users:
             try:
@@ -103,13 +110,34 @@ def custom_metric_generator(app):
         }
         params.update(args)
         if params["name"].find(resource_prefix) != 0:
-            params["name"] + resource_prefix + params["name"]
+            params["name"] = resource_prefix + params["name"]
         custom_metric = pk.custom_metrics.create(**params)
         if do_not_mark is False:
             app.marked_custom_metrics.append(custom_metric)
         return (params, custom_metric)
 
     return _create_custom_metric
+
+@pytest.fixture
+def scorecard_template_generator(app):
+    pk = app.pk
+    resource_prefix = app.resource_prefix
+
+    def _create_scorecard_template(do_not_mark=False, **args):
+        params = {
+            "name": resource_prefix + generate_string(),
+            "computed": [],
+            "custom": []
+        }
+        params.update(args)
+        if params["name"].find(resource_prefix) != 0:
+            params["name"] = resource_prefix + params["name"]
+        scorecard_template = pk.scorecard_templates.create(**params)
+        if do_not_mark is False:
+            app.marked_scorecard_templates.append(scorecard_template)
+        return (params, scorecard_template)
+
+    return _create_scorecard_template
 
 @pytest.fixture
 def entity_generator(app, workspace_generator):

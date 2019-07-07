@@ -11,6 +11,31 @@ from requests_futures.sessions import FuturesSession
 from .Exceptions import HttpError, InvalidPathError, TimeoutExceededError
 
 
+class UploadsProgress(object):
+    """
+
+    This is a helper class used by the :meth:`proknow.Uploads.Uploads.upload` method to keep track
+    of an uploads progress.
+
+    """
+    def __init__(self, total, progress_updater):
+        self._progress = {
+            "total": total,
+            "uploaded": 0,
+            "processed": 0
+        }
+        self._progress_updater = progress_updater
+
+    def uploaded(self, count):
+        self._progress["uploaded"] = self._progress["uploaded"] + count
+        if self._progress_updater is not None:
+            self._progress_updater(self._progress)
+
+    def processed(self, count):
+        self._progress["processed"] = self._progress["processed"] + count
+        if self._progress_updater is not None:
+            self._progress_updater(self._progress)
+
 class Uploads(object):
     """
 
@@ -30,13 +55,19 @@ class Uploads(object):
         self._proknow = proknow
         self._requestor = requestor
 
-    def upload(self, workspace, path_or_paths):
+    def upload(self, workspace, path_or_paths, overrides=None, progress_updater=None):
         """Initiates an upload or series of uploads to the API.
 
         Parameters:
             workspace (str): An id or name of the workspace in which to create the uploads.
             path_or_paths (str or list): A path or list of paths such that each path is a directory
                 of files to upload or a path to a file to upload.
+            overrides (dict, optional): A dictionary of overrides to use when creating uploads. The
+                object may contain an optional key ``"patient"``, which in turn may contain the
+                optional override parameters ``"mrn"``, ``"name"``, ``"birth_date"``, and ``"sex"``.
+            progress_updater (func, optional): A function that should be called when the progress
+                of the upload changes. The function will be called with a dictionary containing the
+                keys ``"total"``, ``"uploaded"``, and ``"processed"``.
 
         Returns:
             :class:`proknow.Uploads.UploadBatch`: An object used to manage a batch of uploads.
@@ -104,6 +135,13 @@ class Uploads(object):
         auth = self._requestor.get_auth()
         base_url = self._requestor.get_base_url()
 
+        # Progress
+        progress = UploadsProgress(len(upload_file_paths), progress_updater)
+        def finished_upload(result, *args, **kwargs):
+            if result.status_code >= 400: # pragma: no cover (difficult to test)
+                raise HttpError(result.status_code, result.text)
+            progress.uploaded(1)
+
         # Create uploads from paths
         files = []
         for path in upload_file_paths:
@@ -119,12 +157,15 @@ class Uploads(object):
             filesize = os.path.getsize(path)
 
             # Create upload
-            _, upload = self._requestor.post('/workspaces/' + workspace_id + '/uploads', body={
+            body = {
                 "checksum": checksum,
                 "name": path,
                 "size": filesize,
                 "multipart": False,
-            })
+            }
+            if overrides is not None:
+                body["overrides"] = overrides
+            _, upload = self._requestor.post('/workspaces/' + workspace_id + '/uploads', body=body)
             file["path"] = path
             file["upload"] = upload
 
@@ -142,15 +183,11 @@ class Uploads(object):
                 "flowMultipart": False,
             }, files={
                 "file": open(path, 'rb'),
+            }, hooks={
+                "response": finished_upload
             })
 
             files.append(file)
-
-        # Wait for uploads to complete and construct lookup dictionary
-        for file in files:
-            result = file["chunk_request"].result()
-            if result.status_code >= 400: # pragma: no cover (difficult to test)
-                raise HttpError(result.status_code, result.text)
 
         # Wait for uploads to come to terminal state
         query = None
@@ -188,6 +225,7 @@ class Uploads(object):
 
             if terminal_count > 0:
                 last_change = datetime.utcnow()
+                progress.processed(terminal_count)
 
             if done:
                 break
@@ -213,7 +251,7 @@ class UploadBatch(object):
     an interface for looking up patients and entities within a batch of resolved uploads.
 
     Attributes
-        patients (list): A list of :class:`proknow.Patients.UploadPatientSummary` items.
+        patients (list): A list of :class:`proknow.Uploads.UploadPatientSummary` items.
 
     """
 
