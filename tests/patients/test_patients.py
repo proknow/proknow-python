@@ -73,7 +73,7 @@ def test_delete_failure(app, workspace_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         patient.delete()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == 'Patient "' + patient.id + '" not found'
+    assert err_wrapper.value.body == 'Patient "' + patient.id + '" not found in workspace "' + workspace.id + '"'
 
 def test_find(app, workspace_generator):
     pk = app.pk

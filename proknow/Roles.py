@@ -52,7 +52,9 @@ class Roles(object):
                     "manage_template_metric_sets": False,
                     "manage_renaming_rules": False,
                     "manage_template_checklists": False,
-                    "organization_read": False,
+                    "organization_collaborator": False,
+                    "organization_read_patients": False,
+                    "organization_read_collections": False,
                     "organization_view_phi": False,
                     "organization_download_dicom": False,
                     "organization_write_collections": False,
@@ -62,7 +64,9 @@ class Roles(object):
                     "organization_delete_patients": False,
                     "workspaces": [{
                         "id": pk.workspaces.find(name="Research").id,
-                        "read": True,
+                        "collaborator": False,
+                        "read_patients": True,
+                        "read_collections": True,
                         "view_phi": True,
                         "download_dicom": True,
                         "write_collections": True,
@@ -76,24 +80,8 @@ class Roles(object):
         assert isinstance(name, six.string_types), "`name` is required as a string."
         assert isinstance(permissions, dict), "`permissions` is required as a dict."
 
-        body = {
-            "name": name,
-            "create_api_keys": permissions["create_api_keys"],
-            "manage_access": permissions["manage_access"],
-            "manage_custom_metrics": permissions["manage_custom_metrics"],
-            "manage_template_metric_sets": permissions["manage_template_metric_sets"],
-            "manage_renaming_rules": permissions["manage_renaming_rules"],
-            "manage_template_checklists": permissions["manage_template_checklists"],
-            "organization_read": permissions["organization_read"],
-            "organization_view_phi": permissions["organization_view_phi"],
-            "organization_download_dicom": permissions["organization_download_dicom"],
-            "organization_write_collections": permissions["organization_write_collections"],
-            "organization_write_patients": permissions["organization_write_patients"],
-            "organization_contour_patients": permissions["organization_contour_patients"],
-            "organization_delete_collections": permissions["organization_delete_collections"],
-            "organization_delete_patients": permissions["organization_delete_patients"],
-            "workspaces": permissions["workspaces"],
-        }
+        body = dict(permissions)
+        body["name"] = name
 
         _, role = self._requestor.post('/roles', json=body)
         return RoleItem(self, role)
@@ -284,23 +272,10 @@ class RoleItem(object):
         self._id = role["id"]
         self._data = role
         self.name = role["name"]
-        self.permissions = {
-            "create_api_keys": role["create_api_keys"],
-            "manage_access": role["manage_access"],
-            "manage_custom_metrics": role["manage_custom_metrics"],
-            "manage_template_metric_sets": role["manage_template_metric_sets"],
-            "manage_renaming_rules": role["manage_renaming_rules"],
-            "manage_template_checklists": role["manage_template_checklists"],
-            "organization_read": role["organization_read"],
-            "organization_view_phi": role["organization_view_phi"],
-            "organization_download_dicom": role["organization_download_dicom"],
-            "organization_write_collections": role["organization_write_collections"],
-            "organization_write_patients": role["organization_write_patients"],
-            "organization_contour_patients": role["organization_contour_patients"],
-            "organization_delete_collections": role["organization_delete_collections"],
-            "organization_delete_patients": role["organization_delete_patients"],
-            "workspaces": role["workspaces"],
-        }
+        self.permissions = dict(role)
+        del self.permissions["id"]
+        del self.permissions["name"]
+        del self.permissions["created_at"]
 
     @property
     def id(self):
@@ -341,44 +316,15 @@ class RoleItem(object):
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 researchers = pk.roles.find(name='researchers').get()
-                researchers.permissions["organization_read"] = True
+                researchers.permissions["organization_read_patients"] = True
                 researchers.save()
         """
-        body = {
-            "name": self.name,
-            "create_api_keys": self.permissions["create_api_keys"],
-            "manage_access": self.permissions["manage_access"],
-            "manage_custom_metrics": self.permissions["manage_custom_metrics"],
-            "manage_template_metric_sets": self.permissions["manage_template_metric_sets"],
-            "manage_renaming_rules": self.permissions["manage_renaming_rules"],
-            "manage_template_checklists": self.permissions["manage_template_checklists"],
-            "organization_read": self.permissions["organization_read"],
-            "organization_view_phi": self.permissions["organization_view_phi"],
-            "organization_download_dicom": self.permissions["organization_download_dicom"],
-            "organization_write_collections": self.permissions["organization_write_collections"],
-            "organization_write_patients": self.permissions["organization_write_patients"],
-            "organization_contour_patients": self.permissions["organization_contour_patients"],
-            "organization_delete_collections": self.permissions["organization_delete_collections"],
-            "organization_delete_patients": self.permissions["organization_delete_patients"],
-            "workspaces": self.permissions["workspaces"],
-        }
+        body = dict(self.permissions)
+        body["name"] = self.name
         _, role = self._requestor.put('/roles/' + self._id, json=body)
         self._data = role
         self.name = role["name"]
-        self.permissions = {
-            "create_api_keys": role["create_api_keys"],
-            "manage_access": role["manage_access"],
-            "manage_custom_metrics": role["manage_custom_metrics"],
-            "manage_template_metric_sets": role["manage_template_metric_sets"],
-            "manage_renaming_rules": role["manage_renaming_rules"],
-            "manage_template_checklists": role["manage_template_checklists"],
-            "organization_read": role["organization_read"],
-            "organization_view_phi": role["organization_view_phi"],
-            "organization_download_dicom": role["organization_download_dicom"],
-            "organization_write_collections": role["organization_write_collections"],
-            "organization_write_patients": role["organization_write_patients"],
-            "organization_contour_patients": role["organization_contour_patients"],
-            "organization_delete_collections": role["organization_delete_collections"],
-            "organization_delete_patients": role["organization_delete_patients"],
-            "workspaces": role["workspaces"],
-        }
+        self.permissions = dict(role)
+        del self.permissions["id"]
+        del self.permissions["name"]
+        del self.permissions["created_at"]

@@ -15,6 +15,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 * Added support for getting the current user session
 * Added support for uploading files directly to a patient
 * Reimplemented upload mechanism to utilize the concurrent.futures (`futures` for Python 2) instead of `requests-futures` module
+* Updated Roles for new ProKnow DS version changes (v1.10.0).
 
 v0.7.0
 ------

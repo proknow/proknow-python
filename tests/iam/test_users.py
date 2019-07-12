@@ -72,7 +72,7 @@ def test_delete_failure(app, user_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         user.delete()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == 'User "' + user.id + '" not found.'
+    assert err_wrapper.value.body == 'User "' + user.id + '" not found'
 
 def test_find(app, user_generator):
     pk = app.pk
@@ -174,4 +174,4 @@ def test_update_failure(app, user_generator):
         user.email = "example+duplicateme2@proknow.com"
         user.save()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == 'User "' + user.id + '" not found.'
+    assert err_wrapper.value.body == 'User "' + user.id + '" not found'
