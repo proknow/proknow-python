@@ -14,7 +14,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 * Added support for interacting with scorecard templates
 * Added support for getting the current user session
 * Added support for uploading files directly to a patient
-* Added support for tracking upload progress
+* Reimplemented upload mechanism to utilize the concurrent.futures (`futures` for Python 2) instead of `requests-futures` module
 
 v0.7.0
 ------

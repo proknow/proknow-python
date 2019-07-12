@@ -157,7 +157,7 @@ class StructureSetItem(EntityItem):
             "label": label,
             "message": message
         }
-        self._requestor.post('/workspaces/' + wid + '/structuresets/' + sid + '/draft/approve', body=body, headers=headers)
+        self._requestor.post('/workspaces/' + wid + '/structuresets/' + sid + '/draft/approve', json=body, headers=headers)
         self.stop_renewer()
         self._is_editable = False
         self._is_draft = False
@@ -207,7 +207,7 @@ class StructureSetItem(EntityItem):
         }
         wid = self._workspace_id
         sid = self._id
-        _, roi = self._requestor.post('/workspaces/' + wid + '/structuresets/' + sid + '/draft/rois', body=body, headers=headers)
+        _, roi = self._requestor.post('/workspaces/' + wid + '/structuresets/' + sid + '/draft/rois', json=body, headers=headers)
         roi_item = StructureSetRoiItem(self, roi)
         self.rois.append(roi_item)
         return roi_item
@@ -247,7 +247,7 @@ class StructureSetItem(EntityItem):
             "version": self._data["data"]["version"],
             "rois": [{ "id": roi.id, "tag": roi.tag } for roi in self.rois]
         }
-        self._requestor.post('/workspaces/' + wid + '/structuresets/' + sid + '/draft/discard', body=body, headers=headers)
+        self._requestor.post('/workspaces/' + wid + '/structuresets/' + sid + '/draft/discard', json=body, headers=headers)
         self.stop_renewer()
         self._is_editable = False
         self._lock = None
@@ -352,7 +352,7 @@ class StructureSetItem(EntityItem):
                 raise err
             _, lock = self._requestor.get('/workspaces/' + wid + '/structuresets/' + sid + '/draft/lock')
         query = { 'version': 'draft' }
-        _, structure_set = self._requestor.get('/workspaces/' + wid + '/structuresets/' + sid, query=query)
+        _, structure_set = self._requestor.get('/workspaces/' + wid + '/structuresets/' + sid, params=query)
         return StructureSetItem(self._patients, wid, self._patient_id, structure_set, lock=lock, is_draft=True, is_editable=True)
 
     def release_lock(self):
@@ -553,7 +553,7 @@ class StructureSetRoiItem(object):
             "color": self.color,
             "type": self.type
         }
-        self._requestor.put('/workspaces/' + wid + '/structuresets/' + sid + '/draft/rois/' + rid, body=body, headers=headers)
+        self._requestor.put('/workspaces/' + wid + '/structuresets/' + sid + '/draft/rois/' + rid, json=body, headers=headers)
 
 class StructureSetRoiData(object):
     """
@@ -636,7 +636,7 @@ class StructureSetRoiData(object):
             "points": self.points
         }
         headers = { 'ProKnow-Lock': self._structure_set._lock["id"] }
-        _, result = self._requestor.put('/workspaces/' + wid + '/structuresets/' + sid + '/draft/rois/' + rid + '/data', body=body, headers=headers)
+        _, result = self._requestor.put('/workspaces/' + wid + '/structuresets/' + sid + '/draft/rois/' + rid + '/data', json=body, headers=headers)
         self._roi_item._tag = result["tag"]
         print(rid, result["tag"])
 
@@ -719,7 +719,7 @@ class StructureSetVersions(object):
         wid = self._workspace_id
         pid = self._patient_id
         sid = self._structure_set._id
-        _, structure_set = self._requestor.get('/workspaces/' + wid + '/structuresets/' + sid, query=query)
+        _, structure_set = self._requestor.get('/workspaces/' + wid + '/structuresets/' + sid, params=query)
         return StructureSetItem(self._patients, wid, pid, structure_set, is_draft=(version_id=='draft'))
 
     def query(self):
@@ -977,4 +977,4 @@ class StructureSetVersionItem(object):
             "label": self.label,
             "message": self.message
         }
-        self._requestor.put('/workspaces/' + self._workspace_id + '/structuresets/' + self._structure_set._id + '/versions/' + self._version_id, body=body)
+        self._requestor.put('/workspaces/' + self._workspace_id + '/structuresets/' + self._structure_set._id + '/versions/' + self._version_id, json=body)

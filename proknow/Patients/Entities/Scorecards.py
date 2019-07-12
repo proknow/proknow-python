@@ -89,7 +89,7 @@ class EntityScorecards(object):
         assert isinstance(custom, list), "`custom` is required as a list."
 
         body = {'name': name, 'computed': computed, 'custom': custom}
-        _, scorecard = self._requestor.post('/workspaces/' + self._workspace_id + '/entities/' + self._entity_id + '/metrics/sets', body=body)
+        _, scorecard = self._requestor.post('/workspaces/' + self._workspace_id + '/entities/' + self._entity_id + '/metrics/sets', json=body)
         return EntityScorecardItem(self, self._workspace_id, self._entity_id, scorecard)
 
     def delete(self, scorecard_id):
@@ -371,7 +371,7 @@ class EntityScorecardItem(object):
             "computed": self.computed,
             "custom": self.custom
         }
-        _, scorecard = self._requestor.put('/workspaces/' + self._workspace_id + '/entities/' + self._entity_id + '/metrics/sets/' + self._id, body=body)
+        _, scorecard = self._requestor.put('/workspaces/' + self._workspace_id + '/entities/' + self._entity_id + '/metrics/sets/' + self._id, json=body)
         self._data = scorecard
         self.name = scorecard["name"]
         self.computed = scorecard["computed"]

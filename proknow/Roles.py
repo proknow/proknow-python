@@ -95,7 +95,7 @@ class Roles(object):
             "workspaces": permissions["workspaces"],
         }
 
-        _, role = self._requestor.post('/roles', body=body)
+        _, role = self._requestor.post('/roles', json=body)
         return RoleItem(self, role)
 
     def delete(self, role_id):
@@ -362,7 +362,7 @@ class RoleItem(object):
             "organization_delete_patients": self.permissions["organization_delete_patients"],
             "workspaces": self.permissions["workspaces"],
         }
-        _, role = self._requestor.put('/roles/' + self._id, body=body)
+        _, role = self._requestor.put('/roles/' + self._id, json=body)
         self._data = role
         self.name = role["name"]
         self.permissions = {

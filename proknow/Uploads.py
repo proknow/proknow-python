@@ -6,35 +6,9 @@ import os
 import six
 import hashlib
 from datetime import datetime
-from requests_futures.sessions import FuturesSession
+from concurrent.futures import ThreadPoolExecutor
 
 from .Exceptions import HttpError, InvalidPathError, TimeoutExceededError
-
-
-class UploadsProgress(object):
-    """
-
-    This is a helper class used by the :meth:`proknow.Uploads.Uploads.upload` method to keep track
-    of an uploads progress.
-
-    """
-    def __init__(self, total, progress_updater):
-        self._progress = {
-            "total": total,
-            "uploaded": 0,
-            "processed": 0
-        }
-        self._progress_updater = progress_updater
-
-    def uploaded(self, count):
-        self._progress["uploaded"] = self._progress["uploaded"] + count
-        if self._progress_updater is not None:
-            self._progress_updater(self._progress)
-
-    def processed(self, count):
-        self._progress["processed"] = self._progress["processed"] + count
-        if self._progress_updater is not None:
-            self._progress_updater(self._progress)
 
 class Uploads(object):
     """
@@ -55,7 +29,50 @@ class Uploads(object):
         self._proknow = proknow
         self._requestor = requestor
 
-    def upload(self, workspace, path_or_paths, overrides=None, progress_updater=None):
+    def _upload_file(self, workspace_id, path, overrides=None):
+        result = {
+            "path": path
+        }
+
+        # Generate hash and determine file size
+        md5 = hashlib.md5()
+        with open(path, 'rb') as f:
+            blocksize = 128 * md5.block_size
+            for chunk in iter(lambda: f.read(blocksize), b''):
+                md5.update(chunk)
+        checksum = md5.hexdigest()
+        filesize = os.path.getsize(path)
+
+        # Create upload
+        body = {
+            "checksum": checksum,
+            "name": path,
+            "size": filesize,
+            "multipart": False,
+        }
+        if overrides is not None:
+            body["overrides"] = overrides
+        _, upload = self._requestor.post('/workspaces/' + workspace_id + '/uploads', json=body)
+        result["upload"] = upload
+
+        self._requestor.post('/uploads/chunks', headers={
+            "ProKnow-Key": upload['key'],
+        }, data={
+            "flowChunkNumber": 1,
+            "flowChunkSize": filesize,
+            "flowCurrentChunkSize": filesize,
+            "flowTotalChunks": 1,
+            "flowTotalSize": filesize,
+            "flowIdentifier": upload["identifier"],
+            "flowFilename": path,
+            "flowMultipart": False,
+        }, files={
+            "file": open(path, 'rb'),
+        })
+
+        return result
+
+    def upload(self, workspace, path_or_paths, overrides=None):
         """Initiates an upload or series of uploads to the API.
 
         Parameters:
@@ -65,9 +82,6 @@ class Uploads(object):
             overrides (dict, optional): A dictionary of overrides to use when creating uploads. The
                 object may contain an optional key ``"patient"``, which in turn may contain the
                 optional override parameters ``"mrn"``, ``"name"``, ``"birth_date"``, and ``"sex"``.
-            progress_updater (func, optional): A function that should be called when the progress
-                of the upload changes. The function will be called with a dictionary containing the
-                keys ``"total"``, ``"uploaded"``, and ``"processed"``.
 
         Returns:
             :class:`proknow.Uploads.UploadBatch`: An object used to manage a batch of uploads.
@@ -130,93 +144,40 @@ class Uploads(object):
         # Resolve workspace
         workspace_id = self._proknow.workspaces.resolve(workspace).id
 
-        # Construct requests session and get request information
-        session = FuturesSession()
-        auth = self._requestor.get_auth()
-        base_url = self._requestor.get_base_url()
-
-        # Progress
-        progress = UploadsProgress(len(upload_file_paths), progress_updater)
-        def finished_upload(result, *args, **kwargs):
-            if result.status_code >= 400: # pragma: no cover (difficult to test)
-                raise HttpError(result.status_code, result.text)
-            progress.uploaded(1)
-
-        # Create uploads from paths
-        files = []
-        for path in upload_file_paths:
-            file = {}
-
-            # Generate hash and determine file size
-            md5 = hashlib.md5()
-            with open(path, 'rb') as f:
-                blocksize = 128 * md5.block_size
-                for chunk in iter(lambda: f.read(blocksize), b''):
-                    md5.update(chunk)
-            checksum = md5.hexdigest()
-            filesize = os.path.getsize(path)
-
-            # Create upload
-            body = {
-                "checksum": checksum,
-                "name": path,
-                "size": filesize,
-                "multipart": False,
-            }
-            if overrides is not None:
-                body["overrides"] = overrides
-            _, upload = self._requestor.post('/workspaces/' + workspace_id + '/uploads', body=body)
-            file["path"] = path
-            file["upload"] = upload
-
-            # Upload chunk
-            file["chunk_request"] = session.post(base_url + '/uploads/chunks', auth=auth, headers={
-                "ProKnow-Key": upload['key'],
-            }, data={
-                "flowChunkNumber": 1,
-                "flowChunkSize": filesize,
-                "flowCurrentChunkSize": filesize,
-                "flowTotalChunks": 1,
-                "flowTotalSize": filesize,
-                "flowIdentifier": upload["identifier"],
-                "flowFilename": path,
-                "flowMultipart": False,
-            }, files={
-                "file": open(path, 'rb'),
-            }, hooks={
-                "response": finished_upload
-            })
-
-            files.append(file)
+        ids = [workspace_id] * len(upload_file_paths)
+        override_list = [overrides] * len(upload_file_paths)
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            items = list(executor.map(self._upload_file, ids, upload_file_paths, override_list))
 
         # Wait for uploads to come to terminal state
         query = None
         last_change = datetime.utcnow()
         while True:
             terminal_count = 0
-            _, uploads = self._requestor.get('/workspaces/' + workspace_id + '/uploads', query=query)
+            _, uploads = self._requestor.get('/workspaces/' + workspace_id + '/uploads', params=query)
 
             done = True
-            for file in files:
-                # Skip file if already resolved
+            for item in items:
+                # Skip upload if already resolved
                 try:
-                    if file["upload_result"]["status"] in ("completed", "pending", "failed"):
+                    if item["upload_result"]["status"] in ("completed", "pending", "failed"):
                         continue
                     else: # pragma: no cover (cannot hit)
                         pass
                 except KeyError:
                     pass
 
-                # Attempt to find 
-                upload_id = file["upload"]["id"]
-                upload_match = None
+                # Attempt to find match
+                upload_id = item["upload"]["id"]
                 for upload in uploads:
                     if upload["id"] == upload_id:
                         upload_match = upload
                         break
+                else:
+                    upload_match = None
                 if upload_match is not None:
                     if upload_match["status"] in ("completed", "pending", "failed"):
-                        file["upload_result"] = upload_match
+                        item["upload_result"] = upload_match
                         terminal_count += 1
                         continue
 
@@ -225,7 +186,6 @@ class Uploads(object):
 
             if terminal_count > 0:
                 last_change = datetime.utcnow()
-                progress.processed(terminal_count)
 
             if done:
                 break
@@ -240,9 +200,9 @@ class Uploads(object):
 
         # Construct Upload Batch
         return UploadBatch(self, workspace_id, [{
-            "path": file["path"],
-            "upload": file["upload_result"],
-        } for file in files])
+            "path": item["path"],
+            "upload": item["upload_result"],
+        } for item in items])
 
 class UploadBatch(object):
     """
