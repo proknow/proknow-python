@@ -23,8 +23,11 @@ class ProKnow(object):
 
     Attributes:
         requestor (:class:`proknow.Requestor.Requestor`): An instance of the Requestor class.
+        session (:class:`proknow.Session.Session`): An instance of the Session class.
         custom_metrics (:class:`ProKnow.CustomMetrics.CustomMetrics`): An instance of the
             CustomMetrics class.
+        scorecard_templates (:class:`ProKnow.ScorecardTemplates.ScorecardTemplates`): An instance
+            of the ScorecardTemplates class.
         workspaces (:class:`proknow.Workspaces.Workspaces`): An instance of the Workspaces class.
         roles (:class:`proknow.Roles.Roles`): An instance of the Roles class.
         users (:class:`proknow.Users.Users`): An instance of the Users class.
