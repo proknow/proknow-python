@@ -62,7 +62,7 @@ class Users(object):
             assert isinstance(password, six.string_types), "`password` is required as a string."
             body["password"] = password
 
-        _, user = self._requestor.post('/users', body=body)
+        _, user = self._requestor.post('/users', json=body)
         return UserItem(self, user)
 
     def delete(self, user_id):
@@ -311,7 +311,7 @@ class UserItem(object):
             "role_id": self.role_id,
             "active": self.active
         }
-        _, user = self._requestor.put('/users/' + self._id, body=body)
+        _, user = self._requestor.put('/users/' + self._id, json=body)
         self._data = user
         self.name = user["name"]
         self.email = user["email"]

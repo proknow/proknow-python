@@ -32,6 +32,12 @@ def test_invalid_path_error():
     assert repr(err) == "InvalidPathError('custom message')"
     assert str(err) == "InvalidPathError('custom message')"
 
+def test_scorecard_template_lookup_error():
+    err = Exceptions.ScorecardTemplateLookupError('custom message')
+    assert isinstance(err, Exceptions.ProKnowError)
+    assert repr(err) == "ScorecardTemplateLookupError('custom message')"
+    assert str(err) == "ScorecardTemplateLookupError('custom message')"
+
 def test_timeout_exceeded_error():
     err = Exceptions.TimeoutExceededError('custom message')
     assert isinstance(err, Exceptions.ProKnowError)

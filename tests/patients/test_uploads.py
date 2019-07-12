@@ -10,7 +10,6 @@ def test_upload(app, workspace_generator):
 
     _, workspace = workspace_generator()
 
-    # Verify returned WorkspaceItem
     batch = pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew")
     assert len(batch.patients) == 1
     for patient_summary in batch.patients:

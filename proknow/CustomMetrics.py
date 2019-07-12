@@ -67,7 +67,7 @@ class CustomMetrics(object):
         assert isinstance(context, six.string_types), "`context` is required as a string."
         assert isinstance(type, dict), "`type` is required as a dict."
 
-        _, custom_metric = self._requestor.post('/metrics/custom', body={'name': name, 'context': context, 'type': type})
+        _, custom_metric = self._requestor.post('/metrics/custom', json={'name': name, 'context': context, 'type': type})
         self._cache = None
         return CustomMetricItem(self, custom_metric)
 
@@ -315,7 +315,7 @@ class CustomMetricItem(object):
                 metric.name = "Genetic Type"
                 metric.save()
         """
-        _, custom_metric = self._requestor.put('/metrics/custom/' + self._id, body={'name': self.name, 'context': self.context})
+        _, custom_metric = self._requestor.put('/metrics/custom/' + self._id, json={'name': self.name, 'context': self.context})
         self._data = custom_metric
         self.name = custom_metric["name"]
         self.context = custom_metric["context"]

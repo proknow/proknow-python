@@ -115,6 +115,28 @@ class InvalidPathError(ProKnowError):
     def __str__(self):
         return repr(self)
 
+class ScorecardTemplateLookupError(ProKnowError):
+    """Indicates that there was a problem looking up the scorecard template by the given identifier.
+
+    Attributes:
+        message (str): An explanation of the error.
+    """
+
+    def __init__(self, message):
+        """Initializes the ScorecardTemplateLookupError class.
+
+        Parameters:
+            message (str): An explanation of the error.
+        """
+        super(ScorecardTemplateLookupError, self).__init__(message)
+        self.message = message
+
+    def __repr__(self):
+        return 'ScorecardTemplateLookupError({!r})'.format(self.message)
+
+    def __str__(self):
+        return repr(self)
+
 class TimeoutExceededError(ProKnowError):
     """Indicates that the current operation exceeded the timeout limits.
 

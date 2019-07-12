@@ -69,7 +69,7 @@ class Collections(object):
             "workspaces": workspaces,
         }
 
-        _, collection = self._requestor.post('/collections', body=body)
+        _, collection = self._requestor.post('/collections', json=body)
         return CollectionItem(self, collection)
 
     def delete(self, collection_id):
@@ -188,7 +188,7 @@ class Collections(object):
             assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
             query["workspace"] = self._proknow.workspaces.resolve(workspace).id
 
-        _, collections = self._requestor.get('/collections', query=query)
+        _, collections = self._requestor.get('/collections', params=query)
         return [CollectionSummary(self, collection) for collection in collections]
 
 class CollectionSummary(object):
@@ -341,7 +341,7 @@ class CollectionItem(object):
             "name": self.name,
             "description": self.description,
         }
-        _, collection = self._requestor.put('/collections/' + self._id, body=body)
+        _, collection = self._requestor.put('/collections/' + self._id, json=body)
         self._data = collection
         self.name = collection["name"]
         self.description = collection["description"]

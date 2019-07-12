@@ -81,7 +81,7 @@ def test_delete_collections_failure(app, collection_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         collection.delete()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == 'Collection "' + collection.id + '" not found.'
+    assert err_wrapper.value.body == 'Collection "' + collection.id + '" not found'
 
 def test_find_collections(app, collection_generator):
     pk = app.pk

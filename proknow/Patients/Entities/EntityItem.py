@@ -49,3 +49,25 @@ class EntityItem(object):
     @property
     def data(self):
         return self._data
+
+    def delete(self):
+        """Deletes the entity.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This examples shows how you can delete the entities within a patient while leaving the
+            patient intact::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(lambda entity: True)
+                for entity in entities:
+                    entity.get().delete()
+        """
+        self._requestor.delete('/workspaces/' + self._workspace_id + '/entities/' + self._id)

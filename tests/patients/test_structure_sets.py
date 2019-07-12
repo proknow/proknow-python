@@ -134,7 +134,7 @@ def test_draft(app, entity_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         structure_set.draft()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == 'Structure set "' + structure_set.id + '" not found'
+    assert err_wrapper.value.body == 'Entity "' + structure_set.id + '" not found in workspace "' + structure_set.workspace_id + '"'
 
 def test_lock_renewal(app, entity_generator):
     pk = app.pk

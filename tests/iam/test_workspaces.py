@@ -62,7 +62,7 @@ def test_delete_failure(app, workspace_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         workspace.delete()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == ('Workspace "' + workspace.id + '" not found.')
+    assert err_wrapper.value.body == ('Workspace "' + workspace.id + '" not found')
 
 def test_find(app, workspace_generator):
     pk = app.pk

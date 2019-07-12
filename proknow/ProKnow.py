@@ -4,7 +4,9 @@ import json
 import six
 
 from .Requestor import Requestor
+from .Session import Session
 from .CustomMetrics import CustomMetrics
+from .ScorecardTemplates import ScorecardTemplates
 from .Workspaces import Workspaces
 from .Roles import Roles
 from .Users import Users
@@ -21,8 +23,11 @@ class ProKnow(object):
 
     Attributes:
         requestor (:class:`proknow.Requestor.Requestor`): An instance of the Requestor class.
+        session (:class:`proknow.Session.Session`): An instance of the Session class.
         custom_metrics (:class:`ProKnow.CustomMetrics.CustomMetrics`): An instance of the
             CustomMetrics class.
+        scorecard_templates (:class:`ProKnow.ScorecardTemplates.ScorecardTemplates`): An instance
+            of the ScorecardTemplates class.
         workspaces (:class:`proknow.Workspaces.Workspaces`): An instance of the Workspaces class.
         roles (:class:`proknow.Roles.Roles`): An instance of the Roles class.
         users (:class:`proknow.Users.Users`): An instance of the Users class.
@@ -74,7 +79,9 @@ class ProKnow(object):
 
         self.requestor = Requestor(base_url, credentials_id, credentials_secret)
 
+        self.session = Session(self, self.requestor)
         self.custom_metrics = CustomMetrics(self, self.requestor)
+        self.scorecard_templates = ScorecardTemplates(self, self.requestor)
         
         self.workspaces = Workspaces(self, self.requestor)
         self.roles = Roles(self, self.requestor)
