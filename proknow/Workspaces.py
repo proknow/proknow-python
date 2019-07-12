@@ -57,7 +57,7 @@ class Workspaces(object):
         assert isinstance(name, six.string_types), "`name` is required as a string."
         assert isinstance(protected, bool), "`protected` is required as a bool."
 
-        _, workspace = self._requestor.post('/workspaces', body={'slug': slug, 'name': name, 'protected': protected})
+        _, workspace = self._requestor.post('/workspaces', json={'slug': slug, 'name': name, 'protected': protected})
         self._cache = None
         return WorkspaceItem(self, workspace)
 
@@ -292,7 +292,7 @@ class WorkspaceItem(object):
                 clinical.name = "Clinical Patients"
                 clinical.save()
         """
-        _, workspace = self._requestor.put('/workspaces/' + self._id, body={'slug': self.slug, 'name': self.name, 'protected': self.protected})
+        _, workspace = self._requestor.put('/workspaces/' + self._id, json={'slug': self.slug, 'name': self.name, 'protected': self.protected})
         self._data = workspace
         self.slug = workspace["slug"]
         self.name = workspace["name"]

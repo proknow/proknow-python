@@ -19,7 +19,7 @@ class CollectionPatients(object):
         self._requestor = self._collection._requestor
 
     def _query(self, query=None):
-        res, data = self._requestor.get('/collections/' + self._collection.id + '/patients', query=query)
+        res, data = self._requestor.get('/collections/' + self._collection.id + '/patients', params=query)
         if res.headers['proknow-has-more'] == 'true': # pragma: no cover (difficult to test w/o lg num of patients)
             if query is None:
                 query = {}
@@ -63,7 +63,7 @@ class CollectionPatients(object):
                 collection.patients.add("Clinical", items)
         """
         item = self._proknow.workspaces.resolve(workspace)
-        self._requestor.put('/collections/' + self._collection.id + '/workspaces/' + item.id + '/patients', body=items)
+        self._requestor.put('/collections/' + self._collection.id + '/workspaces/' + item.id + '/patients', json=items)
 
     def query(self):
         """Queries for patients belonging to the collection.
@@ -120,7 +120,7 @@ class CollectionPatients(object):
                 collection.patients.remove("Clinical", items)
         """
         item = self._proknow.workspaces.resolve(workspace)
-        self._requestor.delete('/collections/' + self._collection.id + '/workspaces/' + item.id + '/patients', body=items)
+        self._requestor.delete('/collections/' + self._collection.id + '/workspaces/' + item.id + '/patients', json=items)
 
 class CollectionPatientSummary(object):
     """

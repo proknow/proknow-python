@@ -28,29 +28,6 @@ def test_upload_failure(app, workspace_generator):
         pk.uploads.upload("Not a Workspace", "./tests/data/Becker^Matthew")
     assert err_wrapper.value.message == "Workspace with name `Not a Workspace` not found."
 
-def test_upload_progress(app, workspace_generator):
-    pk = app.pk
-
-    _, workspace = workspace_generator()
-
-    def progress_updater(progress):
-        if progress_updater.called == 0:
-            progress_updater.first = dict(progress)
-        progress_updater.progress = progress
-        progress_updater.called += 1
-    progress_updater.first = None
-    progress_updater.progress = None
-    progress_updater.called = 0
-
-    pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew", progress_updater=progress_updater)
-    assert progress_updater.called > 0
-    assert progress_updater.progress is not None
-    assert progress_updater.progress["total"] == 8
-    assert progress_updater.progress["uploaded"] == 8
-    assert progress_updater.progress["processed"] == 8
-    assert progress_updater.first["total"] > progress_updater.first["uploaded"]
-    assert progress_updater.first["total"] > progress_updater.first["processed"]
-
 def test_upload_batch_find_patient(app, workspace_generator):
     pk = app.pk
 

@@ -84,7 +84,7 @@ class CollectionScorecards(object):
         assert isinstance(custom, list), "`custom` is required as a list."
 
         body = {'name': name, 'computed': computed, 'custom': custom}
-        _, scorecard = self._requestor.post('/collections/' + self._collection.id + '/metrics/sets', body=body)
+        _, scorecard = self._requestor.post('/collections/' + self._collection.id + '/metrics/sets', json=body)
         return CollectionScorecardItem(self, self._collection, scorecard)
 
     def delete(self, scorecard_id):
@@ -344,7 +344,7 @@ class CollectionScorecardItem(object):
             "computed": self.computed,
             "custom": self.custom
         }
-        _, scorecard = self._requestor.put('/collections/' + self._collection.id + '/metrics/sets/' + self._id, body=body)
+        _, scorecard = self._requestor.put('/collections/' + self._collection.id + '/metrics/sets/' + self._id, json=body)
         self._data = scorecard
         self.name = scorecard["name"]
         self.computed = scorecard["computed"]

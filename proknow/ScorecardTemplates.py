@@ -86,7 +86,7 @@ class ScorecardTemplates(object):
         assert isinstance(custom, list), "`custom` is required as a list."
 
         body = {'name': name, 'computed': computed, 'custom': custom}
-        _, scorecard = self._requestor.post('/metrics/templates', body=body)
+        _, scorecard = self._requestor.post('/metrics/templates', json=body)
         self._cache = None
         return ScorecardTemplateItem(self, scorecard)
 
@@ -411,7 +411,7 @@ class ScorecardTemplateItem(object):
             "computed": self.computed,
             "custom": self.custom
         }
-        _, scorecard = self._requestor.put('/metrics/templates/' + self._id, body=body)
+        _, scorecard = self._requestor.put('/metrics/templates/' + self._id, json=body)
         self._data = scorecard
         self.name = scorecard["name"]
         self.computed = scorecard["computed"]

@@ -23,7 +23,7 @@ class Patients(object):
         self._requestor = requestor
 
     def _query(self, workspace, query):
-        res, data = self._requestor.get('/workspaces/' + workspace.id + '/patients', query=query)
+        res, data = self._requestor.get('/workspaces/' + workspace.id + '/patients', params=query)
         if res.headers['proknow-has-more'] == 'true': # pragma: no cover (difficult to test w/o lg num of patients)
             next_query = dict(query)
             next_query["next"] = res.headers['proknow-next']
@@ -77,7 +77,7 @@ class Patients(object):
             "sex": sex,
         }
 
-        _, patient = self._requestor.post('/workspaces/' + item.id + '/patients', body=body)
+        _, patient = self._requestor.post('/workspaces/' + item.id + '/patients', json=body)
         return PatientItem(self, item.id, patient)
 
     def delete(self, workspace_id, patient_id):
@@ -169,7 +169,7 @@ class Patients(object):
         assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
 
         item = self._proknow.workspaces.resolve(workspace)
-        _, patients = self._requestor.post('/workspaces/' + item.id + '/patients/lookup', body=mrns)
+        _, patients = self._requestor.post('/workspaces/' + item.id + '/patients/lookup', json=mrns)
         return [PatientSummary(self, item.id, patient) for patient in patients]
 
     def get(self, workspace_id, patient_id):
@@ -447,7 +447,7 @@ class PatientItem(object):
             "sex": self.sex,
             "metadata": self.metadata
         }
-        _, patient = self._requestor.put('/workspaces/' + self._workspace_id + '/patients/' + self._id, body=body)
+        _, patient = self._requestor.put('/workspaces/' + self._workspace_id + '/patients/' + self._id, json=body)
         self._data = patient
         self.mrn = patient["mrn"]
         self.name = patient["name"]
