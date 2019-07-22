@@ -1,2 +1,2 @@
-tests/data/**/*.dcm filter=lfs diff=lfs merge=lfs -text
-tests/data/**/*.json filter=lfs diff=lfs merge=lfs -text
+data/**/*.dcm filter=lfs diff=lfs merge=lfs -text
+data/**/*.json filter=lfs diff=lfs merge=lfs -text

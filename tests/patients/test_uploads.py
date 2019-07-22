@@ -10,7 +10,7 @@ def test_upload(app, workspace_generator):
 
     _, workspace = workspace_generator()
 
-    batch = pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew")
+    batch = pk.uploads.upload(workspace.id, "./data/Becker^Matthew")
     assert len(batch.patients) == 1
     for patient_summary in batch.patients:
         assert len(patient_summary.entities) == 4
@@ -25,7 +25,7 @@ def test_upload_failure(app, workspace_generator):
     assert err_wrapper.value.message == "`./path/to/nowhere` is invalid."
 
     with pytest.raises(Exceptions.WorkspaceLookupError) as err_wrapper:
-        pk.uploads.upload("Not a Workspace", "./tests/data/Becker^Matthew")
+        pk.uploads.upload("Not a Workspace", "./data/Becker^Matthew")
     assert err_wrapper.value.message == "Workspace with name `Not a Workspace` not found."
 
 def test_upload_batch_find_patient(app, workspace_generator):
@@ -33,7 +33,7 @@ def test_upload_batch_find_patient(app, workspace_generator):
 
     _, workspace = workspace_generator()
 
-    path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     batch = pk.uploads.upload(workspace.id, path)
     patient = batch.find_patient(path)
     assert patient == batch.patients[0]
@@ -43,7 +43,7 @@ def test_upload_batch_file_patient_failure(app, workspace_generator):
 
     _, workspace = workspace_generator()
 
-    path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     batch = pk.uploads.upload(workspace.id, path)
     with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
         patient = batch.find_patient(path + "m")
@@ -54,12 +54,12 @@ def test_upload_batch_find_entity(app, workspace_generator):
 
     _, workspace = workspace_generator()
 
-    image_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm")
-    structure_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
-    plan_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
-    dose_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
+    image_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm")
+    structure_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
+    plan_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
 
-    batch = pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew")
+    batch = pk.uploads.upload(workspace.id, "./data/Becker^Matthew")
     entities = batch.patients[0].entities
     assert len(entities) == 4
     for entity in entities:
@@ -79,7 +79,7 @@ def test_upload_batch_find_entity_failure(app, workspace_generator):
 
     _, workspace = workspace_generator()
 
-    path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     batch = pk.uploads.upload(workspace.id, path)
     with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
         entity = batch.find_entity(path + "m")
@@ -90,7 +90,7 @@ def test_upload_patient_summary_get(app, workspace_generator):
 
     _, workspace = workspace_generator()
 
-    path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     batch = pk.uploads.upload(workspace.id, path)
     patient_summary = batch.find_patient(path)
     patient_item = patient_summary.get()
@@ -102,7 +102,7 @@ def test_upload_entity_summary_get(app, workspace_generator):
 
     _, workspace = workspace_generator()
 
-    path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     batch = pk.uploads.upload(workspace.id, path)
     entity_summary = batch.find_entity(path)
     entity_item = entity_summary.get()

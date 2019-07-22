@@ -7,8 +7,8 @@ def test_collection_patients(app, workspace_generator, collection_generator):
     pk = app.pk
 
     _, workspace = workspace_generator()
-    batch = pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew")
-    path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    batch = pk.uploads.upload(workspace.id, "./data/Becker^Matthew")
+    path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     patient_summary = batch.find_patient(path)
     entity_summary = batch.find_entity(path)
 
@@ -105,8 +105,8 @@ def test_collection_patients_failure(app, workspace_generator, collection_genera
 
     _, workspace = workspace_generator()
     _, collection = collection_generator(workspaces=[workspace.id])
-    batch = pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew")
-    path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    batch = pk.uploads.upload(workspace.id, "./data/Becker^Matthew")
+    path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     patient_summary = batch.find_patient(path)
     entity_summary = batch.find_entity(path)
 
@@ -130,8 +130,8 @@ def test_collection_patients_get(app, workspace_generator, collection_generator)
 
     _, workspace = workspace_generator()
     _, collection = collection_generator(workspaces=[workspace.id])
-    batch = pk.uploads.upload(workspace.id, "./tests/data/Becker^Matthew")
-    path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    batch = pk.uploads.upload(workspace.id, "./data/Becker^Matthew")
+    path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     patient_summary = batch.find_patient(path)
     entity_summary = batch.find_entity(path)
     collection.patients.add(workspace.id, [{

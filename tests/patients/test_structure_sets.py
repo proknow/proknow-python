@@ -13,7 +13,7 @@ from proknow import ProKnow, Exceptions
 def test_download(app, entity_generator, temp_directory):
     pk = app.pk
 
-    structure_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
+    structure_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
     structure_set = entity_generator(structure_set_path)
 
     # Download to directory
@@ -29,7 +29,7 @@ def test_download(app, entity_generator, temp_directory):
 def test_download_failure(app, entity_generator, temp_directory):
     pk = app.pk
 
-    structure_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
+    structure_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
     structure_set = entity_generator(structure_set_path)
 
     # File does not exist
@@ -46,7 +46,7 @@ def test_download_failure(app, entity_generator, temp_directory):
 def test_rois(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     assert isinstance(structure_set.rois, list)
     structures = [
         ("BODY", "EXTERNAL", [0, 255, 0]),
@@ -77,7 +77,7 @@ def test_rois(app, entity_generator):
 def test_rois_get_data(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     for roi in structure_set.rois:
         if roi.name == "PTV":
             match = roi
@@ -87,7 +87,7 @@ def test_rois_get_data(app, entity_generator):
     assert match is not None
     roi_data = match.get_data()
     assert roi_data.is_editable() is False
-    with open("./tests/data/Becker^Matthew-data/structure_data_PTV.json", 'r') as file:
+    with open("./data/Becker^Matthew-data/structure_data_PTV.json", 'r') as file:
         data = json.load(file)
         assert roi_data.contours == data["contours"]
         assert roi_data.lines == data["lines"]
@@ -100,7 +100,7 @@ def test_rois_get_data(app, entity_generator):
 def test_draft(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
 
     # With context manager
     with structure_set.draft() as draft:
@@ -129,7 +129,7 @@ def test_draft(app, entity_generator):
     structure_set.stop_renewer()
     assert structure_set._renewer is None
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     pk.patients.delete(structure_set.workspace_id, structure_set.patient_id)
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         structure_set.draft()
@@ -140,7 +140,7 @@ def test_lock_renewal(app, entity_generator):
     pk = app.pk
     pk.LOCK_RENEWAL_BUFFER = 358
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     with structure_set.draft() as draft:
         i = 0
         expires_at_initial = draft._lock["expires_at"]
@@ -159,7 +159,7 @@ def test_lock_renewal(app, entity_generator):
 def test_draft_edit(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew", type="structure_set")
     with structure_set.draft() as draft:
         assert len(draft.rois) == 3
 
@@ -250,7 +250,7 @@ def test_draft_edit(app, entity_generator):
 def test_discard(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     with structure_set.draft() as draft:
         draft.discard()
     assert len(structure_set.versions.query()) == 1
@@ -258,7 +258,7 @@ def test_discard(app, entity_generator):
 def test_approve_failure(app, entity_generator):
     pk = app.pk
 
-    structure_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
+    structure_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
     structure_set = entity_generator(structure_set_path)
     with pytest.raises(Exceptions.InvalidOperationError) as err_wrapper:
         structure_set.approve()
@@ -267,7 +267,7 @@ def test_approve_failure(app, entity_generator):
 def test_create_roi_failure(app, entity_generator):
     pk = app.pk
 
-    structure_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
+    structure_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
     structure_set = entity_generator(structure_set_path)
     with pytest.raises(Exceptions.InvalidOperationError) as err_wrapper:
         structure_set.create_roi("test", [123, 0, 123], "ORGAN")
@@ -276,7 +276,7 @@ def test_create_roi_failure(app, entity_generator):
 def test_discard_failure(app, entity_generator):
     pk = app.pk
 
-    structure_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
+    structure_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
     structure_set = entity_generator(structure_set_path)
     with pytest.raises(Exceptions.InvalidOperationError) as err_wrapper:
         structure_set.discard()
@@ -285,7 +285,7 @@ def test_discard_failure(app, entity_generator):
 def test_versions_query(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     with structure_set.draft() as draft:
         structure_set = draft.approve()
     with structure_set.draft() as draft:
@@ -300,8 +300,8 @@ def test_versions_query(app, entity_generator):
 def test_version_download(app, entity_generator, temp_directory):
     pk = app.pk
 
-    structure_set_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
-    structure_set = entity_generator("./tests/data/Becker^Matthew", type="structure_set")
+    structure_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
+    structure_set = entity_generator("./data/Becker^Matthew", type="structure_set")
     version = structure_set.versions.query()[0]
 
     # Download to directory
@@ -352,7 +352,7 @@ def test_version_download(app, entity_generator, temp_directory):
 def test_version_delete(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     with structure_set.draft() as draft:
         structure_set = draft.approve()
     with structure_set.draft() as draft:
@@ -370,7 +370,7 @@ def test_version_delete(app, entity_generator):
 def test_version_get(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     with structure_set.draft() as draft:
         structure_set = draft.approve()
     with structure_set.draft() as draft:
@@ -394,7 +394,7 @@ def test_version_get(app, entity_generator):
 def test_version_revert(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     with structure_set.draft() as draft:
         structure_set = draft.approve()
     with structure_set.draft() as draft:
@@ -423,7 +423,7 @@ def test_version_revert(app, entity_generator):
 def test_version_save(app, entity_generator):
     pk = app.pk
 
-    structure_set = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
+    structure_set = entity_generator("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm", type="structure_set")
     with structure_set.draft() as draft:
         structure_set = draft.approve()
     with structure_set.draft() as draft:

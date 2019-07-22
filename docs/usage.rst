@@ -85,4 +85,5 @@ Guides
    usage/computed_metrics
    usage/find_methods
    usage/contouring_data
-   usage/pydicom-primer
+   usage/pydicom_primer
+   usage/schema_reference

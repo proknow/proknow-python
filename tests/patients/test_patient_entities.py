@@ -8,7 +8,7 @@ from proknow import Exceptions
 def test_delete_entity_summary(app, workspace_generator):
     pk = app.pk
 
-    directory = os.path.abspath("./tests/data/Becker^Matthew/")
+    directory = os.path.abspath("./data/Becker^Matthew/")
     _, workspace = workspace_generator()
     batch = pk.uploads.upload(workspace.id, directory)
     assert len(batch.patients) == 1
@@ -42,7 +42,7 @@ def test_delete_entity_summary(app, workspace_generator):
 def test_delete_entity_item(app, workspace_generator):
     pk = app.pk
 
-    directory = os.path.abspath("./tests/data/Becker^Matthew/")
+    directory = os.path.abspath("./data/Becker^Matthew/")
     _, workspace = workspace_generator()
     batch = pk.uploads.upload(workspace.id, directory)
     assert len(batch.patients) == 1
@@ -77,11 +77,11 @@ def test_download_image_set(app, entity_generator, temp_directory):
     pk = app.pk
 
     image_files = [
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm"),
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00001.dcm"),
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00002.dcm"),
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00003.dcm"),
-        os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_CT1_image00004.dcm"),
+        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm"),
+        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00001.dcm"),
+        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00002.dcm"),
+        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00003.dcm"),
+        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00004.dcm"),
     ]
     image_set = entity_generator(image_files)
 
@@ -108,7 +108,7 @@ def test_download_image_set(app, entity_generator, temp_directory):
 def test_download_plan(app, entity_generator, temp_directory):
     pk = app.pk
 
-    plan_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    plan_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
     plan = entity_generator(plan_path)
 
     # Download to directory
@@ -129,7 +129,7 @@ def test_download_plan(app, entity_generator, temp_directory):
 def test_download_dose(app, entity_generator, temp_directory):
     pk = app.pk
 
-    dose_path = os.path.abspath("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
+    dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
     dose = entity_generator(dose_path)
 
     # Download to directory

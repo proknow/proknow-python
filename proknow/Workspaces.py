@@ -32,8 +32,9 @@ class Workspaces(object):
         """Creates a new workspace.
 
         Parameters:
-            slug (str): The workspace slug.
-            name (str): The workspace name.
+            slug (str): The workspace slug. A string with a maximum length of 40 that matches the
+                regular expression ``^[a-z0-9][a-z0-9]*(-[a-z0-9]+)*$``.
+            name (str): The workspace name. A string with a maximum length of 80.
             protected (bool, optional): Indicates whether the workspace should be protected from
                 accidental deletion.
 
@@ -227,8 +228,9 @@ class WorkspaceItem(object):
         id (str): The id of the workspace (readonly).
         data (dict): The complete representation of the workspace as returned from the API
             (readonly).
-        slug (str): A string used in the URL that uniquely identifies the workspace.
-        name (str): The name of the workspace.
+        slug (str): The workspace slug. A string with a maximum length of 40 that matches the
+                regular expression ``^[a-z0-9][a-z0-9]*(-[a-z0-9]+)*$``.
+        name (str): The workspace name. A string with a maximum length of 80.
         protected (bool): Indicates whether the workspace should be protected from accidental
             deletion.
 

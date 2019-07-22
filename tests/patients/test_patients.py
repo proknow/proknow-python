@@ -187,7 +187,7 @@ def test_update(app, custom_metric_generator, workspace_generator):
     _, custom_metric_string = custom_metric_generator(type={"string": {}})
     _, custom_metric_number = custom_metric_generator(type={"number": {}})
     _, custom_metric_enum = custom_metric_generator(type={"enum": {"values": ["one", "two"]}})
-    _, workspace = workspace_generator(("update-patients-test", "Update Patients Test", False))
+    _, workspace = workspace_generator()
     patient = pk.patients.create(workspace.id, "1000", "Last^First")
 
     # Verify patient was updated successfully
@@ -248,7 +248,7 @@ def test_set_metadata_failure(app, workspace_generator):
 def test_find_entities(app, patient_generator):
     pk = app.pk
 
-    patient = patient_generator("./tests/data/Becker^Matthew")
+    patient = patient_generator("./data/Becker^Matthew")
 
     # Find with no args
     entities = patient.find_entities()
@@ -291,7 +291,7 @@ def test_upload(app, workspace_generator):
     _, workspace = workspace_generator()
     patient = pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
 
-    batch = patient.upload("./tests/data/Becker^Matthew")
+    batch = patient.upload("./data/Becker^Matthew")
     assert len(batch.patients) == 1
     uploaded_patient = batch.patients[0]
     assert patient.id == uploaded_patient.id
@@ -308,7 +308,7 @@ def test_upload(app, workspace_generator):
     pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
     patient = pk.patients.lookup(workspace.id, ["1000"])[0]
 
-    batch = patient.upload("./tests/data/Becker^Matthew")
+    batch = patient.upload("./data/Becker^Matthew")
     assert len(batch.patients) == 1
     uploaded_patient = batch.patients[0]
     assert patient.id == uploaded_patient.id
@@ -328,7 +328,7 @@ def test_studies(app, patient_generator):
     ###
     pk = app.pk
 
-    patient = patient_generator("./tests/data/Becker^Matthew")
+    patient = patient_generator("./data/Becker^Matthew")
     assert len(patient.studies) == 1
     study = patient.studies[0]
     assert isinstance(study.id, six.string_types)
