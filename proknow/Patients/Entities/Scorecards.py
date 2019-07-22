@@ -7,8 +7,6 @@ class EntityScorecards(object):
     This class should be used to interact with entity scorecards. It is instantiated for you as an
     attribute of the :class:`proknow.Patients.EntityItem` class.
 
-    For information on how to construct computed metrics visit :ref:`computed-metrics`.
-
     """
     def __init__(self, patients, workspace_id, entity_id):
         """Initializes the EntityScorecards class.
@@ -26,6 +24,11 @@ class EntityScorecards(object):
 
     def create(self, name, computed, custom):
         """Creates a new entity scorecard.
+
+        Note:
+            For information on how to construct computed metrics visit :ref:`computed-metrics`.
+
+            For information on how to define scorecard objectives, see :ref:`scorecard-objectives`.
 
         Parameters:
             name (str): The scorecard name.
@@ -347,6 +350,11 @@ class EntityScorecardItem(object):
 
     def save(self):
         """Saves the changes made to a scorecard.
+
+        Note:
+            For information on how to construct computed metrics visit :ref:`computed-metrics`.
+
+            For information on how to define scorecard objectives, see :ref:`scorecard-objectives`.
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.

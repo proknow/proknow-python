@@ -86,4 +86,4 @@ Guides
    usage/find_methods
    usage/contouring_data
    usage/pydicom_primer
-   usage/schema_reference
+   usage/scorecard_objectives
