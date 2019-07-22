@@ -3,9 +3,9 @@
 Scorecard Objectives
 ====================
 
-Scorecard objectives may be defined for each metric in a scorecard. The scorecard objectives are comprised of 2 to 10 levels, where each level defines a label (a string up to 64 characters in length), a color (represented as a 3-element array of RGB values), and max/min properties (which may or may not be defined). The focus of this article is the meaning of the "min" and "max" values.
+Scorecard objectives may be defined for each metric in a scorecard. Scorecard objectives are comprised of 2 to 10 levels, where each level defines a label (a string up to 64 characters in length), a color (represented as a 3-element array of RGB values), and max/min properties (which may or may not be defined according to the rules below). The focus of this article is the meaning of the "min" and "max" values.
 
-Remember that scorecard objectives define a set of performance bins to which a metric value (whether computed or custom) is assigned based on the defined ranges of each performance bin. The basic "Standard Pass/Fail (Pass Min)" objectives looks something like this::
+Remember that scorecard objectives define a set of performance bins to which a metric value (whether computed or custom) is assigned based on the defined ranges of each performance bin. The definition for the basic "Standard Pass/Fail (Pass Min)" objectives looks something like this::
 
     [{
         "label": "PASS",
@@ -16,7 +16,7 @@ Remember that scorecard objectives define a set of performance bins to which a m
         "color": [255, 0, 0]
     }]
 
-The "max" property with a value of 1 is provided in the PASS performance bin. This indicates that values up to a *maximum* of 1 will fall into the PASS performance bin for that metric, while values greater than 1 will fall into the FAIL performance bin. If instead we wish for values of 1 to fall into the FAIL performance bin, we could define the metric objective in this manner::
+The "max" property with a value of 1 is provided in the PASS performance bin. This indicates that values up to a *maximum* of 1 will fall into the PASS performance bin for that metric, while values greater than 1 will fall into the FAIL performance bin. If instead we wish for a value of 1 to fall into the FAIL performance bin, we could define the metric objective in this manner::
 
     [{
         "label": "PASS",
@@ -39,7 +39,7 @@ When designing a valid objectives configuration, it is important to keep in mind
 Exercise 1
 ----------
 
-Design objectives for a metric for the volume of an organ in which the organ is considered VERY SMALL if the organ is less than 8 (x < 8), SMALL if the organ is greater than or equal to 8 and less than 15 (8 ≤ x < 15), NORMAL if the organ is greater than or equal to 15 and less than or equal to 29 (15 ≤ x ≤ 29), LARGE if the organ is greater than 29 and less than or equal to 36 (29 < x ≤ 36), and VERY LARGE if the organ is greater than 36 (36 > x.
+Design objectives for a metric for the volume of an organ in which the organ is considered VERY SMALL if the organ is less than 8 (x < 8), SMALL if the organ is greater than or equal to 8 and less than 15 (8 ≤ x < 15), NORMAL if the organ is greater than or equal to 15 and less than or equal to 29 (15 ≤ x ≤ 29), LARGE if the organ is greater than 29 and less than or equal to 36 (29 < x ≤ 36), and VERY LARGE if the organ is greater than 36 (36 > x).
 
 The solution is as follows::
 
