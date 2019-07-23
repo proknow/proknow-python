@@ -30,12 +30,6 @@ class Requestor(object):
         except ValueError:
             return (r, r.text)
 
-    def get_auth(self):
-        return (self._username, self._password)
-
-    def get_base_url(self):
-        return self._base_url
-
     def get(self, route, **kwargs):
         """Issues an HTTP ``GET`` request.
 
@@ -45,7 +39,7 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (response, msg).
+            tuple: A tuple (res, msg).
 
             1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
@@ -63,7 +57,7 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (response, msg).
+            tuple: A tuple (res, msg).
 
             1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
@@ -72,7 +66,7 @@ class Requestor(object):
         r = requests.delete(self._base_url + route, auth=(self._username, self._password), **kwargs)
         return self._handle_response(r)
 
-    def patch(self, route, **kwargs):
+    def patch(self, route, **kwargs): # pragma: no cover (not used right now)
         """Issues an HTTP ``PATCH`` request.
 
         Parameters:
@@ -81,7 +75,7 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (response, msg).
+            tuple: A tuple (res, msg).
 
             1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
@@ -99,7 +93,7 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (response, msg).
+            tuple: A tuple (res, msg).
 
             1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
@@ -117,7 +111,7 @@ class Requestor(object):
                 request.
 
         Returns:
-            tuple: A tuple (response, msg).
+            tuple: A tuple (res, msg).
 
             1. res (Response): the Response object
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
@@ -131,12 +125,14 @@ class Requestor(object):
 
         Parameters:
             route (str): The API route to use in the request.
-            path (str): The file path to stream the request response
+            path (str): The file path to stream the request response.
         """
         with open(path, 'wb') as file:
             with requests.get(self._base_url + route, auth=(self._username, self._password), stream=True) as r:
-                if r.status_code >= 400:
+                if r.status_code >= 400: # pragma: no cover (difficult to hit)
                     raise HttpError(r.status_code, r.text)
                 for chunk in r.iter_content(chunk_size=5242880):
                     if chunk:
                         file.write(chunk)
+                    else: # pragma: no cover (included for completeness)
+                        pass

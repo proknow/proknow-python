@@ -1,9 +1,11 @@
 import six
+import time
 
 from .ImageSets import ImageSetItem
 from .StructureSets import StructureSetItem
 from .Plans import PlanItem
 from .Doses import DoseItem
+from ...Exceptions import TimeoutExceededError
 
 
 class EntitySummary(object):
@@ -68,17 +70,56 @@ class EntitySummary(object):
                 entities = [entity.get() for entity in patient.find_entities(lambda entity: True)]
         """
         entity_type = self._data["type"]
+        DELAY = 0.2
+        MAX_COUNT = 5 / DELAY
         if entity_type == "image_set":
-            _, image_set = self._requestor.get('/workspaces/' + self._workspace_id + '/imagesets/' + self._id)
+            count = 0
+            while True:
+                _, image_set = self._requestor.get('/workspaces/' + self._workspace_id + '/imagesets/' + self._id)
+                if image_set["status"] == 'completed':
+                    break
+                else: # pragma: no cover (should not occur in normal circumstances)
+                    if count < MAX_COUNT:
+                        time.sleep(DELAY)
+                        count += 1
+                    else:
+                        raise TimeoutExceededError('Timeout exceeded while waiting for image set entity to reach completed status')
             return ImageSetItem(self._patients, self._workspace_id, self._patient_id, image_set)
         elif entity_type == "structure_set":
-            _, structure_set = self._requestor.get('/workspaces/' + self._workspace_id + '/structuresets/' + self._id)
+            while True:
+                _, structure_set = self._requestor.get('/workspaces/' + self._workspace_id + '/structuresets/' + self._id)
+                if structure_set["status"] == 'completed':
+                    break
+                else: # pragma: no cover (should not occur in normal circumstances)
+                    if count < MAX_COUNT:
+                        time.sleep(DELAY)
+                        count += 1
+                    else:
+                        raise TimeoutExceededError('Timeout exceeded while waiting for structure set entity to reach completed status')
             return StructureSetItem(self._patients, self._workspace_id, self._patient_id, structure_set)
         elif entity_type == "plan":
-            _, plan = self._requestor.get('/workspaces/' + self._workspace_id + '/plans/' + self._id)
+            while True:
+                _, plan = self._requestor.get('/workspaces/' + self._workspace_id + '/plans/' + self._id)
+                if plan["status"] == 'completed':
+                    break
+                else: # pragma: no cover (should not occur in normal circumstances)
+                    if count < MAX_COUNT:
+                        time.sleep(DELAY)
+                        count += 1
+                    else:
+                        raise TimeoutExceededError('Timeout exceeded while waiting for plan entity to reach completed status')
             return PlanItem(self._patients, self._workspace_id, self._patient_id, plan)
         elif entity_type == "dose":
-            _, dose = self._requestor.get('/workspaces/' + self._workspace_id + '/doses/' + self._id)
+            while True:
+                _, dose = self._requestor.get('/workspaces/' + self._workspace_id + '/doses/' + self._id)
+                if dose["status"] == 'completed':
+                    break
+                else: # pragma: no cover (should not occur in normal circumstances)
+                    if count < MAX_COUNT:
+                        time.sleep(DELAY)
+                        count += 1
+                    else:
+                        raise TimeoutExceededError('Timeout exceeded while waiting for dose entity to reach completed status')
             return DoseItem(self._patients, self._workspace_id, self._patient_id, dose)
         else: # pragma: no cover (included for completeness)
             assert entity_type in ("image_set", "structure_set", "plan", "dose"), 'Expected the entity type to be one of ("image_set", "structure_set", "plan", "dose")'
