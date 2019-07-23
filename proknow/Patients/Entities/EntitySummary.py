@@ -70,10 +70,10 @@ class EntitySummary(object):
                 entities = [entity.get() for entity in patient.find_entities(lambda entity: True)]
         """
         entity_type = self._data["type"]
+        count = 0
         DELAY = 0.2
         MAX_COUNT = 5 / DELAY
         if entity_type == "image_set":
-            count = 0
             while True:
                 _, image_set = self._requestor.get('/workspaces/' + self._workspace_id + '/imagesets/' + self._id)
                 if image_set["status"] == 'completed':
