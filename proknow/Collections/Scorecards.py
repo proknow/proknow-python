@@ -7,8 +7,6 @@ class CollectionScorecards(object):
     This class should be used to interact with collection scorecards. It is instantiated for you as
     an attribute of the :class:`proknow.Collections.CollectionItem` class.
 
-    For information on how to construct computed metrics visit :ref:`computed-metrics`.
-
     """
     def __init__(self, collections, collection):
         """Initializes the CollectionScorecards class.
@@ -24,6 +22,11 @@ class CollectionScorecards(object):
 
     def create(self, name, computed, custom):
         """Creates a new collection scorecard.
+
+        Note:
+            For information on how to construct computed metrics visit :ref:`computed-metrics`.
+
+            For information on how to define scorecard objectives, see :ref:`scorecard-objectives`.
 
         Parameters:
             name (str): The scorecard name.
@@ -323,6 +326,11 @@ class CollectionScorecardItem(object):
 
     def save(self):
         """Saves the changes made to a scorecard.
+
+        Note:
+            For information on how to construct computed metrics visit :ref:`computed-metrics`.
+
+            For information on how to define scorecard objectives, see :ref:`scorecard-objectives`.
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.

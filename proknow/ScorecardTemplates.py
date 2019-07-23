@@ -10,8 +10,6 @@ class ScorecardTemplates(object):
     This class should be used to interact with scorecard templates.  It is instantiated for you as
     an attribute of the :class:`proknow.ProKnow.ProKnow` class.
 
-    For information on how to construct computed metrics visit :ref:`computed-metrics`.
-
     """
     def __init__(self, proknow, requestor):
         """Initializes the ScorecardTemplates class.
@@ -27,6 +25,11 @@ class ScorecardTemplates(object):
 
     def create(self, name, computed, custom):
         """Creates a new scorecard template.
+
+        Note:
+            For information on how to construct computed metrics visit :ref:`computed-metrics`.
+
+            For information on how to define scorecard objectives, see :ref:`scorecard-objectives`.
 
         Parameters:
             name (str): The scorecard name.
@@ -391,6 +394,11 @@ class ScorecardTemplateItem(object):
 
     def save(self):
         """Saves the changes made to a scorecard template.
+
+        Note:
+            For information on how to construct computed metrics visit :ref:`computed-metrics`.
+
+            For information on how to define scorecard objectives, see :ref:`scorecard-objectives`.
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.

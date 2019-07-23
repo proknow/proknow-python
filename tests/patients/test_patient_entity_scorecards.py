@@ -7,7 +7,7 @@ from proknow import Exceptions
 def test_create(app, entity_generator, custom_metric_generator):
     pk = app.pk
 
-    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    entity = entity_generator("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     _, custom_metric = custom_metric_generator()
 
     scorecard = entity.scorecards.create("My Scorecard", [], [])
@@ -56,7 +56,7 @@ def test_create(app, entity_generator, custom_metric_generator):
 def test_create_failure(app, entity_generator):
     pk = app.pk
 
-    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    entity = entity_generator("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("My Scorecard", [], [])
 
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
@@ -67,7 +67,7 @@ def test_create_failure(app, entity_generator):
 def test_delete(app, entity_generator):
     pk = app.pk
 
-    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    entity = entity_generator("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("My Scorecard", [], [])
 
     # Verify scorecard was deleted successfully
@@ -83,7 +83,7 @@ def test_delete(app, entity_generator):
 def test_delete_failure(app, entity_generator):
     pk = app.pk
 
-    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    entity = entity_generator("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("My Scorecard", [], [])
     scorecard.delete()
 
@@ -96,7 +96,7 @@ def test_delete_failure(app, entity_generator):
 def test_find(app, entity_generator):
     pk = app.pk
 
-    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    entity = entity_generator("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("Find Scorecards Test", [], [])
     expr = re.compile(r"nd Score")
     expr2 = re.compile(r"score")
@@ -138,7 +138,7 @@ def test_find(app, entity_generator):
 def test_query(app, entity_generator):
     pk = app.pk
 
-    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    entity = entity_generator("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard = entity.scorecards.create("My Scorecard 1", [], [])
     scorecard = entity.scorecards.create("My Scorecard 2", [], [])
 
@@ -167,7 +167,7 @@ def test_query(app, entity_generator):
 def test_update(app, entity_generator, custom_metric_generator):
     pk = app.pk
 
-    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    entity = entity_generator("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     _, custom_metric = custom_metric_generator()
     scorecard = entity.scorecards.create("My Scorecard", [], [])
 
@@ -224,7 +224,7 @@ def test_update(app, entity_generator, custom_metric_generator):
 def test_update_failure(app, entity_generator):
     pk = app.pk
 
-    entity = entity_generator("./tests/data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
+    entity = entity_generator("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm", type="dose")
     scorecard1 = entity.scorecards.create("My Scorecard 1", [], [])
     scorecard2 = entity.scorecards.create("My Scorecard 2", [], [])
 
