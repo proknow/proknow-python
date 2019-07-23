@@ -264,6 +264,9 @@ class UploadBatch(object):
         Parameters:
             path (str): An absolute file path.
 
+        Returns:
+            :class:`proknow.Uploads.UploadPatientSummary`: A summary representation of the patient.
+
         Raises:
             AssertionError: If the input parameters are invalid.
             :class:`proknow.Exceptions.InvalidPathError`: If the provided file path is invalid.
@@ -296,6 +299,9 @@ class UploadBatch(object):
 
         Parameters:
             path (str): An absolute file path.
+
+        Returns:
+            :class:`proknow.Uploads.UploadEntitySummary`: A summary representation of the entity.
 
         Raises:
             AssertionError: If the input parameters are invalid.
