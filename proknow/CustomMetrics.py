@@ -164,7 +164,7 @@ class CustomMetrics(object):
             return self.resolve_by_name(custom_metric)
 
     def resolve_by_name(self, name):
-        """Resolves a custom metric name to a custom metric.
+        """Resolves a custom metric name to a custom metric in a case insensitive manner.
 
         Parameters:
             name (str): The custom metric name.
@@ -181,7 +181,14 @@ class CustomMetrics(object):
         """
         assert isinstance(name, six.string_types), "`name` is required as a string."
 
-        custom_metric = self.find(name=name)
+        if self._cache is None:
+            self.query()
+        for metric in self._cache:
+            if metric.name.lower() == name.lower():
+                custom_metric = metric
+                break
+        else:
+            custom_metric = None
         if custom_metric is None:
             raise CustomMetricLookupError("Custom metric with name `" + name + "` not found.")
         return custom_metric
