@@ -167,8 +167,9 @@ class Workspaces(object):
 
         if self._cache is None:
             self.query()
+        normalized = name.lower()
         for item in self._cache:
-            if item.name.lower() == name.lower():
+            if item.name.lower() == normalized:
                 workspace = item
                 break
         else:

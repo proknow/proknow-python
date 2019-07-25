@@ -12,7 +12,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 * Added ``Scorecard Objectives`` to explain how to include objectives in scorecard templates, patient scorecards, and collection scorecards
 * Achieved 100% code coverage
-* Improved behavior of the ``resolve_by_name`` methods to perform in a case insensitive manne.
+* Improved behavior of the ``resolve_by_name`` methods to perform in a case insensitive manner
 
 **Bug Fixes**
 

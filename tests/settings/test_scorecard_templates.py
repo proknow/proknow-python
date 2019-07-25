@@ -205,9 +205,13 @@ def test_resolve_by_id_failure(app):
 def test_resolve_by_name(app, scorecard_template_generator):
     pk = app.pk
 
-    params, scorecard_template = scorecard_template_generator()
+    params, scorecard_template = scorecard_template_generator(name="template-lower1")
 
     resolved = pk.scorecard_templates.resolve_by_name(params["name"])
+    assert resolved is not None
+    assert resolved.name == params["name"]
+
+    resolved = pk.scorecard_templates.resolve_by_name(params["name"].upper())
     assert resolved is not None
     assert resolved.name == params["name"]
 

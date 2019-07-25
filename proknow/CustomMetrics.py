@@ -183,8 +183,9 @@ class CustomMetrics(object):
 
         if self._cache is None:
             self.query()
+        normalized = name.lower()
         for metric in self._cache:
-            if metric.name.lower() == name.lower():
+            if metric.name.lower() == normalized:
                 custom_metric = metric
                 break
         else:

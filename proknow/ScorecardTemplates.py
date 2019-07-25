@@ -204,7 +204,7 @@ class ScorecardTemplates(object):
             return self.resolve_by_name(scorecard_template)
 
     def resolve_by_name(self, name):
-        """Resolves a scorecard template name to a scorecard template.
+        """Resolves a scorecard template name to a scorecard template in a case insensitive manner.
 
         Parameters:
             name (str): The scorecard template name.
@@ -221,7 +221,15 @@ class ScorecardTemplates(object):
         """
         assert isinstance(name, six.string_types), "`name` is required as a string."
 
-        scorecard_template = self.find(name=name)
+        if self._cache is None:
+            self.query()
+        normalized = name.lower()
+        for item in self._cache:
+            if item.name.lower() == normalized:
+                scorecard_template = item
+                break
+        else:
+            scorecard_template = None
         if scorecard_template is None:
             raise ScorecardTemplateLookupError("Scorecard template with name `" + name + "` not found.")
         return scorecard_template
