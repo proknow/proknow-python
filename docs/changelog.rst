@@ -1,6 +1,23 @@
 Release History
 ===============
 
+v0.9.0
+------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**New Features and Enhancements**
+
+* Added ``Scorecard Objectives`` to explain how to include objectives in scorecard templates, patient scorecards, and collection scorecards
+* Achieved 100% code coverage
+* Improved behavior of the ``resolve_by_name`` methods to perform in a case insensitive manner
+
+**Bug Fixes**
+
+* Fixed issue where the ``get`` method for an ``EntitySummary`` could fail if the entity had not finished processing
+
 v0.8.0
 ------
 

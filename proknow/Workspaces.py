@@ -150,7 +150,7 @@ class Workspaces(object):
             return self.resolve_by_name(workspace)
 
     def resolve_by_name(self, name):
-        """Resolves a workspace name to a workspace.
+        """Resolves a workspace name to a workspace in a case insensitive manner.
 
         Parameters:
             name (str): The workspace name.
@@ -165,7 +165,15 @@ class Workspaces(object):
         """
         assert isinstance(name, six.string_types), "`name` is required as a string."
 
-        workspace = self.find(name=name)
+        if self._cache is None:
+            self.query()
+        normalized = name.lower()
+        for item in self._cache:
+            if item.name.lower() == normalized:
+                workspace = item
+                break
+        else:
+            workspace = None
         if workspace is None:
             raise WorkspaceLookupError("Workspace with name `" + name + "` not found.")
         return workspace

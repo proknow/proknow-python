@@ -183,9 +183,15 @@ def test_resolve_by_id_failure(app):
 def test_resolve_by_name(app, custom_metric_generator):
     pk = app.pk
 
-    params, custom_metric = custom_metric_generator()
+    params, custom_metric = custom_metric_generator(name="custom-lower1")
 
     resolved = pk.custom_metrics.resolve_by_name(params["name"])
+    assert resolved is not None
+    assert resolved.name == params["name"]
+    assert resolved.context == params["context"]
+    assert resolved.type == params["type"]
+
+    resolved = pk.custom_metrics.resolve_by_name(params["name"].upper())
     assert resolved is not None
     assert resolved.name == params["name"]
     assert resolved.context == params["context"]

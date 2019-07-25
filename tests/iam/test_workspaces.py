@@ -184,9 +184,15 @@ def test_resolve_by_id_failure(app):
 def test_resolve_by_name(app, workspace_generator):
     pk = app.pk
 
-    params, workspace = workspace_generator()
+    params, workspace = workspace_generator(name="workspace-lower1")
 
     resolved = pk.workspaces.resolve_by_name(params["name"])
+    assert resolved is not None
+    assert resolved.slug == params["slug"]
+    assert resolved.name == params["name"]
+    assert resolved.protected == params["protected"]
+
+    resolved = pk.workspaces.resolve_by_name(params["name"].upper())
     assert resolved is not None
     assert resolved.slug == params["slug"]
     assert resolved.name == params["name"]
