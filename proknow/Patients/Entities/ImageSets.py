@@ -68,3 +68,37 @@ class ImageSetItem(EntityItem):
             image_path = os.path.join(main_directory, modality + "." + image["uid"])
             self._requestor.stream('/workspaces/' + self._workspace_id + '/imagesets/' + self._id + '/images/' + image["id"] + '/dicom', image_path)
         return main_directory
+
+    def get_slice_data(self, index):
+        """Gets the slice data for the image at the given index.
+
+        Parameters:
+            index (int): The index of the slice for which to get the data.
+
+        Returns:
+            bytes: The slice data.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to get the slice data for each slice in an imageset.
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="image_set")
+                image_set = entities[0].get()
+                slice_count = len(image_set.data["data"]["images"])
+                slice_data = [image_set.get_slice_data(i) for i in range(slice_count)]
+        """
+        assert isinstance(index, int), "`index` is required as an integer."
+        image = self.data["data"]["images"][index]
+        headers = {
+            'ProKnow-Key': self.data["key"]
+        }
+        _, content = self._requestor.get_binary('/imagesets/' + self._id + '/images/' + image["tag"], headers=headers)
+        return content

@@ -68,3 +68,37 @@ class DoseItem(EntityItem):
 
         self._requestor.stream('/workspaces/' + self._workspace_id + '/doses/' + self._id + '/dicom', resolved_path)
         return resolved_path
+
+    def get_slice_data(self, index):
+        """Gets the slice data for the dose at the given index.
+
+        Parameters:
+            index (int): The index of the slice for which to get the data.
+
+        Returns:
+            bytes: The slice data.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to get the slice data for each slice in an imageset.
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="dose")
+                dose = entities[0].get()
+                slice_count = len(dose.data["data"]["slices"])
+                slice_data = [dose.get_slice_data(i) for i in range(slice_count)]
+        """
+        assert isinstance(index, int), "`index` is required as an integer."
+        dose_slice = self.data["data"]["slices"][index]
+        headers = {
+            'ProKnow-Key': self.data["key"]
+        }
+        _, content = self._requestor.get_binary('/doses/' + self._id + '/slices/' + dose_slice["tag"], headers=headers)
+        return content
