@@ -83,7 +83,7 @@ class ImageSetItem(EntityItem):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            This example shows how to get the slice data for each slice in an imageset.
+            This example shows how to get the slice data for each slice in an image set::
 
                 from proknow import ProKnow
 
