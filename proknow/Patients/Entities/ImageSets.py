@@ -69,21 +69,21 @@ class ImageSetItem(EntityItem):
             self._requestor.stream('/workspaces/' + self._workspace_id + '/imagesets/' + self._id + '/images/' + image["id"] + '/dicom', image_path)
         return main_directory
 
-    def get_slice_data(self, index):
-        """Gets the slice data for the image at the given index.
+    def get_image_data(self, index):
+        """Gets the image data for the image at the given index.
 
         Parameters:
-            index (int): The index of the slice for which to get the data.
+            index (int): The index of the image for which to get the data.
 
         Returns:
-            bytes: The slice data.
+            bytes: The image data.
 
         Raises:
             AssertionError: If the input parameters are invalid.
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            This example shows how to get the slice data for each slice in an image set::
+            This example shows how to get the image data for each image in an image set::
 
                 from proknow import ProKnow
 
@@ -93,7 +93,7 @@ class ImageSetItem(EntityItem):
                 entities = patient.find_entities(type="image_set")
                 image_set = entities[0].get()
                 slice_count = len(image_set.data["data"]["images"])
-                slice_data = [image_set.get_slice_data(i) for i in range(slice_count)]
+                slice_data = [image_set.get_image_data(i) for i in range(slice_count)]
         """
         assert isinstance(index, int), "`index` is required as an integer."
         image = self.data["data"]["images"][index]

@@ -106,7 +106,7 @@ def test_download_image_set(app, entity_generator, temp_directory):
         download_path = image_set.download("/path/to/nowhere/")
     assert err_wrapper.value.message == "`/path/to/nowhere/` is invalid"
 
-def test_image_set_get_slice_data(app, entity_generator):
+def test_image_set_get_image_data(app, entity_generator):
     pk = app.pk
 
     image_files = [
@@ -114,7 +114,7 @@ def test_image_set_get_slice_data(app, entity_generator):
     ]
     image_set = entity_generator(image_files)
 
-    data = image_set.get_slice_data(0)
+    data = image_set.get_image_data(0)
     assert isinstance(data, six.binary_type), "data is not binary"
 
 def test_download_plan(app, entity_generator, temp_directory):
