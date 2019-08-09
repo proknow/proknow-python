@@ -135,7 +135,9 @@ class Uploads(object):
             if os.path.isdir(path):
                 for root, dirs, files in os.walk(path):
                     for name in files:
-                        upload_file_paths.append(os.path.abspath(os.path.join(root, name)))
+                        full_path = os.path.abspath(os.path.join(root, name))
+                        if os.stat(full_path).st_size > 0:
+                            upload_file_paths.append(full_path)
             elif os.path.isfile(path):
                 upload_file_paths.append(os.path.abspath(path))
             else:
