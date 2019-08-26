@@ -1,6 +1,17 @@
 Release History
 ===============
 
+v0.10.2
+-------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**Bug Fixes**
+
+* Fixed issue where the patient lookup method could fail if an MRN that does not exist is provided.
+
 v0.10.1
 -------
 
