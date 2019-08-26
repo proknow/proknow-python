@@ -123,19 +123,24 @@ def test_lookup(app, workspace_generator):
     pk.patients.create(workspace.id, "1000", "Test^1", "2018-01-01", "M")
     pk.patients.create(workspace.id, "1001", "Test^2")
 
-    patients = pk.patients.lookup(workspace.id, ["1000", "1001"])
-    assert len(patients) == 2
+    patients = pk.patients.lookup(workspace.id, ["1000", "1001", "invalid"])
+    assert len(patients) == 3
+    i = 0
     for patient in patients:
-        if patient.mrn == "1000":
-            assert patient.mrn == "1000"
-            assert patient.name == "Test^1"
-            assert patient.birth_date == "2018-01-01"
-            assert patient.sex == "M"
-        elif patient.mrn == "1001":
-            assert patient.mrn == "1001"
-            assert patient.name == "Test^2"
-            assert patient.birth_date == None
-            assert patient.sex == None
+        if patient == None:
+            assert i == 2
+        else:
+            if patient.mrn == "1000":
+                assert patient.mrn == "1000"
+                assert patient.name == "Test^1"
+                assert patient.birth_date == "2018-01-01"
+                assert patient.sex == "M"
+            elif patient.mrn == "1001":
+                assert patient.mrn == "1001"
+                assert patient.name == "Test^2"
+                assert patient.birth_date == None
+                assert patient.sex == None
+        i += 1
 
 def test_query(app, workspace_generator):
     pk = app.pk

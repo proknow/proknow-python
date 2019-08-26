@@ -150,7 +150,8 @@ class Patients(object):
 
         Returns:
             list: A list of :class:`proknow.Patients.PatientSummary` objects that match the given
-            MRNs.
+            MRNs. If the mrn at a given index cannot be found, the result will contain the value
+            None at that index.
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
@@ -170,7 +171,7 @@ class Patients(object):
 
         item = self._proknow.workspaces.resolve(workspace)
         _, patients = self._requestor.post('/workspaces/' + item.id + '/patients/lookup', json=mrns)
-        return [PatientSummary(self, item.id, patient) for patient in patients]
+        return [PatientSummary(self, item.id, patient) if patient != None else None for patient in patients]
 
     def get(self, workspace_id, patient_id):
         """Gets a patient from the given workspace.
