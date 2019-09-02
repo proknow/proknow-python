@@ -72,7 +72,7 @@ class Uploads(object):
 
         return result
 
-    def upload(self, workspace, path_or_paths, overrides=None):
+    def upload(self, workspace, path_or_paths, overrides=None, wait=True):
         """Initiates an upload or series of uploads to the API.
 
         Parameters:
@@ -82,9 +82,11 @@ class Uploads(object):
             overrides (dict, optional): A dictionary of overrides to use when creating uploads. The
                 object may contain an optional key ``"patient"``, which in turn may contain the
                 optional override parameters ``"mrn"``, ``"name"``, ``"birth_date"``, and ``"sex"``.
+            wait (bool, optional): Whether to wait for the uploads to reach a terminal state.
 
         Returns:
-            :class:`proknow.Uploads.UploadBatch`: An object used to manage a batch of uploads.
+            :class:`proknow.Uploads.UploadBatch`: If ``wait`` is True, an object used to manage a
+            batch of uploads; otherwise, ``None``.
 
         Raises:
             AssertionError: If the input parameters are invalid.
@@ -152,59 +154,62 @@ class Uploads(object):
             items = list(executor.map(self._upload_file, ids, upload_file_paths, override_list))
 
         # Wait for uploads to come to terminal state
-        query = None
-        last_change = datetime.utcnow()
-        while True:
-            terminal_count = 0
-            _, uploads = self._requestor.get('/workspaces/' + workspace_id + '/uploads', params=query)
+        if wait is True:
+            query = None
+            last_change = datetime.utcnow()
+            while True:
+                terminal_count = 0
+                _, uploads = self._requestor.get('/workspaces/' + workspace_id + '/uploads', params=query)
 
-            done = True
-            for item in items:
-                # Skip upload if already resolved
-                try:
-                    if item["upload_result"]["status"] in ("completed", "pending", "failed"):
-                        continue
-                    else: # pragma: no cover (cannot hit)
+                done = True
+                for item in items:
+                    # Skip upload if already resolved
+                    try:
+                        if item["upload_result"]["status"] in ("completed", "pending", "failed"):
+                            continue
+                        else: # pragma: no cover (cannot hit)
+                            pass
+                    except KeyError:
                         pass
-                except KeyError:
-                    pass
 
-                # Attempt to find match
-                upload_id = item["upload"]["id"]
-                for upload in uploads:
-                    if upload["id"] == upload_id:
-                        upload_match = upload
-                        break
-                else:
-                    upload_match = None
-                if upload_match is not None:
-                    if upload_match["status"] in ("completed", "pending", "failed"):
-                        item["upload_result"] = upload_match
-                        terminal_count += 1
-                        continue
+                    # Attempt to find match
+                    upload_id = item["upload"]["id"]
+                    for upload in uploads:
+                        if upload["id"] == upload_id:
+                            upload_match = upload
+                            break
+                    else:
+                        upload_match = None
+                    if upload_match is not None:
+                        if upload_match["status"] in ("completed", "pending", "failed"):
+                            item["upload_result"] = upload_match
+                            terminal_count += 1
+                            continue
 
-                # Matching upload was not found or status was not terminal
-                done = False
+                    # Matching upload was not found or status was not terminal
+                    done = False
 
-            if terminal_count > 0:
-                last_change = datetime.utcnow()
+                if terminal_count > 0:
+                    last_change = datetime.utcnow()
 
-            if done:
-                break
-            elif (datetime.utcnow() - last_change).total_seconds() > 30: # pragma: no cover (difficult to test)
-                raise TimeoutExceededError("Timeout of 30 seconds elapsed while waiting for uploads to finish")
-            elif len(uploads) > 0:
-                last_upload = uploads[-1]
-                query = {
-                    "updated": last_upload["updated_at"],
-                    "after": last_upload["id"],
-                }
+                if done:
+                    break
+                elif (datetime.utcnow() - last_change).total_seconds() > 30: # pragma: no cover (difficult to test)
+                    raise TimeoutExceededError("Timeout of 30 seconds elapsed while waiting for uploads to finish")
+                elif len(uploads) > 0:
+                    last_upload = uploads[-1]
+                    query = {
+                        "updated": last_upload["updated_at"],
+                        "after": last_upload["id"],
+                    }
 
-        # Construct Upload Batch
-        return UploadBatch(self, workspace_id, [{
-            "path": item["path"],
-            "upload": item["upload_result"],
-        } for item in items])
+            # Construct Upload Batch
+            return UploadBatch(self, workspace_id, [{
+                "path": item["path"],
+                "upload": item["upload_result"],
+            } for item in items])
+        else:
+            return None
 
 class UploadBatch(object):
     """
