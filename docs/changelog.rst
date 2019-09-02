@@ -1,6 +1,17 @@
 Release History
 ===============
 
+v0.11.0
+-------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**New Features and Enhancements**
+
+* Added ability to upload files without waiting for each file to reach a completed status
+
 v0.10.2
 -------
 
