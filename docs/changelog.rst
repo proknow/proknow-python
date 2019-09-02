@@ -10,7 +10,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 **New Features and Enhancements**
 
-* Added ability to upload files without waiting for each file to reach a completed status
+* Added ability to upload files without waiting for each file to reach a terminal state
 
 v0.10.2
 -------
