@@ -113,8 +113,7 @@ class EntityItem(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            The following example shows how to find a patient by its MRN, update the name, and save
-            it::
+            The following example shows how to find a dose, update its description, and save it::
 
                 from proknow import ProKnow
 
