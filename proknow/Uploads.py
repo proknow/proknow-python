@@ -140,6 +140,8 @@ class Uploads(object):
                         full_path = os.path.abspath(os.path.join(root, name))
                         if os.stat(full_path).st_size > 0:
                             upload_file_paths.append(full_path)
+                        else: # pragma: no cover (not worth testing)
+                            pass
             elif os.path.isfile(path):
                 upload_file_paths.append(os.path.abspath(path))
             else:
@@ -208,7 +210,7 @@ class Uploads(object):
                 "path": item["path"],
                 "upload": item["upload_result"],
             } for item in items])
-        else:
+        else: # pragma: no cover (not worth testing)
             return None
 
 class UploadBatch(object):

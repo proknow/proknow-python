@@ -11,6 +11,8 @@ class EntityItem(object):
         workspace_id (str): The id of the workspace (readonly).
         patient_id (str): The id of the patient (readonly).
         data (dict): The complete representation of the entity as returned from the API (readonly).
+        description (str): The entity description.
+        metadata (dict): The entity metadata.
         scorecards (proknow.Patients.EntityScorecards): An object for interacting with the
             scorecards belonging to the entity.
 
@@ -27,11 +29,14 @@ class EntityItem(object):
             entity (dict): A dictionary of entity attributes.
         """
         self._patients = patients
+        self._proknow = self._patients._proknow
         self._requestor = self._patients._requestor
         self._workspace_id = workspace_id
         self._patient_id = patient_id
         self._id = entity["id"]
         self._data = entity
+        self.description = entity["description"]
+        self.metadata = entity["metadata"]
         self.scorecards = EntityScorecards(patients, workspace_id, self._id)
 
     @property
@@ -71,3 +76,92 @@ class EntityItem(object):
                     entity.get().delete()
         """
         self._requestor.delete('/workspaces/' + self._workspace_id + '/entities/' + self._id)
+
+    def get_metadata(self):
+        """Gets the metadata dictionary and decodes the ids into metrics names.
+
+        Returns:
+            dict: The dictionary of custom metric key-value pairs where the keys are the decoded
+            custom metric names.
+
+        Raises:
+            :class:`proknow.Exceptions.CustomMetricLookupError`: If a custom metric could not be
+                resolved.
+
+        Example:
+            Use this example to print the metadata values for a patient entity::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                dose = patient.find_entities(type="dose")[0]
+                meta = dose.get_metadata()
+                print(meta)
+        """
+        metadata = {}
+        for key in self.metadata:
+            metric = self._proknow.custom_metrics.resolve(key)
+            metadata[metric.name] = self.metadata[key]
+        return metadata
+
+    def save(self):
+        """Saves the changes made to an entity.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to find a dose, update its description, and save it::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                dose = patient.find_entities(type="dose")[0]
+                dose.description = "Summed"
+                dose.save()
+        """
+        body = {
+            "description": self.description,
+            "metadata": self.metadata
+        }
+        _, entity = self._requestor.put('/workspaces/' + self._workspace_id + '/entities/' + self._id, json=body)
+        self._data = entity
+        self.description = entity["description"]
+        self.metadata = entity["metadata"]
+
+    def set_metadata(self, metadata):
+        """Sets the metadata dictionary to an encoded version of the given metadata dictionary.
+
+        Params:
+            metadata (dict): A dictionary of custom metric key-value pairs where the keys are the
+            names of the custom metric.
+
+        Raises:
+            :class:`proknow.Exceptions.CustomMetricLookupError`: If a custom metric could not be
+                resolved.
+
+        Example:
+            Use this example to set the metadata value for "Algorithm" for a dose entity before
+            saving::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                dose = patient.find_entities(type="dose")[0]
+                meta = dose.get_metadata()
+                meta["Algorithm"] = "Monte Carlo"
+                dose.set_metadata(meta)
+                dose.save()
+
+        """
+        encoded = {}
+        for key in metadata:
+            metric = self._proknow.custom_metrics.resolve(key)
+            encoded[metric.id] = metadata[key]
+        self.metadata = encoded
