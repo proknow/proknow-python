@@ -96,7 +96,8 @@ class EntityItem(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                dose = patient.find_entities(type="dose")[0]
+                dose_summary = patient.find_entities(type="dose")[0]
+                dose = dose_summary.get()
                 meta = dose.get_metadata()
                 print(meta)
         """
@@ -120,7 +121,8 @@ class EntityItem(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                dose = patient.find_entities(type="dose")[0]
+                dose_summary = patient.find_entities(type="dose")[0]
+                dose = dose_summary.get()
                 dose.description = "Summed"
                 dose.save()
         """
@@ -153,7 +155,8 @@ class EntityItem(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                dose = patient.find_entities(type="dose")[0]
+                dose_summary = patient.find_entities(type="dose")[0]
+                dose = dose_summary.get()
                 meta = dose.get_metadata()
                 meta["Algorithm"] = "Monte Carlo"
                 dose.set_metadata(meta)
