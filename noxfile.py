@@ -1,6 +1,6 @@
 import nox
 
-@nox.session(python=['2.7', '3.7'])
+@nox.session(python=['2.7', '3.8'])
 def tests(session):
     # Install py.test
     session.install('pytest', 'pytest-cov')

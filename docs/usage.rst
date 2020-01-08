@@ -87,3 +87,4 @@ Guides
    usage/contouring_data
    usage/pydicom_primer
    usage/scorecard_objectives
+   usage/patient_tasks

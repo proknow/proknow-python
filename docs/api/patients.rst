@@ -19,6 +19,24 @@ PatientItem
 .. autoclass:: proknow.Patients.PatientItem
    :members:
 
+Tasks
+-----
+
+.. autoclass:: proknow.Patients.Tasks
+   :members:
+
+TaskSummary
+-----------
+
+.. autoclass:: proknow.Patients.TaskSummary
+   :members:
+
+TaskItem
+--------
+
+.. autoclass:: proknow.Patients.TaskItem
+   :members:
+
 StudySummary
 ------------
 

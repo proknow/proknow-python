@@ -15,7 +15,7 @@ class StudySummary(object):
     """
 
     def __init__(self, patients, workspace_id, patient_id, study):
-        """Initializes the PatientItem class.
+        """Initializes the StudySummary class.
 
         Parameters:
             patients (proknow.Patients.Patients): The Patients instance that is instantiating the

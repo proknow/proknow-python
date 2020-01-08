@@ -61,7 +61,7 @@ def test_delete_failure(app, custom_metric_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         custom_metric.delete()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == "Custom metric '" + custom_metric.id + "' not found"
+    assert err_wrapper.value.body == 'Custom metric "' + custom_metric.id + '" not found'
 
 def test_find(app, custom_metric_generator):
     pk = app.pk
