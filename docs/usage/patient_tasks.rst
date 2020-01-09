@@ -6,7 +6,7 @@ Patient Tasks
 Dose Composition
 ----------------
 
-The top-level fields of a dose composition task are ``"type"``, ``"name"``, and ``"operation"``. ``"type"`` must have the value ``"dose_composition"``. ``"name"`` must be a string up to 64 characters in length. The ``"operation"`` field may be an object representing an additional operation, a multiplication operation, a division operation, or a dose entity::
+The top-level fields of a dose composition task are ``"type"``, ``"name"``, and ``"operation"``. ``"type"`` must have the value ``"dose_composition"``. ``"name"`` must be a string up to 64 characters in length. The ``"operation"`` field may be an object representing an addition operation, a multiplication operation, a division operation, or a dose entity::
 
     {
       "type": "dose_composition",
@@ -20,7 +20,7 @@ The dose operation type is the simplest operation type. At minimum it consists o
 
 The remaining operation types, on the other hand, consist of an object with the fields ``"type"`` and ``"operands"``. For the addition, multiplication, and division operations, the ``"type"`` should have the value "addition," "multiplication," and "division," respectively. The ``"operands"`` field should be an array of nested operations. At least two operands are required for addition, and exactly two operands are required for multiplication and division. The term "primary operand" is used to denote the first operand of an operation.
 
-All operation types may also specify the fields ``"offset"``, ``"scale"``, and ``"transformation"``. ``"offset"`` is a number representing the dose to add to each voxel in the resulting dose grid. ``"scale"`` is a number by which to scale each dose voxel. Finally, ``"transformation"`` is an object with the fields ``"type"`` and ``"id"``. ``"type"`` should have the value ``"sro"``, and ``"id"`` should be the id of a spacial registration object that transforms the operand from its current frame of reference into the frame of reference of the parent operation's primary operand. Note that ``"transformation"`` should be provided if and only if the frame of references between the operand and the parent operation's primary operand are different.
+All operation types may also specify the fields ``"offset"``, ``"scale"``, and ``"transformation"``. ``"offset"`` is a number representing the dose to add to each voxel in the resulting dose grid. ``"scale"`` is a number by which to scale each dose voxel. Finally, ``"transformation"`` is an object with the fields ``"type"`` and ``"id"``. ``"type"`` should have the value ``"sro"``, and ``"id"`` should be the id of a spatial registration object that transforms the operand from its current frame of reference into the frame of reference of the parent operation's primary operand. Note that ``"transformation"`` should be provided if and only if the frame of references between the operand and the parent operation's primary operand are different.
 
 Examples of dose compositions using the various operation types are produced below::
 
