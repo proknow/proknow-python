@@ -13,6 +13,7 @@ def test_create(app, workspace_generator):
 
     # Verify returned PatientItem
     patient = pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
+    assert patient.workspace_id == workspace.id
     assert patient.mrn == "1000"
     assert patient.name == "Last^First"
     assert patient.birth_date == "2018-01-01"
@@ -27,6 +28,7 @@ def test_create(app, workspace_generator):
     else:
         patient_match = None
     assert patient_match is not None
+    assert patient_match.workspace_id == workspace.id
     assert patient_match.mrn == "1000"
     assert patient_match.name == "Last^First"
     assert patient_match.birth_date == "2018-01-01"

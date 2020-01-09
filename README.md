@@ -10,18 +10,25 @@ Complete documentation is available on [Read the Docs](https://proknow-python.re
 
 ### Mac OSX
 
-Use the following steps if you need to be able to package the project to publish on PyPi or if you need to build the documentation.
+#### Initializing a Development Environment
 
-1. Install the latest version of python. This will be installed alongside the version that your operating system provides.
-2. Run the following to install/upgrade `pip`, `setuptools`, `wheel`, `twine`, `pipenv`.
+1. Install the latest version of Python 3.8. This will be installed alongside the version that your operating system provides.
+2. Run the following.
 ```
-python3 -m pip install --upgrade pip setuptools wheel twine pipenv
+$ python3 -m venv env
+$ source env/bin/activate
+(env) $ pip install --upgrade pip
+(env) $ pip install -r requirements.txt
+(env) $ pip install -e .
 ```
-3. Initialize a virtual environment using `pipenv`.
+
+Deactivate your virtual environment with the `deactivate` command. As long as the environment is not removed, you may start sessions simply with the command `source env/bin/activate`.
+
+**Note**: If you wish to update the requirements with new or updated packages, run the following.
+
 ```
-pipenv install --dev
+(env) $ pip freeze --exclude-editable > requirements.txt
 ```
-4. Activate the virtual environment using `pipenv shell`.
 
 #### Testing
 
@@ -36,7 +43,7 @@ credentials_secret = "{{ secret from credentials.json }}"
 
 Make sure to put your actual base_url and the id and secret from your `credentials.json` file in place of the placeholders above.
 
-Next, run the tests with the `nox` command from within your pipenv shell.
+Next, run the tests with the `nox` command from within your virtual environment.
 
 ```
 nox
@@ -56,16 +63,15 @@ pytest --cov=proknow --cov-branch --cov-report html tests
 
 #### Building the Documentation
 
-With the pipenv shell, you can run `make clean && make html` to build the documentation.
+With the virtual environment, you can run `make clean && make html` to build the documentation.
 ```
-pipenv shell
 cd docs/
 make clean && make html
 ```
 
 #### Packaging
 
-First, make sure the version has been updated in setup.py. Then run the following outside your pipenv shell.
+First, make sure the version has been updated in setup.py. Then run the following.
 
 ```
 rm -rf dist build */*.egg-info *.egg-info

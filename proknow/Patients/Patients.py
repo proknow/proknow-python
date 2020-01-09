@@ -1,6 +1,7 @@
 import six
 
 from .Studies import StudySummary
+from .Tasks import Tasks, TaskSummary, TaskItem
 
 
 class Patients(object):
@@ -245,6 +246,7 @@ class PatientSummary(object):
 
     Attributes:
         id (str): The id of the patient (readonly).
+        workspace_id (str): The id of the workspace in which the patient belongs (readonly).
         mrn (str): The patient medical record number or MRN (readonly). In the Proknow interface,
             this is referred to as the Patient ID.
         name (str): The name of the patient (readonly).
@@ -277,6 +279,10 @@ class PatientSummary(object):
     @property
     def id(self):
         return self._id
+
+    @property
+    def workspace_id(self):
+        return self._workspace_id
 
     @property
     def mrn(self):
@@ -366,6 +372,7 @@ class PatientItem(object):
 
     Attributes:
         id (str): The id of the patient (readonly).
+        workspace_id (str): The id of the workspace in which the patient belongs (readonly).
         data (dict): The complete representation of the patient as returned from the API (readonly).
         mrn (str): The MRN of the patient.
         name (str): The name of the patient.
@@ -396,10 +403,15 @@ class PatientItem(object):
         self.sex = patient["sex"]
         self.metadata = patient["metadata"]
         self.studies = [StudySummary(self._patients, self._workspace_id, self._id, study) for study in patient["studies"]]
+        self.tasks = Tasks(self._patients, self._workspace_id, self._id)
 
     @property
     def id(self):
         return self._id
+
+    @property
+    def workspace_id(self):
+        return self._workspace_id
 
     @property
     def data(self):
