@@ -417,6 +417,41 @@ class PatientItem(object):
     def data(self):
         return self._data
 
+    def create_structure_set(self, name, image_set_id):
+        """Creates a structure set.
+
+        Parameters:
+            name (str): The name of the structure set (available as the entity description).
+            image_set_id (str): The id of the image set.
+
+        Returns:
+            :class:`proknow.Patients.EntitySummary`: The entity summary object representing the new
+            structure set.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to create a structure set::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                image_set = patient.find_entities(modality="CT")[0]
+                structure_set = patient.create_structure_set("My Structure Set", image_set.id)
+        """
+        body = {
+            "name": name,
+            "image_set_id": image_set_id,
+        }
+        _, result = self._requestor.post('/workspaces/' + self._workspace_id + '/structuresets', json=body)
+        self.refresh()
+        entities = self.find_entities(id=result["id"])
+        assert len(entities) == 1, "Problem finding created structure set"
+        return entities[0]
+
     def delete(self):
         """Deletes the patient.
 
@@ -578,6 +613,32 @@ class PatientItem(object):
             metric = self._proknow.custom_metrics.resolve(key)
             metadata[metric.name] = self.metadata[key]
         return metadata
+
+    def refresh(self):
+        """Refreshes the patient state.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to refresh the patient::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                patient.refresh()
+        """
+        _, patient = self._requestor.get('/workspaces/' + self._workspace_id + '/patients/' + self._id)
+        self._data = patient
+        self.mrn = patient["mrn"]
+        self.name = patient["name"]
+        self.birth_date = patient["birth_date"]
+        self.sex = patient["sex"]
+        self.metadata = patient["metadata"]
+        self.studies = [StudySummary(self._patients, self._workspace_id, self._id, study) for study in patient["studies"]]
+        self.tasks = Tasks(self._patients, self._workspace_id, self._id)
 
     def set_metadata(self, metadata):
         """Sets the metadata dictionary to an encoded version of the given metadata dictionary.
