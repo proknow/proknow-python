@@ -46,6 +46,21 @@ def test_create_failure(app, workspace_generator):
     assert err_wrapper.value.status_code == 409
     assert err_wrapper.value.body == 'Patient already exists with mrn "1000"'
 
+def test_create_structure_set(app, patient_generator):
+    pk = app.pk
+
+    patient = patient_generator("./data/Becker^Matthew")
+
+    image_set = patient.find_entities(type="image_set")[0]
+    structure_set = patient.create_structure_set("My Structure Set", image_set.id)
+    assert structure_set.data["description"] == "My Structure Set"
+
+    structure_sets = patient.find_entities(type="structure_set")
+    assert len(structure_sets) == 2
+
+    structure_sets = patient.find_entities(type="structure_set", description="My Structure Set")
+    assert len(structure_sets) == 1
+
 def test_delete(app, workspace_generator):
     pk = app.pk
 
@@ -187,6 +202,33 @@ def test_query(app, workspace_generator):
     # Verify with search parameter 2
     patients = pk.patients.query(workspace.id, "Test^1")
     assert len(patients) == 1
+
+def test_refresh(app, workspace_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+    patient = pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
+
+    other = pk.patients.get(workspace.id, patient.id)
+    other.upload("./data/Becker^Matthew")
+    other.mrn = "1000-AAAA-2000"
+    other.name = "Modified^Name"
+    other.birth_date = "2019-01-01"
+    other.sex = "F"
+    other.save()
+
+    assert patient.mrn == "1000"
+    assert patient.name == "Last^First"
+    assert patient.birth_date == "2018-01-01"
+    assert patient.sex == "M"
+    assert len(patient.studies) == 0
+
+    patient.refresh()
+    assert patient.mrn == "1000-AAAA-2000"
+    assert patient.name == "Modified^Name"
+    assert patient.birth_date == "2019-01-01"
+    assert patient.sex == "F"
+    assert len(patient.studies) == 1
 
 def test_update(app, custom_metric_generator, workspace_generator):
     pk = app.pk
