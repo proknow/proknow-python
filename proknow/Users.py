@@ -299,7 +299,8 @@ class UserItem(object):
         """Saves the changes made to a user.
 
         Raises:
-            AssertionError: If neither or both properties `role` and `role_id` are set.
+            AssertionError: If neither or both properties `role` and `role_id` are set to something
+                other than None.
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
