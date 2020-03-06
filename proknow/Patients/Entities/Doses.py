@@ -1,8 +1,9 @@
 import os
 import six
+import time
 
 from .EntityItem import EntityItem
-from ...Exceptions import InvalidPathError
+from ...Exceptions import InvalidPathError, TimeoutExceededError
 
 
 class DoseItem(EntityItem):
@@ -28,6 +29,25 @@ class DoseItem(EntityItem):
             entity (dict): A dictionary of entity attributes.
         """
         super(DoseItem, self).__init__(patients, workspace_id, patient_id, entity)
+
+    def _wait_analysis(self):
+        count = 0
+        DELAY = 0.2
+        MAX_COUNT = 5 / DELAY
+        while True:
+            analysis_status = self.data["data"]["analysis"]["status"]
+            assert analysis_status != 'failed', "Dose analysis failed"
+            assert analysis_status != 'pending', "Dose analysis not possible"
+            if analysis_status == 'current':
+                break
+            else:
+                if count < MAX_COUNT:
+                    time.sleep(DELAY)
+                    count += 1
+                else: # pragma: no cover (should not occur in normal circumstances)
+                    raise TimeoutExceededError('Timeout exceeded while waiting for dose analysis to reach completed status')
+                _, dose = self._requestor.get('/workspaces/' + self._workspace_id + '/doses/' + self._id)
+                self._update(dose)
 
     def download(self, path):
         """Downloads the dose file.
@@ -68,6 +88,41 @@ class DoseItem(EntityItem):
 
         self._requestor.stream('/workspaces/' + self._workspace_id + '/doses/' + self._id + '/dicom', resolved_path)
         return resolved_path
+
+    def get_analysis(self):
+        """Gets the analysis data for the dose.
+
+        The analysis data consists primarily of DVH data.
+
+        Note:
+            For information on how interpret the dose analysis object, see :ref:`dose-analysis`.
+
+        Returns:
+            dict: The dose analysis data.
+
+        Raises:
+            AssertionError: If dose analysis cannot be computed because the dose is not associated
+                with a structure set or if the dose analysis has failed.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to get the analysis data for a dose::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="dose")
+                dose = entities[0].get()
+                analysis = dose.get_analysis()
+        """
+        self._wait_analysis()
+        headers = {
+            'ProKnow-Key': self.data["key"]
+        }
+        _, content = self._requestor.get('/doses/' + self._id + '/analysis/' + self._data["data"]["analysis"]["tag"], headers=headers)
+        return content
 
     def get_slice_data(self, index):
         """Gets the slice data for the dose at the given index.

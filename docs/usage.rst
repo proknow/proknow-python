@@ -71,7 +71,7 @@ This script will not work in your set up for several reasons:
 * Your ``base_url`` for your ProKnow account is not ``https://example.proknow.com``.
 * Your ``credentials.json`` file may not be located at the path "./credentials.json."
 * You probably do not have a patient with the MRN "HNC-0522c0009" in a workspace called "Clinical."
-* You probably do not have a custom metric called "Genetric Type."
+* You probably do not have a custom metric called "Genetic Type."
 
 If you run into problems while running your script, examine the error message and make sure you didn't copy a code example without making the proper modifications. Values may need to be replaced or additional setup code may need to be added before the code you copied in order for your script to function properly.
 
@@ -85,6 +85,7 @@ Guides
    usage/computed_metrics
    usage/find_methods
    usage/contouring_data
+   usage/dose_analysis
    usage/pydicom_primer
    usage/scorecard_objectives
    usage/patient_tasks

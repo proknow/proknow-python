@@ -188,7 +188,7 @@ class TaskSummary(object):
         """Gets the complete representation of the patient task.
 
         Returns:
-            :class:`proknow.Patients.TaskItem`: an object representing a patient task.
+            :class:`proknow.Patients.TaskItem`: An object representing a patient task.
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
