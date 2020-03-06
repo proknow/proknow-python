@@ -127,7 +127,7 @@ class Users(object):
             user_id (str): The id of the user to get.
 
         Returns:
-            :class:`proknow.Users.UserItem`: an object representing a user in the organization
+            :class:`proknow.Users.UserItem`: An object representing a user in the organization
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
@@ -215,7 +215,7 @@ class UserSummary(object):
         """Gets the complete representation of the user.
 
         Returns:
-            :class:`proknow.Users.UserItem`: an object representing a user in the organization
+            :class:`proknow.Users.UserItem`: An object representing a user in the organization
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
@@ -243,7 +243,8 @@ class UserItem(object):
         name (str): The name of the user.
         email (str): The email of the user.
         active (bool): Indicates whether the user is active.
-        role_id (str): The id of the role for the user.
+        role_id (str, None): The id of the role for the user.
+        role (dict, None): A private role definition.
 
     """
 
@@ -261,7 +262,13 @@ class UserItem(object):
         self.name = user["name"]
         self.email = user["email"]
         self.active = user["active"]
-        self.role_id = user["role"]["id"]
+        role = user["role"]
+        if role["private"] == True:
+            self.role_id = None
+            self.role = role
+        else:
+            self.role_id = role["id"]
+            self.role = None
 
     @property
     def id(self):
@@ -292,6 +299,8 @@ class UserItem(object):
         """Saves the changes made to a user.
 
         Raises:
+            AssertionError: If neither or both properties `role` and `role_id` are set to something
+                other than None.
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
@@ -304,16 +313,61 @@ class UserItem(object):
                 jsmith = pk.users.find(email='jsmith@example.com')
                 jsmith.active = False
                 jsmith.save()
+
+            To update the user with a private role, set the `role_id` property to `None` and the
+            `role` property to a role definition::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                jsmith = pk.users.find(email='jsmith@example.com')
+                jsmith.role_id = None
+                jsmith.role = {
+                    "create_api_keys": False,
+                    "manage_access": False,
+                    "manage_custom_metrics": False,
+                    "manage_template_metric_sets": False,
+                    "manage_renaming_rules": False,
+                    "manage_template_checklists": False,
+                    "organization_collaborator": False,
+                    "organization_read_patients": False,
+                    "organization_read_collections": False,
+                    "organization_view_phi": False,
+                    "organization_download_dicom": False,
+                    "organization_write_collections": False,
+                    "organization_write_patients": False,
+                    "organization_contour_patients": False,
+                    "organization_delete_collections": False,
+                    "organization_delete_patients": False,
+                    "workspaces": [],
+                }
+                jsmith.save()
+
         """
         body = {
             "email": self.email,
             "name": self.name,
-            "role_id": self.role_id,
-            "active": self.active
+            "active": self.active,
         }
+        assert (self.role_id is not None and self.role is None) or (self.role_id is None and self.role is not None), "exactly one of `role_id` or `role` is required"
+        if self.role_id is not None:
+            body["role_id"] = self.role_id
+        else: # self.role is not None:
+            body["role"] = self.role
+            for prop in ["id", "name", "private", "user", "created_at"]:
+                try:
+                    del body["role"][prop]
+                except KeyError:
+                    pass
         _, user = self._requestor.put('/users/' + self._id, json=body)
         self._data = user
         self.name = user["name"]
         self.email = user["email"]
         self.active = user["active"]
-        self.role_id = user["role"]["id"]
+        role = user["role"]
+        if role["private"] == True:
+            self.role_id = None
+            self.role = role
+        else:
+            self.role_id = role["id"]
+            self.role = None

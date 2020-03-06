@@ -138,27 +138,6 @@ def test_download_plan(app, entity_generator, temp_directory):
         download_path = plan.download("/path/to/nowhere/plan.dcm")
     assert err_wrapper.value.message == "`/path/to/nowhere/plan.dcm` is invalid"
 
-def test_download_dose(app, entity_generator, temp_directory):
-    pk = app.pk
-
-    dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
-    dose = entity_generator(dose_path)
-
-    # Download to directory
-    download_path = dose.download(temp_directory.path)
-    assert filecmp.cmp(dose_path, download_path, shallow=False)
-
-    # Download to specific file
-    specific_path = os.path.join(temp_directory.path, "dose.dcm")
-    download_path = dose.download(specific_path)
-    assert specific_path == download_path
-    assert filecmp.cmp(dose_path, download_path, shallow=False)
-
-    # File does not exist
-    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
-        download_path = dose.download("/path/to/nowhere/dose.dcm")
-    assert err_wrapper.value.message == "`/path/to/nowhere/dose.dcm` is invalid"
-
 def test_dose_get_slice_data(app, entity_generator):
     pk = app.pk
 

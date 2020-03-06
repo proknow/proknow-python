@@ -257,7 +257,7 @@ class StructureSetItem(EntityItem):
 
         Parameters:
             path (str): A path to a directory or file to which the structure set file should be
-            streamed.
+                streamed.
 
         Returns:
             str: The absolute path to the downloaded file.
@@ -840,7 +840,7 @@ class StructureSetVersionItem(object):
 
         Parameters:
             path (str): A path to a directory or file to which the structure set file should be
-            streamed.
+                streamed.
 
         Returns:
             str: The absolute path to the downloaded file.

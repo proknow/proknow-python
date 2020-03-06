@@ -169,7 +169,7 @@ class CollectionPatientSummary(object):
         """Gets the complete representation of the patient.
 
         Returns:
-            :class:`proknow.Patients.PatientItem`: an object representing a patient in the
+            :class:`proknow.Patients.PatientItem`: An object representing a patient in the
             organization.
 
         Raises:

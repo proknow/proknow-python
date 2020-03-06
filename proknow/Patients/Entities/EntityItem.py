@@ -33,10 +33,7 @@ class EntityItem(object):
         self._requestor = self._patients._requestor
         self._workspace_id = workspace_id
         self._patient_id = patient_id
-        self._id = entity["id"]
-        self._data = entity
-        self.description = entity["description"]
-        self.metadata = entity["metadata"]
+        self._update(entity)
         self.scorecards = EntityScorecards(patients, workspace_id, self._id)
 
     @property
@@ -54,6 +51,12 @@ class EntityItem(object):
     @property
     def data(self):
         return self._data
+
+    def _update(self, entity):
+        self._id = entity["id"]
+        self._data = entity
+        self.description = entity["description"]
+        self.metadata = entity["metadata"]
 
     def delete(self):
         """Deletes the entity.

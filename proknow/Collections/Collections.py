@@ -139,7 +139,7 @@ class Collections(object):
             collection_id (str): The id of the collection to get.
 
         Returns:
-            :class:`proknow.Collections.CollectionItem`: an object representing a collection in the
+            :class:`proknow.Collections.CollectionItem`: An object representing a collection in the
             organization
 
         Raises:
@@ -242,7 +242,7 @@ class CollectionSummary(object):
         """Gets the complete representation of the collection.
 
         Returns:
-            :class:`proknow.Collections.CollectionItem`: an object representing a collection in the
+            :class:`proknow.Collections.CollectionItem`: An object representing a collection in the
             organization
 
         Raises:

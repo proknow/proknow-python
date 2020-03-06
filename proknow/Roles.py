@@ -148,7 +148,7 @@ class Roles(object):
             role_id (str): The id of the role to get.
 
         Returns:
-            :class:`proknow.Roles.RoleItem`: an object representing a role in the organization
+            :class:`proknow.Roles.RoleItem`: An object representing a role in the organization
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
@@ -230,7 +230,7 @@ class RoleSummary(object):
         """Gets the complete representation of the role.
 
         Returns:
-            :class:`proknow.Roles.RoleItem`: an object representing a role in the organization
+            :class:`proknow.Roles.RoleItem`: An object representing a role in the organization
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
@@ -320,6 +320,8 @@ class RoleItem(object):
                 researchers.save()
         """
         body = dict(self.permissions)
+        del body["private"]
+        del body["user"]
         body["name"] = self.name
         _, role = self._requestor.put('/roles/' + self._id, json=body)
         self._data = role

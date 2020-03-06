@@ -10,7 +10,10 @@ def test_create(app, role_generator):
     # Verify returned RoleItem
     params, role = role_generator()
     assert role.name == params["name"]
-    assert role.permissions == params["permissions"]
+    permissions = dict(params["permissions"])
+    permissions["user"] = None
+    permissions["private"] = False
+    assert role.permissions == permissions
 
     # Assert item can be found in query
     for role in pk.roles.query():
@@ -23,7 +26,7 @@ def test_create(app, role_generator):
     role = role_match.get()
     assert isinstance(role.data["id"], six.string_types)
     assert role.name == params["name"]
-    assert role.permissions == params["permissions"]
+    assert role.permissions == permissions
 
 def test_create_failure(app):
     pk = app.pk
@@ -173,6 +176,8 @@ def test_update(app, role_generator):
         "organization_delete_collections": False,
         "organization_delete_patients": False,
         "workspaces": [],
+        "private": False,
+        "user": None,
     }
 
 def test_update_failure(app, role_generator):
