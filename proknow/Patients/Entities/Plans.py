@@ -1,5 +1,6 @@
 import os
 import six
+import datetime
 
 from .EntityItem import EntityItem
 from ...Exceptions import InvalidPathError
@@ -28,6 +29,19 @@ class PlanItem(EntityItem):
             entity (dict): A dictionary of entity attributes.
         """
         super(PlanItem, self).__init__(patients, workspace_id, patient_id, entity)
+
+    def _wait_delivery_information(self):
+        start = datetime.datetime.now()
+        DELAY = 0.2
+        while (datetime.datetime.now() - start).total_seconds() < self._proknow.ENTITY_WAIT_TIMEOUT:
+            entity_status = self.data["status"]
+            if entity_status == 'completed':
+                return
+            else: # pragma: no cover (unreliable)
+                time.sleep(DELAY)
+                _, plan = self._requestor.get('/workspaces/' + self._workspace_id + '/plans/' + self._id)
+                self._update(plan)
+        raise TimeoutExceededError('Timeout exceeded while waiting for delivery information to reach completed status') # pragma: no cover (should not occur in normal circumstances)
 
     def download(self, path):
         """Download the plan file.
@@ -67,3 +81,36 @@ class PlanItem(EntityItem):
                 raise InvalidPathError('`' + path + '` is invalid')
         self._requestor.stream('/workspaces/' + self._workspace_id + '/plans/' + self._id + '/dicom', resolved_path)
         return resolved_path
+
+    def get_delivery_information(self):
+        """Gets the delivery information for the plan.
+
+        The delivery information is returned as a dictionary with keys including ``"equipment"``,
+        ``"patient_setups"``, ``"fraction_groups"``, ``"beams"``, and ``"brachy"``.
+
+        Returns:
+            dict: The plan delivery information.
+
+        Raises:
+            :class:`proknow.Exceptions.TimeoutExceededError`: If the timeout was exceeded while
+                waiting for the delivery information to become available.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to get the delivery information for a plan::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="plan")
+                plan = entities[0].get()
+                info = plan.get_delivery_information()
+        """
+        self._wait_delivery_information()
+        headers = {
+            'ProKnow-Key': self.data["key"]
+        }
+        _, content = self._requestor.get('/plans/' + self._id + '/delivery/' + self._data["data"]["delivery_tag"], headers=headers)
+        return content

@@ -1,6 +1,21 @@
 Release History
 ===============
 
+v0.16.0
+-------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**New Features and Enhancements**
+
+* Added support for retrieving plan delivery information for a plan entity
+
+**Bug Fixes**
+
+* Fixed miscellaneous issues in the documentation
+
 v0.15.0
 -------
 
