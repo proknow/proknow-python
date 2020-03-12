@@ -265,7 +265,7 @@ class DoseItemMetrics(object):
                 patient = patients[0].get()
                 entities = patient.find_entities(type="dose")
                 dose = entities[0].get()
-                metrics = dose.metrics.add([{
+                dose.metrics.add([{
                     "type": "DOSE_VOLUME_PERCENT_ROI",
                     "roi_name": "PTV",
                     "arg_1": 99,
