@@ -380,6 +380,7 @@ class PatientItem(object):
         sex (str): The sex of the patient.
         metadata (dict): The metadata of the patient.
         studies (list): A list of :class:`proknow.Patients.StudySummary` objects for the patient.
+        tasks (:class:`proknow.Patients.Tasks`): An instance of the Tasks class for the patient.
     """
 
     def __init__(self, patients, workspace_id, patient):

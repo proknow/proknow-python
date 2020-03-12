@@ -79,3 +79,94 @@ def test_get_analysis_failure(app, entity_generator):
     with pytest.raises(AssertionError) as err_wrapper:
         dose.get_analysis()
     assert str(err_wrapper.value) == "Dose analysis not possible"
+
+def test_metrics_add(app, patient_generator):
+    pk = app.pk
+
+    patient = patient_generator([
+        "./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm"
+    ])
+
+    dose = patient.find_entities(type="dose")[0].get()
+    metrics = dose.metrics.query()
+    assert metrics == []
+    dose.metrics.add([{
+        "type": "DOSE_VOLUME_PERCENT_ROI",
+        "roi_name": "PTV",
+        "arg_1": 99,
+        "arg_2": None,
+    }, {
+        "type": "VOLUME_PERCENT_DOSE_RANGE_ROI",
+        "roi_name": "BRAINSTEM",
+        "arg_1": 0,
+        "arg_2": 10,
+    }])
+    metrics = dose.metrics.query()
+    assert len(metrics) == 2
+
+def test_metrics_add_failure(app, patient_generator):
+    pk = app.pk
+
+    patient = patient_generator([
+        "./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm"
+    ])
+
+    dose = patient.find_entities(type="dose")[0].get()
+    with pytest.raises(Exceptions.HttpError) as err_wrapper:
+        dose.metrics.add({
+            "type": "DOSE_VOLUME_PERCENT_ROI",
+            "roi_name": "PTV",
+            "arg_1": 99,
+            "arg_2": None,
+        })
+    assert err_wrapper.value.status_code == 422
+    assert err_wrapper.value.body == '"value" must be an array'
+
+def test_metrics_query(app, patient_generator):
+    pk = app.pk
+
+    patient = patient_generator([
+        "./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm"
+    ])
+
+    dose = patient.find_entities(type="dose")[0].get()
+    metrics = dose.metrics.query(False)
+    assert metrics == []
+    dose.metrics.add([{
+        "type": "DOSE_VOLUME_PERCENT_ROI",
+        "roi_name": "PTV",
+        "arg_1": 99,
+        "arg_2": None,
+    }, {
+        "type": "VOLUME_PERCENT_DOSE_RANGE_ROI",
+        "roi_name": "BRAINSTEM",
+        "arg_1": 0,
+        "arg_2": 10,
+    }])
+    metrics = dose.metrics.query()
+    metrics = sorted(metrics, key=lambda m: (m["type"], m["roi_name"], m["arg_1"], m["arg_2"]))
+    for metric in metrics:
+        del metric["id"]
+    assert metrics == sorted([{
+        "type": "DOSE_VOLUME_PERCENT_ROI",
+        "roi_name": "PTV",
+        "arg_1": 99,
+        "arg_2": None,
+        "status": "completed",
+        "value": 40.17162632117286,
+        "code": None,
+    }, {
+        "type": "VOLUME_PERCENT_DOSE_RANGE_ROI",
+        "roi_name": "BRAINSTEM",
+        "arg_1": 0,
+        "arg_2": 10,
+        "status": "failed",
+        "value": None,
+        "code": "ENOROI",
+    }], key=lambda m: (m["type"], m["roi_name"], m["arg_1"], m["arg_2"]))
