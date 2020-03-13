@@ -10,6 +10,8 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 **New Features and Enhancements**
 
+* Added support for adding computed metrics for a dose entity
+* Added support for query computed metrics results for a dose entity
 * Added support for retrieving plan delivery information for a plan entity
 
 **Bug Fixes**
