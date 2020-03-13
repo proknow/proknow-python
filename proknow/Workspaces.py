@@ -322,7 +322,7 @@ class WorkspaceItem(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            This example show how to update the frame of reference for list of entities::
+            This example show how to update the frame of reference for a list of entities::
 
                 from proknow import ProKnow
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
