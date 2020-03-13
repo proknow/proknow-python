@@ -1,6 +1,7 @@
 import os
 import six
 import time
+import datetime
 
 from .EntityItem import EntityItem
 from ...Exceptions import InvalidPathError, TimeoutExceededError
@@ -31,23 +32,19 @@ class DoseItem(EntityItem):
         super(DoseItem, self).__init__(patients, workspace_id, patient_id, entity)
 
     def _wait_analysis(self):
-        count = 0
+        start = datetime.datetime.now()
         DELAY = 0.2
-        MAX_COUNT = 5 / DELAY
-        while True:
+        while (datetime.datetime.now() - start).total_seconds() < self._proknow.ENTITY_WAIT_TIMEOUT:
             analysis_status = self.data["data"]["analysis"]["status"]
             assert analysis_status != 'failed', "Dose analysis failed"
             assert analysis_status != 'pending', "Dose analysis not possible"
             if analysis_status == 'current':
-                break
+                return
             else:
-                if count < MAX_COUNT:
-                    time.sleep(DELAY)
-                    count += 1
-                else: # pragma: no cover (should not occur in normal circumstances)
-                    raise TimeoutExceededError('Timeout exceeded while waiting for dose analysis to reach completed status')
+                time.sleep(DELAY)
                 _, dose = self._requestor.get('/workspaces/' + self._workspace_id + '/doses/' + self._id)
                 self._update(dose)
+        raise TimeoutExceededError('Timeout exceeded while waiting for dose analysis to reach completed status') # pragma: no cover (should not occur in normal circumstances)
 
     def download(self, path):
         """Downloads the dose file.
@@ -103,6 +100,8 @@ class DoseItem(EntityItem):
         Raises:
             AssertionError: If dose analysis cannot be computed because the dose is not associated
                 with a structure set or if the dose analysis has failed.
+            :class:`proknow.Exceptions.TimeoutExceededError`: If the timeout was exceeded while
+                waiting for the analysis data to become available.
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:

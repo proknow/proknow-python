@@ -74,15 +74,6 @@ def test_delete_entity_item(app, workspace_generator):
     patient = pk.patients.get(workspace.id, patient_id)
     assert len(patient.find_entities(lambda entity: True)) == 0
 
-def test_dose_get_slice_data(app, entity_generator):
-    pk = app.pk
-
-    dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
-    dose = entity_generator(dose_path)
-
-    data = dose.get_slice_data(0)
-    assert isinstance(data, six.binary_type), "data is not binary"
-
 def test_update(app, entity_generator, custom_metric_generator):
     pk = app.pk
 
