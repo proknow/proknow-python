@@ -120,3 +120,9 @@ DoseItem
 
 .. autoclass:: proknow.Patients.DoseItem
    :members:
+
+DoseItemMetrics
+---------------
+
+.. autoclass:: proknow.Patients.DoseItemMetrics
+   :members:
