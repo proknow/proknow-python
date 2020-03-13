@@ -3,9 +3,9 @@ import pytest
 import filecmp
 import os
 
-from proknow import Exceptions
+from proknow import ProKnow, Exceptions
 
-def test_download_plan(app, entity_generator, temp_directory):
+def test_download(app, entity_generator, temp_directory):
     pk = app.pk
 
     plan_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
@@ -38,3 +38,18 @@ def test_get_delivery_information(app, entity_generator):
     assert "fraction_groups" in info
     assert "beams" in info
     assert "brachy" in info
+
+def test_refresh(app, patient_generator):
+    pk = app.pk
+
+    patient = patient_generator([
+        "./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1.dcm"
+    ])
+    plan = patient.find_entities(type="plan")[0].get()
+    structure_set = patient.find_entities(type="structure_set")[0]
+    image_set = patient.find_entities(type="image_set")[0]
+    old_data = plan.data
+    plan.update_parent(image_set) # This calls refresh internally
+    assert plan.data != old_data

@@ -644,7 +644,7 @@ class PatientItem(object):
     def set_metadata(self, metadata):
         """Sets the metadata dictionary to an encoded version of the given metadata dictionary.
 
-        Params:
+        Parameters:
             metadata (dict): A dictionary of custom metric key-value pairs where the keys are the
             names of the custom metric.
 
@@ -695,7 +695,7 @@ class PatientItem(object):
                 waiting for the uploads to complete.
 
         Example:
-            This examples show how to upload a directory of files to a patient::
+            This example shows how to upload a directory of files to a patient::
 
                 from proknow import ProKnow
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")

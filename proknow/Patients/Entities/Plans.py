@@ -98,7 +98,6 @@ class PlanItem(EntityItem):
 
         Example:
             This example shows how to get the delivery information for a plan::
-
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
@@ -114,3 +113,24 @@ class PlanItem(EntityItem):
         }
         _, content = self._requestor.get('/plans/' + self._id + '/delivery/' + self._data["data"]["delivery_tag"], headers=headers)
         return content
+
+    def refresh(self):
+        """Refreshes the plan entity.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to refresh a plan entity::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="plan")
+                plan = entities[0].get()
+                plan.refresh()
+        """
+        _, plan = self._requestor.get('/workspaces/' + self._workspace_id + '/plans/' + self._id)
+        self._update(plan)

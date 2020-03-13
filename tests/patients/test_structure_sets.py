@@ -461,3 +461,25 @@ def test_version_save(app, entity_generator):
     assert archived_version.label == "test label (archived)"
     assert archived_version.message == "test message (archived)"
     assert archived_version.data["imported"] is True
+
+def test_refresh(app, workspace_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+    patient = pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
+
+    patient.upload([
+        "./data/Jensen^Myrtle/HNC0522c0013_CT1_image00000.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm",
+    ])
+    patient.refresh()
+    structure_set = patient.find_entities(type="structure_set")[0].get()
+    old_data = structure_set.data
+    image_set_id = structure_set.data["ref"]["image_set"]
+    image_sets = patient.find_entities(type="image_set")
+    for image_set in image_sets:
+        if image_set.id != image_set_id:
+            other_image_set_id = image_set.id
+    structure_set.update_parent(other_image_set_id) # This calls refresh internally
+    assert structure_set.data != old_data

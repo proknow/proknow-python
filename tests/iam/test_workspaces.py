@@ -240,3 +240,38 @@ def test_update_failure(app, workspace_generator):
         workspace.save()
     assert err_wrapper.value.status_code == 409
     assert err_wrapper.value.body == 'Workspace already exists with slug "' + params["slug"] + '"'
+
+def test_update_entities(app, workspace_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+    patient = pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
+
+    patient.upload([
+        "./data/Jensen^Myrtle/HNC0522c0013_CT1_image00000.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm",
+    ])
+    patient.refresh()
+    image_sets = [entity.get() for entity in patient.find_entities(type="image_set")]
+    assert len(image_sets) == 2
+    assert image_sets[0].data["frame_of_reference"] != image_sets[1].data["frame_of_reference"]
+    workspace.update_entities({
+        "frame_of_reference": image_sets[0].data["frame_of_reference"]
+    }, [image_sets[0], image_sets[1].id])
+    for image_set in image_sets:
+        image_set.refresh()
+    assert image_sets[0].data["frame_of_reference"] == image_sets[1].data["frame_of_reference"]
+
+def test_update_entities_failure(app, workspace_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+    patient = pk.patients.create(workspace.id, "1000", "Last^First", "2018-01-01", "M")
+
+    # Assert error is raised for invalid entity ids
+    with pytest.raises(Exceptions.HttpError) as err_wrapper:
+        workspace.update_entities({
+            "frame_of_reference": "1.3.6.1.4.1.22213.2.26558.1"
+        }, ["00000000000000000000000000000000"])
+    assert err_wrapper.value.status_code == 404
+    assert err_wrapper.value.body == 'One or more entities not found'

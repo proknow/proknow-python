@@ -307,3 +307,39 @@ class WorkspaceItem(object):
         self.slug = workspace["slug"]
         self.name = workspace["name"]
         self.protected = workspace["protected"]
+
+    def update_entities(self, update, entities):
+        """Updates common entity information for a set of entities.
+
+        Parameters:
+            update (dict): The update object.
+            entities (list): A list of entity ids or entity-like objects
+                (i.e., :class:`proknow.Patients.EntitySummary`,
+                :class:`proknow.Patients.EntityItem`)
+
+        Raises:
+            AttributeError: If a provided object is not an entity-like object.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example show how to update the frame of reference for a list of entities::
+
+                from proknow import ProKnow
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                workspace = pk.workspaces.resolve('Clinical')
+                patients = pk.patients.lookup('Clinical', ['HNC-0522c0009'])
+                workspace.update_entities({
+                    "frame_of_referance": "1.3.6.1.4.1.22213.2.26558.1"
+                }, patient.find_entities(lambda entity: True))
+        """
+        entity_ids = []
+        for entity in entities:
+            if isinstance(entity, six.string_types):
+                entity_ids.append(entity)
+            else:
+                entity_ids.append(entity.id)
+        body = {
+            "updated": update,
+            "entities": entity_ids,
+        }
+        self._requestor.patch('/workspaces/' + self._id + '/entities', json=body)

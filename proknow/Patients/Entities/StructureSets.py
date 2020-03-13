@@ -355,6 +355,31 @@ class StructureSetItem(EntityItem):
         _, structure_set = self._requestor.get('/workspaces/' + wid + '/structuresets/' + sid, params=query)
         return StructureSetItem(self._patients, wid, self._patient_id, structure_set, lock=lock, is_draft=True, is_editable=True)
 
+    def refresh(self):
+        """Refreshes the structure set entity.
+
+        Raises:
+            AttributeError: If attempting to refresh a draft structure set entity.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to refresh a structure set entity::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="structure_set")
+                structure_set = entities[0].get()
+                structure_set.refresh()
+        """
+        assert self._is_draft == False, "Cannot refresh a draft structure set entity"
+        _, structure_set = self._requestor.get('/workspaces/' + self._workspace_id + '/structuresets/' + self._id)
+        self._update(structure_set)
+        self.rois = [StructureSetRoiItem(self, roi) for roi in self.data["data"]["rois"]]
+        self.versions = StructureSetVersions(self)
+
     def release_lock(self):
         """Releases the lock for the draft structure set version.
 

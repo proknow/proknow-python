@@ -26,7 +26,7 @@ def test_download(app, entity_generator, temp_directory):
         download_path = dose.download("/path/to/nowhere/dose.dcm")
     assert err_wrapper.value.message == "`/path/to/nowhere/dose.dcm` is invalid"
 
-def test_dose_get_slice_data(app, entity_generator):
+def test_get_slice_data(app, entity_generator):
     pk = app.pk
 
     dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
@@ -85,6 +85,21 @@ def test_get_analysis_failure(app, entity_generator):
     with pytest.raises(AssertionError) as err_wrapper:
         dose.get_analysis()
     assert str(err_wrapper.value) == "Dose analysis not possible"
+
+def test_refresh(app, patient_generator):
+    pk = app.pk
+
+    patient = patient_generator([
+        "./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm"
+    ])
+    dose = patient.find_entities(type="dose")[0].get()
+    plan = patient.find_entities(type="plan")[0]
+    structure_set = patient.find_entities(type="structure_set")[0]
+    old_data = dose.data
+    dose.update_parent(structure_set) # This calls refresh internally
+    assert dose.data != old_data
 
 def test_metrics_add(app, patient_generator):
     pk = app.pk

@@ -42,7 +42,7 @@ class DoseItem(EntityItem):
             assert analysis_status != 'failed', "Dose analysis failed"
             assert analysis_status != 'pending', "Dose analysis not possible"
             if analysis_status == 'current':
-                break
+                return
             else:
                 time.sleep(DELAY)
                 _, dose = self._requestor.get('/workspaces/' + self._workspace_id + '/doses/' + self._id)
@@ -159,6 +159,28 @@ class DoseItem(EntityItem):
         }
         _, content = self._requestor.get_binary('/doses/' + self._id + '/slices/' + dose_slice["tag"], headers=headers)
         return content
+
+
+    def refresh(self):
+        """Refreshes the dose entity.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to refresh a dose entity::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="dose")
+                dose = entities[0].get()
+                dose.refresh()
+        """
+        _, dose = self._requestor.get('/workspaces/' + self._workspace_id + '/doses/' + self._id)
+        self._update(dose)
 
 class DoseItemMetrics(object):
     """
