@@ -74,70 +74,6 @@ def test_delete_entity_item(app, workspace_generator):
     patient = pk.patients.get(workspace.id, patient_id)
     assert len(patient.find_entities(lambda entity: True)) == 0
 
-def test_download_image_set(app, entity_generator, temp_directory):
-    pk = app.pk
-
-    image_files = [
-        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm"),
-        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00001.dcm"),
-        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00002.dcm"),
-        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00003.dcm"),
-        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00004.dcm"),
-    ]
-    image_set = entity_generator(image_files)
-
-    # Download to directory
-    download_path = image_set.download(temp_directory.path)
-    download_image_paths = []
-    for _, _, paths in os.walk(download_path):
-        for path in paths:
-            download_image_paths.append(os.path.join(download_path, path))
-    for image_file in image_files:
-        for download_image_path in download_image_paths:
-            if filecmp.cmp(image_file, download_image_path, shallow=False):
-                found = True
-                break
-        else:
-            found = False
-        assert found
-
-    # Directory does not exist
-    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
-        download_path = image_set.download("/path/to/nowhere/")
-    assert err_wrapper.value.message == "`/path/to/nowhere/` is invalid"
-
-def test_image_set_get_image_data(app, entity_generator):
-    pk = app.pk
-
-    image_files = [
-        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm"),
-    ]
-    image_set = entity_generator(image_files)
-
-    data = image_set.get_image_data(0)
-    assert isinstance(data, six.binary_type), "data is not binary"
-
-def test_download_plan(app, entity_generator, temp_directory):
-    pk = app.pk
-
-    plan_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
-    plan = entity_generator(plan_path)
-
-    # Download to directory
-    download_path = plan.download(temp_directory.path)
-    assert filecmp.cmp(plan_path, download_path, shallow=False)
-
-    # Download to specific file
-    specific_path = os.path.join(temp_directory.path, "plan.dcm")
-    download_path = plan.download(specific_path)
-    assert specific_path == download_path
-    assert filecmp.cmp(plan_path, download_path, shallow=False)
-
-    # File does not exist
-    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
-        download_path = plan.download("/path/to/nowhere/plan.dcm")
-    assert err_wrapper.value.message == "`/path/to/nowhere/plan.dcm` is invalid"
-
 def test_dose_get_slice_data(app, entity_generator):
     pk = app.pk
 
@@ -239,3 +175,49 @@ def test_set_metadata_failure(app, entity_generator):
     with pytest.raises(Exceptions.CustomMetricLookupError) as err_wrapper:
         image_set.set_metadata(meta)
     assert err_wrapper.value.message == 'Custom metric with name `Unknown Metric` not found.'
+
+def test_update_parent(app, patient_generator):
+    pk = app.pk
+
+    dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
+    image_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm")
+    structure_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
+    patient = patient_generator([image_set_path, structure_set_path, dose_path])
+    dose = patient.find_entities(type="dose")[0].get()
+    image_set = patient.find_entities(type="image_set")[0].get()
+    structure_set = patient.find_entities(type="structure_set")[0].get()
+    assert dose.data["ref"] == {
+        "image_set": None,
+        "structure_set": None,
+        "plan": None,
+    }
+    dose.update_parent(structure_set)
+    assert dose.data["ref"] == {
+        "image_set": image_set.id,
+        "structure_set": structure_set.id,
+        "plan": None,
+    }
+    dose.update_parent(image_set.id)
+    assert dose.data["ref"] == {
+        "image_set": image_set.id,
+        "structure_set": None,
+        "plan": None,
+    }
+
+def test_update_parent_failure(app, patient_generator):
+    pk = app.pk
+
+    dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
+    structure_set_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm")
+    patient = patient_generator([structure_set_path, dose_path])
+    dose = patient.find_entities(type="dose")[0].get()
+    structure_set = patient.find_entities(type="structure_set")[0].get()
+
+    with pytest.raises(Exceptions.HttpError) as err_wrapper:
+        structure_set.update_parent(dose)
+    assert err_wrapper.value.status_code == 409
+    assert err_wrapper.value.body == 'Invalid parent type "dose" for structure set entity'
+
+    with pytest.raises(AttributeError) as err_wrapper:
+        dose.update_parent({})
+    assert str(err_wrapper.value) == "'dict' object has no attribute 'id'"

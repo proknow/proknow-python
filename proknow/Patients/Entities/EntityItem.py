@@ -1,3 +1,5 @@
+import six
+
 from .Scorecards import EntityScorecards
 
 
@@ -141,7 +143,7 @@ class EntityItem(object):
     def set_metadata(self, metadata):
         """Sets the metadata dictionary to an encoded version of the given metadata dictionary.
 
-        Params:
+        Parameters:
             metadata (dict): A dictionary of custom metric key-value pairs where the keys are the
             names of the custom metric.
 
@@ -171,3 +173,34 @@ class EntityItem(object):
             metric = self._proknow.custom_metrics.resolve(key)
             encoded[metric.id] = metadata[key]
         self.metadata = encoded
+
+    def update_parent(self, entity):
+        """Update the parent of the entity.
+
+        Parameters:
+            entity (:class:`proknow.Patients.EntitySummary`, :class:`proknow.Patients.EntityItem`, str):
+                An entity-like object or a entity id to be used to set the new parent of the entity.
+
+        Raises:
+            AttributeError: If the provided object is not an entity-like object.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            Use this example to update the parent of the dose entity to be the structure set::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                dose_summary = patient.find_entities(type="dose")[0]
+                structure_set_summary = patient.find_entities(type="structure_set")[0]
+                dose = dose_summary.get()
+                dose.update_parent(structure_set_summary)
+        """
+        if isinstance(entity, six.string_types):
+            parent_id = entity
+        else:
+            parent_id = entity.id
+        self._requestor.put('/workspaces/' + self._workspace_id + '/entities/' + self._id + '/parent/' + parent_id)
+        self.refresh()

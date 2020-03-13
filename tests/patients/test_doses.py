@@ -2,9 +2,6 @@ import six
 import pytest
 import filecmp
 import os
-from time import sleep
-
-from pktestconfig import base_url, credentials_id, credentials_secret
 
 from proknow import ProKnow, Exceptions
 
@@ -79,3 +76,18 @@ def test_get_analysis_failure(app, entity_generator):
     with pytest.raises(AssertionError) as err_wrapper:
         dose.get_analysis()
     assert str(err_wrapper.value) == "Dose analysis not possible"
+
+def test_refresh(app, patient_generator):
+    pk = app.pk
+
+    patient = patient_generator([
+        "./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm"
+    ])
+    dose = patient.find_entities(type="dose")[0].get()
+    plan = patient.find_entities(type="plan")[0]
+    structure_set = patient.find_entities(type="structure_set")[0]
+    old_data = dose.data
+    dose.update_parent(structure_set) # This calls refresh internally
+    assert dose.data != old_data

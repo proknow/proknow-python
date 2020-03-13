@@ -102,3 +102,24 @@ class ImageSetItem(EntityItem):
         }
         _, content = self._requestor.get_binary('/imagesets/' + self._id + '/images/' + image["tag"], headers=headers)
         return content
+
+    def refresh(self):
+        """Refreshes the image set entity.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to refresh an image set entity::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="image_set")
+                image_set = entities[0].get()
+                image_set.refresh()
+        """
+        _, image_set = self._requestor.get('/workspaces/' + self._workspace_id + '/imagesets/' + self._id)
+        self._update(image_set)
