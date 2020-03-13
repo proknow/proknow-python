@@ -117,36 +117,6 @@ def test_image_set_get_image_data(app, entity_generator):
     data = image_set.get_image_data(0)
     assert isinstance(data, six.binary_type), "data is not binary"
 
-def test_download_plan(app, entity_generator, temp_directory):
-    pk = app.pk
-
-    plan_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
-    plan = entity_generator(plan_path)
-
-    # Download to directory
-    download_path = plan.download(temp_directory.path)
-    assert filecmp.cmp(plan_path, download_path, shallow=False)
-
-    # Download to specific file
-    specific_path = os.path.join(temp_directory.path, "plan.dcm")
-    download_path = plan.download(specific_path)
-    assert specific_path == download_path
-    assert filecmp.cmp(plan_path, download_path, shallow=False)
-
-    # File does not exist
-    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
-        download_path = plan.download("/path/to/nowhere/plan.dcm")
-    assert err_wrapper.value.message == "`/path/to/nowhere/plan.dcm` is invalid"
-
-def test_dose_get_slice_data(app, entity_generator):
-    pk = app.pk
-
-    dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
-    dose = entity_generator(dose_path)
-
-    data = dose.get_slice_data(0)
-    assert isinstance(data, six.binary_type), "data is not binary"
-
 def test_update(app, entity_generator, custom_metric_generator):
     pk = app.pk
 

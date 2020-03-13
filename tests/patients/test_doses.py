@@ -2,9 +2,6 @@ import six
 import pytest
 import filecmp
 import os
-from time import sleep
-
-from pktestconfig import base_url, credentials_id, credentials_secret
 
 from proknow import ProKnow, Exceptions
 
@@ -28,6 +25,15 @@ def test_download(app, entity_generator, temp_directory):
     with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
         download_path = dose.download("/path/to/nowhere/dose.dcm")
     assert err_wrapper.value.message == "`/path/to/nowhere/dose.dcm` is invalid"
+
+def test_dose_get_slice_data(app, entity_generator):
+    pk = app.pk
+
+    dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
+    dose = entity_generator(dose_path)
+
+    data = dose.get_slice_data(0)
+    assert isinstance(data, six.binary_type), "data is not binary"
 
 def test_get_analysis(app, workspace_generator):
     pk = app.pk

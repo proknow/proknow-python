@@ -37,9 +37,12 @@ class ProKnow(object):
             class.
         LOCK_RENEWAL_BUFFER (int): The number of seconds to use as a buffer when renewing a lock for
             a draft structure set.
+        ENTITY_WAIT_TIMEOUT (int): The number of seconds to wait for plan delivery information and
+            dose analysis data to be ready.
     """
 
-    def __init__(self, base_url, credentials_file=None, credentials_id=None, credentials_secret=None, LOCK_RENEWAL_BUFFER=30):
+    def __init__(self, base_url, credentials_file=None, credentials_id=None, credentials_secret=None,
+        LOCK_RENEWAL_BUFFER=30, ENTITY_WAIT_TIMEOUT=10):
         """Initializes the ProKnow class.
 
         The `base_url` must be provided as should either the `credentials_file` or both the
@@ -56,6 +59,8 @@ class ProKnow(object):
                 renewing a lock for a draft structure set. As an example, the default value of 30
                 means that the renewer will attempt to renew the lock 30 seconds before it actually
                 expires.
+            ENTITY_WAIT_TIMEOUT (int, optional): The number of seconds to wait for plan delivery
+                information and dose analysis data to be ready.
 
         Raises:
             AssertionError: If the input parameters are invalid.
@@ -76,6 +81,7 @@ class ProKnow(object):
                 credentials_secret = data["secret"]
 
         self.LOCK_RENEWAL_BUFFER = LOCK_RENEWAL_BUFFER
+        self.ENTITY_WAIT_TIMEOUT = ENTITY_WAIT_TIMEOUT
 
         self.requestor = Requestor(base_url, credentials_id, credentials_secret)
 
