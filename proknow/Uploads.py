@@ -29,7 +29,7 @@ class Uploads(object):
         self._proknow = proknow
         self._requestor = requestor
 
-    def _upload_file(self, workspace_id, path, overrides=None):
+    def _upload_file(self, workspace_id, path, overrides=None, scope=None):
         result = {
             "path": path
         }
@@ -52,6 +52,8 @@ class Uploads(object):
         }
         if overrides is not None:
             body["overrides"] = overrides
+        if scope is not None:
+            body["scope"] = scope
         _, upload = self._requestor.post('/workspaces/' + workspace_id + '/uploads', json=body)
         result["upload"] = upload
 
@@ -72,7 +74,7 @@ class Uploads(object):
 
         return result
 
-    def upload(self, workspace, path_or_paths, overrides=None, wait=True):
+    def upload(self, workspace, path_or_paths, overrides=None, scope=None, wait=True):
         """Initiates an upload or series of uploads to the API.
 
         Parameters:
@@ -82,6 +84,7 @@ class Uploads(object):
             overrides (dict, optional): A dictionary of overrides to use when creating uploads. The
                 object may contain an optional key ``"patient"``, which in turn may contain the
                 optional override parameters ``"mrn"``, ``"name"``, ``"birth_date"``, and ``"sex"``.
+            scope (str, optional): The upload scope.
             wait (bool, optional): Whether to wait for the uploads to reach a terminal state.
 
         Returns:
@@ -152,8 +155,9 @@ class Uploads(object):
 
         ids = [workspace_id] * len(upload_file_paths)
         override_list = [overrides] * len(upload_file_paths)
+        scopes = [scope] * len(upload_file_paths)
         with ThreadPoolExecutor(max_workers=4) as executor:
-            items = list(executor.map(self._upload_file, ids, upload_file_paths, override_list))
+            items = list(executor.map(self._upload_file, ids, upload_file_paths, override_list, scopes))
 
         # Wait for uploads to come to terminal state
         if wait is True:

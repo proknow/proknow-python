@@ -711,4 +711,5 @@ class PatientItem(object):
                 "sex": self.sex,
             },
         }
+        kwargs["scope"] = self._id
         return self._proknow.uploads.upload(self._workspace_id, path_or_paths, **kwargs)
