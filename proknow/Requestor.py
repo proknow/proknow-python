@@ -3,6 +3,7 @@ __all__ = [
 ]
 
 import requests
+from requests.adapters import HTTPAdapter
 
 from .Exceptions import HttpError
 
@@ -10,17 +11,21 @@ from .Exceptions import HttpError
 class Requestor(object):
     """A class used for issuing requests for the ProKnow API"""
 
-    def __init__(self, base_url, username, password):
+    def __init__(self, base_url, username, password, max_retries=3):
         """Initializes the Requestor class.
 
         Parameters:
             base_url (str): The base URL to use when making request to the ProKnow API.
             username (str): The string used in Basic Authentication as the user name.
             password (str): The string used in Basic Authentication as the user password.
+            max_retries (int, optional): The maximum number of for failed connection attempts.
         """
         self._username = username
         self._password = password
         self._base_url = base_url + "/api"
+        self._session = requests.Session()
+        self._session.mount('http', HTTPAdapter(max_retries=max_retries))
+        self._session.mount('https', HTTPAdapter(max_retries=max_retries))
 
     def _handle_response(self, r, binary=False):
         if r.status_code >= 400:
@@ -47,7 +52,7 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.get(self._base_url + route, auth=(self._username, self._password), **kwargs)
+        r = self._session.get(self._base_url + route, auth=(self._username, self._password), **kwargs)
         return self._handle_response(r)
 
     def get_binary(self, route, **kwargs):
@@ -67,7 +72,7 @@ class Requestor(object):
             1. res (Response): the Response object
             2. data (bytes): The resonse as a byte string
         """
-        r = requests.get(self._base_url + route, auth=(self._username, self._password), **kwargs)
+        r = self._session.get(self._base_url + route, auth=(self._username, self._password), **kwargs)
         return self._handle_response(r, True)
 
     def delete(self, route, **kwargs):
@@ -85,7 +90,7 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.delete(self._base_url + route, auth=(self._username, self._password), **kwargs)
+        r = self._session.delete(self._base_url + route, auth=(self._username, self._password), **kwargs)
         return self._handle_response(r)
 
     def patch(self, route, **kwargs): # pragma: no cover (not used right now)
@@ -103,7 +108,7 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.patch(self._base_url + route, auth=(self._username, self._password), **kwargs)
+        r = self._session.patch(self._base_url + route, auth=(self._username, self._password), **kwargs)
         return self._handle_response(r)
 
     def post(self, route, **kwargs):
@@ -121,7 +126,7 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.post(self._base_url + route, auth=(self._username, self._password), **kwargs)
+        r = self._session.post(self._base_url + route, auth=(self._username, self._password), **kwargs)
         return self._handle_response(r)
 
     def put(self, route, **kwargs):
@@ -139,7 +144,7 @@ class Requestor(object):
             2. msg (str, dict): the text response or, if the response was JSON, the decoded JSON
                dictionary.
         """
-        r = requests.put(self._base_url + route, auth=(self._username, self._password), **kwargs)
+        r = self._session.put(self._base_url + route, auth=(self._username, self._password), **kwargs)
         return self._handle_response(r)
 
     def stream(self, route, path):
@@ -150,7 +155,7 @@ class Requestor(object):
             path (str): The file path to stream the request response.
         """
         with open(path, 'wb') as file:
-            with requests.get(self._base_url + route, auth=(self._username, self._password), stream=True) as r:
+            with self._session.get(self._base_url + route, auth=(self._username, self._password), stream=True) as r:
                 if r.status_code >= 400: # pragma: no cover (difficult to hit)
                     raise HttpError(r.status_code, r.text)
                 for chunk in r.iter_content(chunk_size=5242880):

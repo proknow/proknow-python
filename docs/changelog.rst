@@ -1,6 +1,17 @@
 Release History
 ===============
 
+v0.16.2
+-------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**Bug Fixes**
+
+* Failed connection attempts will now properly retry a configurable number of times
+
 v0.16.1
 -------
 

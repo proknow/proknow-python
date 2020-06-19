@@ -39,10 +39,11 @@ class ProKnow(object):
             a draft structure set.
         ENTITY_WAIT_TIMEOUT (int): The number of seconds to wait for plan delivery information and
             dose analysis data to be ready.
+        MAX_RETRIES (int): The number of retries to use for failed connection attempts.
     """
 
     def __init__(self, base_url, credentials_file=None, credentials_id=None, credentials_secret=None,
-        LOCK_RENEWAL_BUFFER=30, ENTITY_WAIT_TIMEOUT=10):
+        LOCK_RENEWAL_BUFFER=30, ENTITY_WAIT_TIMEOUT=10, MAX_RETRIES=3):
         """Initializes the ProKnow class.
 
         The `base_url` must be provided as should either the `credentials_file` or both the
@@ -61,6 +62,8 @@ class ProKnow(object):
                 expires.
             ENTITY_WAIT_TIMEOUT (int, optional): The number of seconds to wait for plan delivery
                 information and dose analysis data to be ready.
+            MAX_RETRIES (int, optional): The number of retries to use for failed connection
+                attempts. The default is 3 retries.
 
         Raises:
             AssertionError: If the input parameters are invalid.
@@ -82,13 +85,14 @@ class ProKnow(object):
 
         self.LOCK_RENEWAL_BUFFER = LOCK_RENEWAL_BUFFER
         self.ENTITY_WAIT_TIMEOUT = ENTITY_WAIT_TIMEOUT
+        self.MAX_RETRIES = MAX_RETRIES
 
-        self.requestor = Requestor(base_url, credentials_id, credentials_secret)
+        self.requestor = Requestor(base_url, credentials_id, credentials_secret, max_retries=self.MAX_RETRIES)
 
         self.session = Session(self, self.requestor)
         self.custom_metrics = CustomMetrics(self, self.requestor)
         self.scorecard_templates = ScorecardTemplates(self, self.requestor)
-        
+
         self.workspaces = Workspaces(self, self.requestor)
         self.roles = Roles(self, self.requestor)
         self.users = Users(self, self.requestor)
