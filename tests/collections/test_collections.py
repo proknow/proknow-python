@@ -54,7 +54,6 @@ def test_create_collections_failure(app, collection_generator):
     assert err_wrapper.value.status_code == 409
     assert err_wrapper.value.body == 'Collection already exists with name "' + params["name"] + '"'
 
-
 def test_delete_collections(app, collection_generator):
     pk = app.pk
 
@@ -116,6 +115,17 @@ def test_find_collections(app, collection_generator):
     assert found is None
     found = pk.collections.find(id=collection.id, name=params["name"].lower())
     assert found is None
+
+def test_get_collections(app, workspace_generator, collection_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+    params, collection = collection_generator(type="workspace", workspaces=[workspace.id])
+
+    found = pk.collections.find(workspace=workspace.id, id=collection.id)
+    item = found.get()
+    assert item.name == params["name"]
+    assert item.description == params["description"]
 
 def test_query_collections(app, workspace_generator, collection_generator):
     pk = app.pk

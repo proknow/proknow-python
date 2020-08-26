@@ -69,8 +69,10 @@ class Collections(object):
             "workspaces": workspaces,
         }
 
+        workspace_id = workspaces[0] if type == "workspace" else None
+
         _, collection = self._requestor.post('/collections', json=body)
-        return CollectionItem(self, collection)
+        return CollectionItem(self, collection, workspace_id=workspace_id)
 
     def delete(self, collection_id):
         """Deletes a collection.
@@ -103,7 +105,8 @@ class Collections(object):
         Parameters:
             workspace (str, optional): An id or name of the workspace in which to query for
                 workspace representations of collections. If a workspace is not provided, only
-                organization collections will be considered.
+                organization collections will be considered. Required if the user does not have
+                organization-level Read Collections permission.
             predicate (func): A function that is passed a collection as input and which should
                 return a bool indicating whether the collection is a match.
             **props: A dictionary of keyword arguments that may include any collection attribute.
@@ -132,11 +135,13 @@ class Collections(object):
 
         return None
 
-    def get(self, collection_id):
+    def get(self, collection_id, workspace_id=None):
         """Gets a collection.
 
         Parameters:
             collection_id (str): The id of the collection to get.
+            workspace_id (str, optional): The id of the workspace to use to get the collection.
+                Required if the user does not have organization-level Read Collections permission.
 
         Returns:
             :class:`proknow.Collections.CollectionItem`: An object representing a collection in the
@@ -155,8 +160,12 @@ class Collections(object):
                 collection = pk.collections.get('5c463a6c040068100c7f665acad17ac4')
         """
         assert isinstance(collection_id, six.string_types), "`collection_id` is required as a string."
-        _, collection = self._requestor.get('/collections/' + collection_id)
-        return CollectionItem(self, collection)
+        query = {}
+        if workspace_id is not None:
+            assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
+            query["workspace"] = workspace_id
+        _, collection = self._requestor.get('/collections/' + collection_id, params=query)
+        return CollectionItem(self, collection, workspace_id)
 
     def query(self, workspace=None):
         """Queries for collections.
@@ -188,8 +197,11 @@ class Collections(object):
             assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
             query["workspace"] = self._proknow.workspaces.resolve(workspace).id
 
-        _, collections = self._requestor.get('/collections', params=query)
-        return [CollectionSummary(self, collection) for collection in collections]
+            _, collections = self._requestor.get('/collections', params=query)
+            return [CollectionSummary(self, collection, workspace_id=query["workspace"]) for collection in collections]
+        else:
+            _, collections = self._requestor.get('/collections', params=query)
+            return [CollectionSummary(self, collection) for collection in collections]
 
 class CollectionSummary(object):
     """
@@ -207,13 +219,16 @@ class CollectionSummary(object):
 
     """
 
-    def __init__(self, collections, collection):
+    def __init__(self, collections, collection, workspace_id=None):
         """Initializes the CollectionSummary class.
 
         Parameters:
             collections (proknow.Collections.Collections): The Collections instance that is
                 instantiating the object.
             collection (dict): A dictionary of collection attributes.
+            workspace_id (str, optional): The id of a workspace in which the collection has a
+                representation. Required if the user does not have organization-level Read
+                Collections permission.
         """
         self._collections = collections
         self._requestor = self._collections._requestor
@@ -221,6 +236,7 @@ class CollectionSummary(object):
         self._name = collection["name"]
         self._description = collection["description"]
         self._data = collection
+        self._workspace_id = workspace_id
 
     @property
     def id(self):
@@ -257,7 +273,7 @@ class CollectionSummary(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 collections = [collection.get() for collection in pk.collections.query()]
         """
-        return self._collections.get(self._id)
+        return self._collections.get(self._id, workspace_id=self._workspace_id)
 
 class CollectionItem(object):
     """
@@ -278,13 +294,16 @@ class CollectionItem(object):
 
     """
 
-    def __init__(self, collections, collection):
+    def __init__(self, collections, collection, workspace_id=None):
         """Initializes the CollectionItem class.
 
         Parameters:
             collections (proknow.Collections.Collections): The Collection instance that is
                 instantiating the object.
             collection (dict): A dictionary of collection attributes.
+            workspace_id (str, optional): The id of a workspace in which the collection has a
+                representation. Required if the user does not have organization-level Read
+                Collections permission.
         """
         self._collections = collections
         self._requestor = self._collections._requestor
@@ -292,7 +311,7 @@ class CollectionItem(object):
         self._data = collection
         self.name = collection["name"]
         self.description = collection["description"]
-        self.patients = CollectionPatients(self._collections, self)
+        self.patients = CollectionPatients(self._collections, self, workspace_id)
         self.scorecards = CollectionScorecards(self._collections, self)
 
     @property
