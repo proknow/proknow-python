@@ -5,24 +5,26 @@ class CollectionPatients(object):
 
     """
 
-    def __init__(self, collections, collection):
+    def __init__(self, collections, collection, workspace_id=None):
         """Initializes the CollectionPatients class.
 
         Parameters:
             collections (proknow.Collections.Collections): The Collections instance that is
                 instantiating the object.
             collection (proknow.Collections.CollectionItem): A instance of a CollectionItem.
+            workspace_id (str, optional): The id of a workspace in which the collection has a
+                representation. Required if the user does not have organization-level Read
+                Collections permission.
         """
         self._collections = collections
         self._collection = collection
+        self._workspace_id = workspace_id
         self._proknow = self._collections._proknow
         self._requestor = self._collection._requestor
 
-    def _query(self, query=None):
+    def _query(self, query):
         res, data = self._requestor.get('/collections/' + self._collection.id + '/patients', params=query)
         if res.headers['proknow-has-more'] == 'true': # pragma: no cover (difficult to test w/o lg num of patients)
-            if query is None:
-                query = {}
             next_query = dict(query)
             next_query["next"] = res.headers['proknow-next']
             return data + self._query(next_query)
@@ -86,12 +88,12 @@ class CollectionPatients(object):
                 for patient in collection.patients.query():
                     print(patient.data["patient"]["mrn"])
         """
-        if self._collection.data["type"] == 'organization':
-            patients = self._query()
-        else: # == 'workspace'
-            patients = self._query({
-                "workspace": self._collection.data["workspaces"][0]
-            })
+        query = {}
+        if self._collection.data["type"] == 'workspace':
+            query["workspace"] = self._collection.data["workspaces"][0]
+        elif self._workspace_id is not None:
+            query["workspace"] = self._workspace_id
+        patients = self._query(query)
         return [CollectionPatientSummary(self._collections, patient) for patient in patients]
 
     def remove(self, workspace, items):

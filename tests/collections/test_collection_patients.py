@@ -100,6 +100,15 @@ def test_collection_patients(app, workspace_generator, collection_generator):
     patients = collection.patients.query()
     assert len(patients) == 0
 
+def test_collection_patients_query(app, workspace_generator, collection_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+    _, collection = collection_generator(workspaces=[workspace.id])
+    collection = pk.collections.find(workspace=workspace.id, id=collection.id).get()
+    patients = collection.patients.query()
+    assert len(patients) == 0
+
 def test_collection_patients_failure(app, workspace_generator, collection_generator):
     pk = app.pk
 

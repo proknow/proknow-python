@@ -1,6 +1,17 @@
 Release History
 ===============
 
+v0.16.3
+-------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**Bug Fixes**
+
+* Fixed bug that preventing users without the organization-level read collections permission from interacting with organization collections
+
 v0.16.2
 -------
 
