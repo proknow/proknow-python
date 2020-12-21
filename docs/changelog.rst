@@ -1,6 +1,18 @@
 Release History
 ===============
 
+v0.16.4
+-------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**Bug Fixes**
+
+* Updated link in usage documentation related to generating API keys.
+* Some examples involving editing structure sets were not properly creating a draft before attempting attempting edits.
+
 v0.16.3
 -------
 
