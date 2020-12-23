@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="proknow",
-    version="0.16.3",
+    version="0.16.4",
     author="ProKnow",
     author_email="support@proknow.com",
     description="Python library for the ProKnow API.",

@@ -16,7 +16,7 @@ Basic Usage
 To use the SDK, you'll need two important items:
 
 * Base URL: This is the URL that will be used to make API requests to ProKnow. It's the first part of the web address you see when you are signed in to your ProKnow DS account. The form of this URL is typically ``https://your-domain.proknow.com``.
-* API Token: You can generate an `API token <https://support.proknow.com/article/165-configuring-your-profile#api-keys>`_ in the ProKnow DS user interface. Always keep your API Token secret. Once you have your ``credentials.json``, make note of the file path.
+* API Token: You can generate an `API token <https://support.proknow.com/hc/en-us/articles/360019798893-Configuring-Your-Profile#managing-api-keys>`_ in the ProKnow DS user interface. Always keep your API Token secret. Once you have your ``credentials.json``, make note of the file path.
 
 The code snippet below can be used to test your installation of the ``proknow`` package. Please be sure to replace ``https://example.proknow.com`` with your organization's Base URL described above, and replace ``./credentials.json`` with the path to your credentials file::
 

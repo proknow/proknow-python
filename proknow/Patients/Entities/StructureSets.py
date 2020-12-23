@@ -475,14 +475,17 @@ class StructureSetRoiItem(object):
                 patient = patients[0].get()
                 entities = patient.find_entities(type="structure_set")
                 structure_set = entities[0].get()
-                for roi in structure_set.rois:
-                    if roi.name == "BODY_2":
-                        match = roi
-                        break
-                else:
-                    match = None
-                assert match is not None
-                match.delete()
+                with structure_set.draft() as draft:
+                    for roi in draft.rois:
+                        if roi.name == "BODY_2":
+                            match = roi
+                            break
+                    else:
+                        match = None
+                    assert match is not None
+                    match.delete()
+                    # Uncomment the line below if you wish to commit your changes as a new version
+                    # draft.approve()
         """
         if not self._structure_set._is_editable:
             raise InvalidOperationError('Item is not editable')
@@ -555,17 +558,20 @@ class StructureSetRoiItem(object):
                 patient = patients[0].get()
                 entities = patient.find_entities(type="structure_set")
                 structure_set = entities[0].get()
-                for roi in structure_set.rois:
-                    if roi.name == "BODY":
-                        match = roi
-                        break
-                else:
-                    match = None
-                assert match is not None
-                match.name = "PATIENT"
-                match.color = [0, 238, 255]
-                match.type = "EXTERNAL"
-                match.save()
+                with structure_set.draft() as draft:
+                    for roi in draft.rois:
+                        if roi.name == "BODY":
+                            match = roi
+                            break
+                    else:
+                        match = None
+                    assert match is not None
+                    match.name = "PATIENT"
+                    match.color = [0, 238, 255]
+                    match.type = "EXTERNAL"
+                    match.save()
+                    # Uncomment the line below if you wish to commit your changes as a new version
+                    # draft.approve()
         """
         if not self._structure_set._is_editable:
             raise InvalidOperationError('Item is not editable')
@@ -638,16 +644,19 @@ class StructureSetRoiData(object):
                 patient = patients[0].get()
                 entities = patient.find_entities(type="structure_set")
                 structure_set = entities[0].get()
-                for roi in structure_set.rois:
-                    if roi.name == "PTV":
-                        match = roi
-                        break
-                else:
-                    match = None
-                assert match is not None
-                data = match.get_data()
-                data.points = []
-                data.save()
+                with structure_set.draft() as draft:
+                    for roi in draft.rois:
+                        if roi.name == "PTV":
+                            match = roi
+                            break
+                    else:
+                        match = None
+                    assert match is not None
+                    data = match.get_data()
+                    data.points = []
+                    data.save()
+                    # Uncomment the line below if you wish to commit your changes as a new version
+                    # draft.approve()
         """
         if not self._structure_set._is_editable:
             raise InvalidOperationError('Item is not editable')
