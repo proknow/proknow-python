@@ -191,7 +191,7 @@ class DoseItemMetrics(object):
     """
 
     def __init__(self, patients, workspace_id, dose_id):
-        """Initializes the EntityScorecards class.
+        """Initializes the DoseItemMetrics class.
 
         Parameters:
             patients (proknow.Patients.Patients): The Patients instance that is instantiating the

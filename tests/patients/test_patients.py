@@ -61,6 +61,60 @@ def test_create_structure_set(app, patient_generator):
     structure_sets = patient.find_entities(type="structure_set", description="My Structure Set")
     assert len(structure_sets) == 1
 
+def test_create_plan(app, patient_generator):
+    pk = app.pk
+
+    patient = patient_generator([
+        "./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_CT1_image00001.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_CT1_image00002.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_CT1_image00003.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_CT1_image00004.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm",
+        "./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm",
+    ])
+
+    image_set = patient.find_entities(type="image_set")[0]
+    structure_set = patient.find_entities(type="structure_set")[0]
+    dose = patient.find_entities(type="dose")[0]
+
+    # Create plan from image set
+    plan = patient.create_plan("My Plan From CT", image_set_id=image_set.id)
+    assert plan.data["description"] == "My Plan From CT"
+
+    plans = patient.find_entities(type="plan")
+    assert len(plans) == 1
+
+    # Create plan from structure set
+    plan = patient.create_plan("My Plan From RTSTRUCT", structure_set_id=structure_set.id)
+    assert plan.data["description"] == "My Plan From RTSTRUCT"
+
+    plans = patient.find_entities(type="plan")
+    assert len(plans) == 2
+
+    plans = patient.find_entities(type="plan", description="My Plan From RTSTRUCT")
+    assert len(plans) == 1
+
+    # Create plan from dose
+    plan = patient.create_plan("My Plan From RTDOSE", dose_id=dose.id)
+    assert plan.data["description"] == "My Plan From RTDOSE"
+
+    plans = patient.find_entities(type="plan")
+    assert len(plans) == 3
+
+    plans = patient.find_entities(type="plan", description="My Plan From RTDOSE")
+    assert len(plans) == 1
+
+def test_create_plan_failure(app, workspace_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+
+    patient = pk.patients.create(workspace.id, "1000", "Last^First")
+    with pytest.raises(AssertionError) as err_wrapper:
+        patient.create_plan("My Plan")
+    assert str(err_wrapper.value) == "One of (image_set_id, structure_set_id, dose_id) is required"
+
 def test_delete(app, workspace_generator):
     pk = app.pk
 

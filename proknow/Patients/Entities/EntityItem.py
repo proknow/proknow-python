@@ -1,7 +1,5 @@
 import six
 
-from .Scorecards import EntityScorecards
-
 
 class EntityItem(object):
     """
@@ -15,8 +13,6 @@ class EntityItem(object):
         data (dict): The complete representation of the entity as returned from the API (readonly).
         description (str): The entity description.
         metadata (dict): The entity metadata.
-        scorecards (proknow.Patients.EntityScorecards): An object for interacting with the
-            scorecards belonging to the entity.
 
     """
 
@@ -36,7 +32,6 @@ class EntityItem(object):
         self._workspace_id = workspace_id
         self._patient_id = patient_id
         self._update(entity)
-        self.scorecards = EntityScorecards(patients, workspace_id, self._id)
 
     @property
     def id(self):
@@ -145,7 +140,7 @@ class EntityItem(object):
 
         Parameters:
             metadata (dict): A dictionary of custom metric key-value pairs where the keys are the
-            names of the custom metric.
+                names of the custom metric.
 
         Raises:
             :class:`proknow.Exceptions.CustomMetricLookupError`: If a custom metric could not be

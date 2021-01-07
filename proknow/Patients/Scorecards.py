@@ -1,29 +1,29 @@
 import six
 
 
-class EntityScorecards(object):
+class PatientScorecards(object):
     """
 
-    This class should be used to interact with entity scorecards. It is instantiated for you as an
-    attribute of the :class:`proknow.Patients.EntityItem` class.
+    This class should be used to interact with patient scorecards. It is instantiated for you as an
+    attribute of the :class:`proknow.Patients.PatientItem` class.
 
     """
-    def __init__(self, patients, workspace_id, entity_id):
-        """Initializes the EntityScorecards class.
+    def __init__(self, patients, workspace_id, patient_id):
+        """Initializes the PatientScorecards class.
 
         Parameters:
             patients (proknow.Patients.Patients): The Patients instance that is instantiating the
                 object.
             workspace_id (str): The id of the workspace to which the patient belongs.
-            entity_id (str): The id of the entity.
+            patient_id (str): The id of the patient.
         """
         self._patients = patients
         self._requestor = patients._requestor
         self._workspace_id = workspace_id
-        self._entity_id = entity_id
+        self._patient_id = patient_id
 
     def create(self, name, computed, custom):
-        """Creates a new entity scorecard.
+        """Creates a new patient scorecard.
 
         Note:
             For information on how to construct computed metrics visit :ref:`computed-metrics`.
@@ -36,7 +36,7 @@ class EntityScorecards(object):
             custom (list): The custom metrics.
 
         Returns:
-            :class:`proknow.Patients.EntityScorecardItem`: A representation of the created entity
+            :class:`proknow.Patients.PatientScorecardItem`: A representation of the created patient
             scorecard
 
         Raises:
@@ -51,9 +51,7 @@ class EntityScorecards(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                entities = patient.find_entities(type="dose")
-                entity = entities[0].get()
-                entity.scorecards.create("My Scorecard", [{
+                patient.scorecards.create("My Scorecard", [{
                     "type": "VOLUME",
                     "roi_name": "BRAINSTEM",
                     "arg_1": None,
@@ -92,8 +90,8 @@ class EntityScorecards(object):
         assert isinstance(custom, list), "`custom` is required as a list."
 
         body = {'name': name, 'computed': computed, 'custom': custom}
-        _, scorecard = self._requestor.post('/workspaces/' + self._workspace_id + '/entities/' + self._entity_id + '/metrics/sets', json=body)
-        return EntityScorecardItem(self, self._workspace_id, self._entity_id, scorecard)
+        _, scorecard = self._requestor.post('/workspaces/' + self._workspace_id + '/patients/' + self._patient_id + '/metrics/sets', json=body)
+        return PatientScorecardItem(self, self._workspace_id, self._patient_id, scorecard)
 
     def delete(self, scorecard_id):
         """Deletes a scorecard by id.
@@ -113,12 +111,10 @@ class EntityScorecards(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                entities = patient.find_entities(type="dose")
-                entity = entities[0].get()
-                entity.scorecards.delete('5c463a6c040040f1efda74db75c1b121')
+                patient.scorecards.delete('5c463a6c040040f1efda74db75c1b121')
         """
         assert isinstance(scorecard_id, six.string_types), "`scorecard_id` is required as a string."
-        self._requestor.delete('/workspaces/' + self._workspace_id + '/entities/' + self._entity_id + '/metrics/sets/' + scorecard_id)
+        self._requestor.delete('/workspaces/' + self._workspace_id + '/patients/' + self._patient_id + '/metrics/sets/' + scorecard_id)
 
     def find(self, predicate=None, **props):
         """Finds the first scorecard that matches the input paramters.
@@ -133,7 +129,7 @@ class EntityScorecards(object):
                 These arguments are considered in turn to find matching scorecards.
 
         Returns:
-            :class:`proknow.Patients.EntityScorecardSummary`: A summary representation of the
+            :class:`proknow.Patients.PatientScorecardSummary`: A summary representation of the
             matching scorecard.
 
         Raises: 
@@ -162,7 +158,7 @@ class EntityScorecards(object):
             scorecard_id (str): The id of the scorecard to get.
 
         Returns:
-            :class:`proknow.Patients.EntityScorecardItem`: A complete representation of the entity
+            :class:`proknow.Patients.PatientScorecardItem`: A complete representation of the patient
             scorecard
 
         Raises:
@@ -170,7 +166,7 @@ class EntityScorecards(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            If you know the scorecard id, you can get the entity scorecard directly using this
+            If you know the scorecard id, you can get the patient scorecard directly using this
             method::
 
                 from proknow import ProKnow
@@ -178,20 +174,18 @@ class EntityScorecards(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                entities = patient.find_entities(type="dose")
-                entity = entities[0].get()
-                scorecard = entity.scorecards.get('5c463a6c040068100c7f665acad17ac4')
+                scorecard = patient.scorecards.get('5c463a6c040068100c7f665acad17ac4')
         """
         assert isinstance(scorecard_id, six.string_types), "`scorecard_id` is required as a string."
-        _, scorecard = self._requestor.get('/workspaces/' + self._workspace_id + '/entities/' + self._entity_id + '/metrics/sets/' + scorecard_id)
-        return EntityScorecardItem(self, self._workspace_id, self._entity_id, scorecard)
+        _, scorecard = self._requestor.get('/workspaces/' + self._workspace_id + '/patients/' + self._patient_id + '/metrics/sets/' + scorecard_id)
+        return PatientScorecardItem(self, self._workspace_id, self._patient_id, scorecard)
 
     def query(self):
-        """Queries for entity scorecards.
+        """Queries for patient scorecards.
 
         Returns:
-            list: A list of :class:`proknow.Patients.EntityScorecardSummary` objects, each
-            representing a summarized entity scorecard for the current entity.
+            list: A list of :class:`proknow.Patients.PatientScorecardSummary` objects, each
+            representing a summarized patient scorecard for the current patient.
 
         Raises:
             AssertionError: If the input parameters are invalid.
@@ -205,19 +199,17 @@ class EntityScorecards(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                entities = patient.find_entities(type="dose")
-                entity = entities[0].get()
-                for scorecard in entity.scorecards.query():
+                for scorecard in patient.scorecards.query():
                     print(scorecard.name)
         """
-        _, scorecards = self._requestor.get('/workspaces/' + self._workspace_id + '/entities/' + self._entity_id + '/metrics/sets')
-        return [EntityScorecardSummary(self, self._workspace_id, self._entity_id, scorecard) for scorecard in scorecards]
+        _, scorecards = self._requestor.get('/workspaces/' + self._workspace_id + '/patients/' + self._patient_id + '/metrics/sets')
+        return [PatientScorecardSummary(self, self._workspace_id, self._patient_id, scorecard) for scorecard in scorecards]
 
-class EntityScorecardSummary(object):
+class PatientScorecardSummary(object):
     """
 
-    This class represents a summary view of an entity scorecard. It's instantiated by the
-    :meth:`proknow.Patients.EntityScorecards.query` method to represent each of the scorecards
+    This class represents a summary view of a patient scorecard. It's instantiated by the
+    :meth:`proknow.Patients.PatientScorecards.query` method to represent each of the scorecards
     returned in a query result.
 
     Attributes:
@@ -228,19 +220,19 @@ class EntityScorecardSummary(object):
 
     """
 
-    def __init__(self, scorecards, workspace_id, entity_id, scorecard):
-        """Initializes the EntityScorecardSummary class.
+    def __init__(self, scorecards, workspace_id, patient_id, scorecard):
+        """Initializes the PatientScorecardSummary class.
 
         Parameters:
-            scorecards (proknow.Patients.EntityScorecards): The EntityScorecard instance that is
+            scorecards (proknow.Patients.PatientScorecards): The PatientScorecard instance that is
                 instantiating the object.
             workspace_id (str): The id of the workspace to which the patient belongs.
-            entity_id (str): The id of the entity.
+            patient_id (str): The id of the patient.
             scorecard (dict): A dictionary of scorecard attributes.
         """
         self._scorecards = scorecards
         self._workspace_id = workspace_id
-        self._entity_id = entity_id
+        self._patient_id = patient_id
         self._data = scorecard
         self._id = scorecard["id"]
         self._name = scorecard["name"]
@@ -261,32 +253,30 @@ class EntityScorecardSummary(object):
         """Gets the complete representation of the scorecard.
 
         Returns:
-            :class:`proknow.Patients.EntityScorecardItem`: A complete representation of the entity
+            :class:`proknow.Patients.PatientScorecardItem`: A complete representation of the patient
             scorecard
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            The following example shows how to turn a list of EntityScorecardSummary objects into a
-            list of EntityScorecardItem objects::
+            The following example shows how to turn a list of PatientScorecardSummary objects into a
+            list of PatientScorecardItem objects::
 
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                entities = patient.find_entities(type="dose")
-                entity = entities[0].get()
-                scorecards = [scorecard.get() for scorecard in entity.scorecards.query()]
+                scorecards = [scorecard.get() for scorecard in patient.scorecards.query()]
         """
         return self._scorecards.get(self._id)
 
-class EntityScorecardItem(object):
+class PatientScorecardItem(object):
     """
 
-    This class represents an entity scorecard. It's instantiated by the
-    :class:`proknow.Patients.EntityScorecards` class as a complete representation of the
+    This class represents a patient scorecard. It's instantiated by the
+    :class:`proknow.Patients.PatientScorecards` class as a complete representation of the
     scorecard.
 
     Attributes:
@@ -299,20 +289,20 @@ class EntityScorecardItem(object):
 
     """
 
-    def __init__(self, scorecards, workspace_id, entity_id, scorecard):
-        """Initializes the EntityScorecardItem class.
+    def __init__(self, scorecards, workspace_id, patient_id, scorecard):
+        """Initializes the PatientScorecardItem class.
 
         Parameters:
-            scorecards (proknow.Patients.EntityScorecards): The EntityScorecard instance that is
+            scorecards (proknow.Patients.PatientScorecards): The PatientScorecard instance that is
                 instantiating the object.
             workspace_id (str): The id of the workspace to which the patient belongs.
-            entity_id (str): The id of the entity.
+            patient_id (str): The id of the patient.
             scorecard (dict): A dictionary of scorecard attributes.
         """
         self._scorecards = scorecards
         self._requestor = self._scorecards._requestor
         self._workspace_id = workspace_id
-        self._entity_id = entity_id
+        self._patient_id = patient_id
         self._data = scorecard
         self._id = scorecard["id"]
         self.name = scorecard["name"]
@@ -341,9 +331,7 @@ class EntityScorecardItem(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                entities = patient.find_entities(type="dose")
-                entity = entities[0].get()
-                scorecard = entity.scorecards.find(name='My Scorecard').get()
+                scorecard = patient.scorecards.find(name='My Scorecard').get()
                 scorecard.delete()
         """
         self._scorecards.delete(self._id)
@@ -368,9 +356,7 @@ class EntityScorecardItem(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
                 patient = patients[0].get()
-                entities = patient.find_entities(type="dose")
-                entity = entities[0].get()
-                scorecard = entity.scorecards.find(name='My Scorecard').get()
+                scorecard = patient.scorecards.find(name='My Scorecard').get()
                 scorecard.custom = []
                 scorecard.save()
         """
@@ -379,7 +365,7 @@ class EntityScorecardItem(object):
             "computed": self.computed,
             "custom": self.custom
         }
-        _, scorecard = self._requestor.put('/workspaces/' + self._workspace_id + '/entities/' + self._entity_id + '/metrics/sets/' + self._id, json=body)
+        _, scorecard = self._requestor.put('/workspaces/' + self._workspace_id + '/patients/' + self._patient_id + '/metrics/sets/' + self._id, json=body)
         self._data = scorecard
         self.name = scorecard["name"]
         self.computed = scorecard["computed"]

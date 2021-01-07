@@ -19,6 +19,24 @@ PatientItem
 .. autoclass:: proknow.Patients.PatientItem
    :members:
 
+PatientScorecards
+-----------------
+
+.. autoclass:: proknow.Patients.PatientScorecards
+   :members:
+
+PatientScorecardSummary
+-----------------------
+
+.. autoclass:: proknow.Patients.PatientScorecardSummary
+   :members:
+
+PatientScorecardItem
+--------------------
+
+.. autoclass:: proknow.Patients.PatientScorecardItem
+   :members:
+
 Tasks
 -----
 
@@ -53,24 +71,6 @@ EntityItem
 ----------
 
 .. autoclass:: proknow.Patients.EntityItem
-   :members:
-
-EntityScorecards
-----------------
-
-.. autoclass:: proknow.Patients.EntityScorecards
-   :members:
-
-EntityScorecardSummary
-----------------------
-
-.. autoclass:: proknow.Patients.EntityScorecardSummary
-   :members:
-
-EntityScorecardItem
--------------------
-
-.. autoclass:: proknow.Patients.EntityScorecardItem
    :members:
 
 ImageSetItem
