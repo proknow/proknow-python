@@ -1,5 +1,6 @@
 import six
 
+from .Scorecards import PatientScorecards
 from .Studies import StudySummary
 from .Tasks import Tasks, TaskSummary, TaskItem
 
@@ -379,6 +380,8 @@ class PatientItem(object):
         birth_date (str): The birth_date of the patient.
         sex (str): The sex of the patient.
         metadata (dict): The metadata of the patient.
+        scorecards (proknow.Patients.PatientScorecards): An object for interacting with the
+            scorecards belonging to the entity.
         studies (list): A list of :class:`proknow.Patients.StudySummary` objects for the patient.
         tasks (:class:`proknow.Patients.Tasks`): An instance of the Tasks class for the patient.
     """
@@ -403,6 +406,7 @@ class PatientItem(object):
         self.birth_date = patient["birth_date"]
         self.sex = patient["sex"]
         self.metadata = patient["metadata"]
+        self.scorecards = PatientScorecards(self._patients, self._workspace_id, self._id)
         self.studies = [StudySummary(self._patients, self._workspace_id, self._id, study) for study in patient["studies"]]
         self.tasks = Tasks(self._patients, self._workspace_id, self._id)
 
@@ -417,6 +421,50 @@ class PatientItem(object):
     @property
     def data(self):
         return self._data
+
+    def create_plan(self, name, image_set_id=None, structure_set_id=None, dose_id=None):
+        """Creates a structure set.
+
+        Parameters:
+            name (str): The name of the structure set (available as the entity description).
+            image_set_id (str, optional): The id of the image set.
+            structure_set_id (str, optional): The id of the structure set.
+            dose_id (str, optional): The id of the dose.
+
+        Returns:
+            :class:`proknow.Patients.EntitySummary`: The entity summary object representing the new
+            plan.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            The following example shows how to create a plan::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                image_set = patient.find_entities(modality="CT")[0]
+                plan = patient.create_plan("My Plan", image_set_id=image_set.id)
+        """
+        body = {
+            "name": name,
+        }
+        if image_set_id is not None:
+            body["image_set_id"] = image_set_id
+        elif structure_set_id is not None:
+            body["structure_set_id"] = structure_set_id
+        elif dose_id is not None:
+            body["dose_id"] = dose_id
+        else:
+            assert image_set_id is not None or structure_set_id is not None or dose_id is not None, "One of (image_set_id, structure_set_id, dose_id) is required"
+        _, result = self._requestor.post('/workspaces/' + self._workspace_id + '/plans', json=body)
+        self.refresh()
+        entities = self.find_entities(id=result["id"])
+        assert len(entities) == 1, "Problem finding created plan"
+        return entities[0]
 
     def create_structure_set(self, name, image_set_id):
         """Creates a structure set.
@@ -646,7 +694,7 @@ class PatientItem(object):
 
         Parameters:
             metadata (dict): A dictionary of custom metric key-value pairs where the keys are the
-            names of the custom metric.
+                names of the custom metric.
 
         Raises:
             :class:`proknow.Exceptions.CustomMetricLookupError`: If a custom metric could not be

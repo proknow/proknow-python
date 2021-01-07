@@ -193,6 +193,7 @@ def role_generator(app):
                 "organization_read_collections": False,
                 "organization_view_phi": False,
                 "organization_download_dicom": False,
+                "organization_upload_dicom": False,
                 "organization_write_collections": False,
                 "organization_write_patients": False,
                 "organization_contour_patients": False,

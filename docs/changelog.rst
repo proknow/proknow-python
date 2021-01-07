@@ -1,12 +1,17 @@
 Release History
 ===============
 
-v0.16.4
+v0.17.0
 -------
 
 **Disclaimer**
 
 All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**New Features and Enhancements**
+
+* Added ability to create a plan with the ``proknow.Patients.PatientItem.create_plan`` method.
+* Entity scorecards have been replaced with patient scorecards.
 
 **Bug Fixes**
 
