@@ -164,7 +164,7 @@ class Uploads(object):
         if wait is True:
             query = None
             last_change = datetime.utcnow()
-            delay_count = 0
+            delay = 0.1
             empty_results_count = 0
             while True:
                 terminal_count = 0
@@ -200,7 +200,7 @@ class Uploads(object):
 
                 if terminal_count > 0:
                     last_change = datetime.utcnow()
-                    delay_count = 0
+                    delay = 0.1
 
                 if done:
                     break
@@ -215,10 +215,11 @@ class Uploads(object):
                     empty_results_count = 0
                 else:
                     empty_results_count += 1
-                    delay_count += 1
+                    delay *= 2
+                    delay = delay if delay < 1.0 else 1.0
                     if empty_results_count > 3: # pragma: no cover (difficult to test)
                         query = {}
-                    time.sleep(0.1 if delay_count < 3 else 1.0)
+                    time.sleep(delay)
 
             # Construct Upload Batch
             return UploadBatch(self, workspace_id, [{
