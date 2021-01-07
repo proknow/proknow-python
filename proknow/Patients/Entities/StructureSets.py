@@ -486,6 +486,14 @@ class StructureSetRoiItem(object):
                     match.delete()
                     # Uncomment the line below if you wish to commit your changes as a new version
                     # draft.approve()
+
+            Deleting ROIs during an iteration can cause some items to be missed. To avoid this
+            issue, create a copy of the ROI list for iterating::
+
+                for roi in list(draft.rois):
+                    if roi.name not in ["PTV", "BODY"]:
+                        roi.delete()
+
         """
         if not self._structure_set._is_editable:
             raise InvalidOperationError('Item is not editable')
