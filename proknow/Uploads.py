@@ -5,6 +5,7 @@ __all__ = [
 import os
 import six
 import hashlib
+import time
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
@@ -163,6 +164,8 @@ class Uploads(object):
         if wait is True:
             query = None
             last_change = datetime.utcnow()
+            delay = 0.1
+            empty_results_count = 0
             while True:
                 terminal_count = 0
                 _, uploads = self._requestor.get('/workspaces/' + workspace_id + '/uploads', params=query)
@@ -197,6 +200,7 @@ class Uploads(object):
 
                 if terminal_count > 0:
                     last_change = datetime.utcnow()
+                    delay = 0.1
 
                 if done:
                     break
@@ -208,6 +212,14 @@ class Uploads(object):
                         "updated": last_upload["updated_at"],
                         "after": last_upload["id"],
                     }
+                    empty_results_count = 0
+                else:
+                    empty_results_count += 1
+                    delay *= 2
+                    delay = delay if delay < 1.0 else 1.0
+                    if empty_results_count > 3: # pragma: no cover (difficult to test)
+                        query = {}
+                    time.sleep(delay)
 
             # Construct Upload Batch
             return UploadBatch(self, workspace_id, [{

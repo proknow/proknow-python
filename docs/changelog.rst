@@ -17,6 +17,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 * Updated link in usage documentation related to generating API keys.
 * Some examples involving editing structure sets were not properly creating a draft before attempting attempting edits.
+* Fixed an issue that could cause upload processing updates to occasionally be missed resulting in a timeout error.
 
 v0.16.3
 -------
