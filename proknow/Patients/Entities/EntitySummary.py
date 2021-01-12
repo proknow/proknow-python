@@ -76,7 +76,7 @@ class EntitySummary(object):
         if entity_type == "image_set":
             while True:
                 _, image_set = self._requestor.get('/workspaces/' + self._workspace_id + '/imagesets/' + self._id)
-                if image_set["status"] == 'completed':
+                if image_set["status"] in ('completed', 'abstract'):
                     break
                 else: # pragma: no cover (should not occur in normal circumstances)
                     if count < MAX_COUNT:
@@ -88,7 +88,7 @@ class EntitySummary(object):
         elif entity_type == "structure_set":
             while True:
                 _, structure_set = self._requestor.get('/workspaces/' + self._workspace_id + '/structuresets/' + self._id)
-                if structure_set["status"] == 'completed':
+                if structure_set["status"] in ('completed', 'abstract'):
                     break
                 else: # pragma: no cover (should not occur in normal circumstances)
                     if count < MAX_COUNT:
@@ -100,7 +100,7 @@ class EntitySummary(object):
         elif entity_type == "plan":
             while True:
                 _, plan = self._requestor.get('/workspaces/' + self._workspace_id + '/plans/' + self._id)
-                if plan["status"] == 'completed':
+                if plan["status"] in ('completed', 'abstract'):
                     break
                 else: # pragma: no cover (should not occur in normal circumstances)
                     if count < MAX_COUNT:
@@ -112,7 +112,7 @@ class EntitySummary(object):
         elif entity_type == "dose":
             while True:
                 _, dose = self._requestor.get('/workspaces/' + self._workspace_id + '/doses/' + self._id)
-                if dose["status"] == 'completed':
+                if dose["status"] in ('completed', 'abstract'):
                     break
                 else: # pragma: no cover (should not occur in normal circumstances)
                     if count < MAX_COUNT:
