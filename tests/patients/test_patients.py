@@ -105,6 +105,10 @@ def test_create_plan(app, patient_generator):
     plans = patient.find_entities(type="plan", description="My Plan From RTDOSE")
     assert len(plans) == 1
 
+    # Get plan item
+    item = plans[0].get()
+    assert item.data["description"] == "My Plan From RTDOSE"
+
 def test_create_plan_failure(app, workspace_generator):
     pk = app.pk
 
