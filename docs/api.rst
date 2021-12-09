@@ -20,3 +20,4 @@ This collection of pages includes a complete API reference. For an updated pictu
    api/uploads
    api/patients
    api/collections
+   api/audit

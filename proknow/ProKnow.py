@@ -10,6 +10,7 @@ from .ScorecardTemplates import ScorecardTemplates
 from .Workspaces import Workspaces
 from .Roles import Roles
 from .Users import Users
+from .Audit import Audit
 from .Uploads import Uploads
 from .Patients import Patients
 from .Collections import Collections
@@ -96,6 +97,7 @@ class ProKnow(object):
         self.workspaces = Workspaces(self, self.requestor)
         self.roles = Roles(self, self.requestor)
         self.users = Users(self, self.requestor)
+        self.audit = Audit(self, self.requestor)
 
         self.uploads = Uploads(self, self.requestor)
 
