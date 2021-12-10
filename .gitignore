@@ -113,6 +113,3 @@ pyvenv.cfg
 
 # Test configuration files
 pktestconfig.py
-
-# Configuration files
-credentials.json

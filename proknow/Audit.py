@@ -24,28 +24,32 @@ class Audit(object):
         self._requestor = requestor
         self.auditResultsPage = None
     
-    def query(self, page_size=25, start_time=None, end_time=None,
-        type=None, user_name=None, patient_name=None, classification=None, 
-        method=None, uri=None, user_agent=None, ip_address=None, status_code=None, 
-        workspace_id=None, resource_id=None):
+    def query(self, page_size=25, **kwargs):
 
         """Queries for audit logs.
 
         Parameters:
-            page_size (int): The number of items for each page
+            page_size (int, optional): (Default is 25) The number of items for each page
             start_time (datetime): Start date cut off for whole query
             end_time (datetime): End date cut off for whole query
-            type (str): Type of event
-            user_name (str): Name of event's enacting user
+            types (list): List of event types
+            user_id (str): Id of event's enacting user
+            user_name (str): Name of event's enacting userS
+            patient_id (str): ID of patient
             patient_name (str): Name of patient
-            classification (str): 'HTTP" or 'AUTH'
-            method (str): HTTP Method: 'GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', or 'PATCH'
+            patient_mrn (str): Medical record number of patient
+            workspace_id (str): ID of workspace in which event took place
+            workspace_name (str): Name of workspace in which event took place
+            collection_id (str): ID of a collection
+            resource_id (str): ID of a resource
+            resource_name (str): Name of a resource
+            classification (str): 'HTTP' or 'AUTH'
+            methods (str or list): List of HTTP methods: 'GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', or 'PATCH'
             uri (str): Filter by the uri that event took place (e.g. '/metrics/custom')
             user_agent (str): User Agent attributed to event (e.g. Browser User Agent)
             ip_address (str): IP Address attributed to event
-            status_code (int): Status code of event (e.g. 200)
-            workspace_id (str): ID of workspace in which event took place
-            resource_id (str): ID of resource
+            status_codes (str or list): List of status codes of event (e.g. 200)
+            text (str or list): Text to search for
 
         Returns:
             A :class:`proknow.Audit.AuditResultsPage` object, representing a page of query results
@@ -54,21 +58,43 @@ class Audit(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
 
-        self.options = dict()
+        self.options = {}
         if page_size is not None: self.options["page_size"] = page_size
-        if start_time is not None: self.options["start_time"] = start_time.isoformat()
-        if end_time is not None: self.options["end_time"] = end_time.isoformat()
-        if type is not None: self.options["type"] = type 
-        if user_name is not None: self.options["user_name"] = user_name 
-        if patient_name is not None: self.options["patient_name"] = patient_name 
-        if classification is not None: self.options["classification"] = classification.upper() 
-        if method is not None: self.options["method"] = method.upper() 
-        if uri is not None: self.options["uri"] = uri 
-        if user_agent is not None: self.options["user_agent"] = user_agent
-        if ip_address is not None: self.options["ip_address"] = ip_address
-        if status_code is not None: self.options["status_code"] = status_code
-        if workspace_id is not None: self.options["workspace_id"] = workspace_id
-        if resource_id is not None: self.options["resource_id"] = resource_id
+        if "start_time" in kwargs : self.options["start_time"] = kwargs["start_time"].isoformat()
+        if "end_time" in kwargs: self.options["end_time"] = kwargs["end_time"].isoformat()
+        if "types" in kwargs: self.options["types"] = kwargs["types"]
+        if "user_id" in kwargs: self.options["user_id"] = kwargs["user_id"] 
+        if "user_name" in kwargs: self.options["user_name"] = kwargs["user_name"]
+        if "patient_id" in kwargs: self.options["patient_id"] = kwargs["patient_id"]
+        if "patient_name" in kwargs: self.options["patient_name"] = kwargs["patient_name"]
+        if "patient_mrn" in kwargs: self.options["patient_mrn"] = kwargs["patient_mrn"]
+        if "workspace_id" in kwargs: self.options["workspace_id"] = kwargs["workspace_id"]
+        if "workspace_name" in kwargs: self.options["workspace_name"] = kwargs["workspace_name"]
+        if "collection_id" in kwargs: self.options["collection_id"] = kwargs["collection_id"]
+        if "resource_id" in kwargs: self.options["resource_id"] = kwargs["resource_id"]
+        if "resource_name" in kwargs: self.options["resource_name"] = kwargs["resource_name"] 
+        if "classification" in kwargs: self.options["classification"] = kwargs["classification"].upper() 
+        if "uri" in kwargs: self.options["uri"] = kwargs["uri"] 
+        if "user_agent" in kwargs: self.options["user_agent"] = kwargs["user_agent"]
+        if "ip_address" in kwargs: self.options["ip_address"] = kwargs["ip_address"]
+
+        if "methods" in kwargs: 
+            if not isinstance(kwargs["methods"], list):
+                self.options["methods"] = [kwargs["methods"].upper()]
+            else:
+                self.options["methods"] = [x.upper() for x in kwargs["methods"]]
+
+        if "status_codes" in kwargs: 
+            if not isinstance(kwargs["status_codes"], list):
+                self.options["status_codes"] = [kwargs["status_codes"]]
+            else:
+                self.options["status_codes"] = kwargs["status_codes"]
+
+        if "text" in kwargs: 
+            if not isinstance(kwargs["text"], list):
+                self.options["text"] = [kwargs["text"]]
+            else:
+                self.options["text"] = kwargs["text"]
 
         self.auditResultsPage = self._query()
 
@@ -82,29 +108,28 @@ class Audit(object):
         """Gets the next page of results using the parameters provided by the 
         :meth:`proknow.Audit.Audit.query` method.
         
-        Returns :
+        Returns:
             :class:`proknow.Audit.AuditResultsPage`
 
-        Raises :
-            :class:`proknow.Exceptions.InvalidOperationError`: If the method is called before query is called.
+        Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+            :class:`proknow.Exceptions.InvalidOperationError`: If this method is called before :meth:`proknow.Audit.Audit.query is called.
         """
         if self.auditResultsPage is None:
-            raise InvalidOperationError('Next was called when there is no initial query!')
+            raise InvalidOperationError('Next was called when there is no initial query.')
+
         self.options['page_number'] += 1
         self.auditResultsPage = self._query()
+        
         return self.auditResultsPage
 
-
     def _query(self): 
-        print(self.options)
         _, results = self._requestor.post('/audit/events/search', json=self.options)
         
         return AuditResultsPage(self, results['total'], results['items'])
 
 class AuditResultsPage(object):
     """
-
     This class represents a page of audit log query results. It's instantiated by the
     :meth:`proknow.Audits.Audit.query` method.
 
