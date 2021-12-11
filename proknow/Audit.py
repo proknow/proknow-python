@@ -30,26 +30,26 @@ class Audit(object):
 
         Parameters:
             page_size (int, optional): (Default is 25) The number of items for each page
-            start_time (datetime): Start date cut off for whole query
-            end_time (datetime): End date cut off for whole query
+            start_time (datetime): Start time cut off for whole query
+            end_time (datetime): End time cut off for whole query
             types (list): List of event types
-            user_id (str): Id of event's enacting user
-            user_name (str): Name of event's enacting userS
+            user_id (str): ID of events' enacting user
+            user_name (str): Name of events' enacting user
             patient_id (str): ID of patient
             patient_name (str): Name of patient
             patient_mrn (str): Medical record number of patient
-            workspace_id (str): ID of workspace in which event took place
-            workspace_name (str): Name of workspace in which event took place
+            workspace_id (str): ID of workspace in which events took place
+            workspace_name (str): Name of workspace in which events took place
             collection_id (str): ID of a collection
             resource_id (str): ID of a resource
             resource_name (str): Name of a resource
             classification (str): 'HTTP' or 'AUTH'
             methods (str or list): List of HTTP methods: 'GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', or 'PATCH'
-            uri (str): Filter by the uri that event took place (e.g. '/metrics/custom')
-            user_agent (str): User Agent attributed to event (e.g. Browser User Agent)
-            ip_address (str): IP Address attributed to event
-            status_codes (str or list): List of status codes of event (e.g. 200)
-            text (str or list): Text to search for
+            uri (str): Filter by the uri that events took place (e.g. '/metrics/custom')
+            user_agent (str): User Agent attributed to events (e.g. Browser User Agent)
+            ip_address (str): IP Address attributed to events
+            status_codes (str or list): List of status codes of events (e.g. 200)
+            text (str or list): Text to search for in all fields
 
         Returns:
             A :class:`proknow.Audit.AuditResultsPage` object, representing a page of query results
@@ -113,14 +113,14 @@ class Audit(object):
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
-            :class:`proknow.Exceptions.InvalidOperationError`: If this method is called before :meth:`proknow.Audit.Audit.query is called.
+            :class:`proknow.Exceptions.InvalidOperationError`: If this method is called before :meth:`proknow.Audit.Audit.query` is called.
         """
         if self.auditResultsPage is None:
             raise InvalidOperationError('Next was called when there is no initial query.')
 
         self.options['page_number'] += 1
         self.auditResultsPage = self._query()
-        
+
         return self.auditResultsPage
 
     def _query(self): 
@@ -134,7 +134,7 @@ class AuditResultsPage(object):
     :meth:`proknow.Audits.Audit.query` method.
 
     Attributes:
-        total (int): The total number of possible results for the given query.
+        total (int): The total number of possible results for the given query, not the total of items in the object's item list.
         items (list of dict): A list of dictionaries to represent each item returned for the current page.
     """
     def __init__(self, audit, total, items):
@@ -143,7 +143,7 @@ class AuditResultsPage(object):
         self.items = items
     
     def next(self):
-        """Gets the next page of query results using the initial parameters
+        """Gets the next page of query results using the initial query parameters.
 
         Returns:
             :class:`proknow.Audit.AuditResultsPage`
