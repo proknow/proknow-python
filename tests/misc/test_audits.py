@@ -268,4 +268,3 @@ def test_error_pass_through(app):
     with pytest.raises(HttpError) as error_info:
         audit.query(page_size=1, methods="gett")
     assert "[\"0\" must be one of [GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH]]" in str(error_info)
-    

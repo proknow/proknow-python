@@ -49,7 +49,7 @@ class Audit(object):
             user_agent (str): User Agent attributed to events (e.g. Browser User Agent)
             ip_address (str): IP Address attributed to events
             status_codes (str or list): List of status codes of events (e.g. 200)
-            text (str or list): Text to search for in all fields
+            text (str or list): Text to search for in all text fields
 
         Returns:
             A :class:`proknow.Audit.AuditResultsPage` object, representing a page of query results
@@ -116,7 +116,7 @@ class Audit(object):
             :class:`proknow.Exceptions.InvalidOperationError`: If this method is called before :meth:`proknow.Audit.Audit.query` is called.
         """
         if self.auditResultsPage is None:
-            raise InvalidOperationError('Next was called when there is no initial query.')
+            raise InvalidOperationError('\'Audit.query\' must be called before calling \'Audit.next\'')
 
         self.options['page_number'] += 1
         self.auditResultsPage = self._query()
@@ -152,4 +152,3 @@ class AuditResultsPage(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
         return self._audit.next()
-
