@@ -2,16 +2,12 @@ __all__ = [
     'Audit',
 ]
 
-import json
-import datetime
-
-from proknow.Exceptions import InvalidOperationError
-
 class Audit(object):
     """
-    This class should be used to interact with the audit logs in a Proknow organization.
+    This class should be used to interact with the audit logs in a Proknow organization. It is
+    instantiated for you as an attribute of the :class:`proknow.ProKnow.ProKnow` class.
     """
-
+    
     def __init__(self, proknow, requestor):
         """Initializes the Audit class.
 
@@ -22,10 +18,8 @@ class Audit(object):
         """
         self._proknow = proknow
         self._requestor = requestor
-        self.auditResultsPage = None
     
-    def query(self, page_size=25, **kwargs):
-
+    def query(self, **kwargs):
         """Queries for audit logs.
 
         Parameters:
@@ -52,86 +46,74 @@ class Audit(object):
             text (str or list): Text to search for in all text fields
 
         Returns:
-            A :class:`proknow.Audit.AuditResultsPage` object, representing a page of query results
+            :class:`proknow.Audit.AuditResultsPage`: An object representing a page of query results
 
         Raises:
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
-        """
-
-        self.options = {}
-        if page_size is not None: self.options["page_size"] = page_size
-        if "start_time" in kwargs : self.options["start_time"] = kwargs["start_time"].isoformat()
-        if "end_time" in kwargs: self.options["end_time"] = kwargs["end_time"].isoformat()
-        if "user_id" in kwargs: self.options["user_id"] = kwargs["user_id"] 
-        if "user_name" in kwargs: self.options["user_name"] = kwargs["user_name"]
-        if "patient_id" in kwargs: self.options["patient_id"] = kwargs["patient_id"]
-        if "patient_name" in kwargs: self.options["patient_name"] = kwargs["patient_name"]
-        if "patient_mrn" in kwargs: self.options["patient_mrn"] = kwargs["patient_mrn"]
-        if "workspace_id" in kwargs: self.options["workspace_id"] = kwargs["workspace_id"]
-        if "workspace_name" in kwargs: self.options["workspace_name"] = kwargs["workspace_name"]
-        if "collection_id" in kwargs: self.options["collection_id"] = kwargs["collection_id"]
-        if "resource_id" in kwargs: self.options["resource_id"] = kwargs["resource_id"]
-        if "resource_name" in kwargs: self.options["resource_name"] = kwargs["resource_name"] 
-        if "classification" in kwargs: self.options["classification"] = kwargs["classification"].upper() 
-        if "uri" in kwargs: self.options["uri"] = kwargs["uri"] 
-        if "user_agent" in kwargs: self.options["user_agent"] = kwargs["user_agent"]
-        if "ip_address" in kwargs: self.options["ip_address"] = kwargs["ip_address"]
-
-        if "types" in kwargs: 
-            if not isinstance(kwargs["types"], list):
-                self.options["types"] = [kwargs["types"]]
-            else:
-                self.options["types"] = kwargs["types"]
-
-        if "methods" in kwargs: 
-            if not isinstance(kwargs["methods"], list):
-                self.options["methods"] = [kwargs["methods"].upper()]
-            else:
-                self.options["methods"] = [x.upper() for x in kwargs["methods"]]
-
-        if "status_codes" in kwargs: 
-            if not isinstance(kwargs["status_codes"], list):
-                self.options["status_codes"] = [kwargs["status_codes"]]
-            else:
-                self.options["status_codes"] = kwargs["status_codes"]
-
-        if "text" in kwargs: 
-            if not isinstance(kwargs["text"], list):
-                self.options["text"] = [kwargs["text"]]
-            else:
-                self.options["text"] = kwargs["text"]
-
-        self.auditResultsPage = self._query()
-
-        self.options['page_number'] = 0
-        if self.auditResultsPage.total > 0:
-            self.options['first_id'] = self.auditResultsPage.items[0]['id']
-
-        return self.auditResultsPage
-
-    def next(self):
-        """Gets the next page of results using the parameters provided by the 
-        :meth:`proknow.Audit.Audit.query` method.
         
-        Returns:
-            :class:`proknow.Audit.AuditResultsPage`
+        Example:
+            This example shows how to query for events in a workspace called "Clinical"::
 
-        Raises:
-            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
-            :class:`proknow.Exceptions.InvalidOperationError`: If this method is called before :meth:`proknow.Audit.Audit.query` is called.
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                clinicalResults = pk.audit.query(workspace_name="Clinical")
+                nextClinicalResults = clinicalResults.next()
         """
-        if self.auditResultsPage is None:
-            raise InvalidOperationError('\'Audit.query\' must be called before calling \'Audit.next\'')
-
-        self.options['page_number'] += 1
-        self.auditResultsPage = self._query()
-
-        return self.auditResultsPage
-
-    def _query(self): 
-        _, results = self._requestor.post('/audit/events/search', json=self.options)
         
-        return AuditResultsPage(self, results['total'], results['items'])
+        if "options" in kwargs: 
+            options = kwargs["options"]
+        else:
+            options = {}
+
+            if "page_size" in kwargs: options["page_size"] = kwargs["page_size"]
+            if "start_time" in kwargs: options["start_time"] = kwargs["start_time"].isoformat()
+            if "end_time" in kwargs: options["end_time"] = kwargs["end_time"].isoformat()
+            if "user_id" in kwargs: options["user_id"] = kwargs["user_id"] 
+            if "user_name" in kwargs: options["user_name"] = kwargs["user_name"]
+            if "patient_id" in kwargs: options["patient_id"] = kwargs["patient_id"]
+            if "patient_name" in kwargs: options["patient_name"] = kwargs["patient_name"]
+            if "patient_mrn" in kwargs: options["patient_mrn"] = kwargs["patient_mrn"]
+            if "workspace_id" in kwargs: options["workspace_id"] = kwargs["workspace_id"]
+            if "workspace_name" in kwargs: options["workspace_name"] = kwargs["workspace_name"]
+            if "collection_id" in kwargs: options["collection_id"] = kwargs["collection_id"]
+            if "resource_id" in kwargs: options["resource_id"] = kwargs["resource_id"]
+            if "resource_name" in kwargs: options["resource_name"] = kwargs["resource_name"] 
+            if "classification" in kwargs: options["classification"] = kwargs["classification"].upper() 
+            if "uri" in kwargs: options["uri"] = kwargs["uri"] 
+            if "user_agent" in kwargs: options["user_agent"] = kwargs["user_agent"]
+            if "ip_address" in kwargs: options["ip_address"] = kwargs["ip_address"]
+
+            if "types" in kwargs: 
+                if not isinstance(kwargs["types"], list):
+                    options["types"] = [kwargs["types"]]
+                else:
+                    options["types"] = kwargs["types"]
+
+            if "methods" in kwargs: 
+                if not isinstance(kwargs["methods"], list):
+                    options["methods"] = [kwargs["methods"].upper()]
+                else:
+                    options["methods"] = [x.upper() for x in kwargs["methods"]]
+
+            if "status_codes" in kwargs: 
+                if not isinstance(kwargs["status_codes"], list):
+                    options["status_codes"] = [kwargs["status_codes"]]
+                else:
+                    options["status_codes"] = kwargs["status_codes"]
+
+            if "text" in kwargs: 
+                if not isinstance(kwargs["text"], list):
+                    options["text"] = [kwargs["text"]]
+                else:
+                    options["text"] = kwargs["text"]
+
+        return self._query(options)
+
+    def _query(self, options): 
+        _, results = self._requestor.post('/audit/events/search', json=options)
+        
+        return AuditResultsPage(self, options, results['total'], results['items'])
 
 class AuditResultsPage(object):
     """
@@ -142,10 +124,15 @@ class AuditResultsPage(object):
         total (int): The total number of possible results for the given query, not the total of items in the object's item list.
         items (list of dict): A list of dictionaries to represent each item returned for the current page.
     """
-    def __init__(self, audit, total, items):
+    def __init__(self, audit, options, total, items):
         self._audit = audit
+        self._options = options
         self.total = total
         self.items = items
+        if "page_number" not in self._options:
+            self._options["page_number"] = 0
+        if "first_id" not in self._options and total > 0:
+            self._options["first_id"] = items[0]["id"]
     
     def next(self):
         """Gets the next page of query results using the initial query parameters.
@@ -156,4 +143,5 @@ class AuditResultsPage(object):
         Raises: 
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
-        return self._audit.next()
+        self._options["page_number"] += 1
+        return self._audit.query(options = self._options)

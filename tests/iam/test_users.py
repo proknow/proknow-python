@@ -180,7 +180,6 @@ def test_update(app, user_generator, role_generator):
         "manage_template_metric_sets": False,
         "manage_renaming_rules": False,
         "manage_template_checklists": False,
-        "manage_audit_logs": False,
         "organization_collaborator": False,
         "organization_read_patients": False,
         "organization_read_collections": False,

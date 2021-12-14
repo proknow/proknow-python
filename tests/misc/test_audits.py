@@ -2,7 +2,7 @@ import pytest
 import datetime
 
 from proknow.Audit import Audit
-from proknow.Exceptions import HttpError, InvalidOperationError
+from proknow.Exceptions import HttpError
 
 def test_query(app, user_generator):
     audit = Audit(app.pk, app.pk.requestor)
@@ -11,14 +11,6 @@ def test_query(app, user_generator):
 
     results = audit.query(page_size=1)
     assert results.total > 0
-
-def test_next_failure(app, role_generator):
-    audit = Audit(app.pk, app.pk.requestor)
-
-    role_generator()
-
-    with pytest.raises(InvalidOperationError):
-        results = audit.next()
 
 def test_empty_next(app, workspace_generator):
     audit = Audit(app.pk, app.pk.requestor)
@@ -39,11 +31,11 @@ def test_next_uses_first_id(app, role_generator):
     results = audit.query(page_size=2)
     assert len(results.items) > 0
     first_time = datetime.datetime.strptime(results.items[0]["timestamp"],"%Y-%m-%dT%H:%M:%S.%fZ")
-    assert results.items[0]["id"] == audit.options["first_id"]
+    assert results.items[0]["id"] == results._options["first_id"]
 
     role_generator()
 
-    results = audit.next()
+    results = results.next()
     result_time = datetime.datetime.strptime(results.items[0]["timestamp"],"%Y-%m-%dT%H:%M:%S.%fZ")
     # All items returned by next should have a timestamp after the first_id's timestamp
     assert  first_time >= result_time
@@ -62,12 +54,16 @@ def test_page_next(app, user_generator):
     user_generator()
     user_generator()
 
-    results = audit.query(page_size=1)
-    first_id = results.items[0]["id"]
-    results = results.next()
-    second_id = results.items[0]["id"]
+    results1 = audit.query(page_size=2)
+    
+    results2 = audit.query(page_size=1)
+    first_id = results2.items[0]["id"]
+    results2 = results2.next()
+    second_id = results2.items[0]["id"]
 
     assert first_id != second_id
+    assert first_id == results1.items[0]["id"]
+    assert second_id == results1.items[1]["id"]
 
 def test_start_time(app, user_generator):
     audit = Audit(app.pk, app.pk.requestor)
@@ -206,31 +202,30 @@ def test_methods(app, role_generator):
     app.pk.roles.get(role.id)
 
     results = audit.query(page_size=1, methods="get")
-    assert audit.options["methods"] == ["GET"]
+    assert results._options["methods"] == ["GET"]
     assert results.items[0]["method"] == "GET"
 
     results = audit.query(page_size=1, methods="GET")
-    assert audit.options["methods"] == ["GET"]
+    assert results._options["methods"] == ["GET"]
     assert results.items[0]["method"] == "GET"
 
     results = audit.query(page_size=1, methods="post")
-    assert audit.options["methods"] == ["POST"]
+    assert results._options["methods"] == ["POST"]
     assert results.items[0]["method"] == "POST"
 
     results = audit.query(page_size=2, methods=["get", "post"])
-    assert audit.options["methods"] == ["GET", "POST"]
+    assert results._options["methods"] == ["GET", "POST"]
     assert results.items[0]["method"] == "GET"
     assert results.items[1]["method"] == "POST"
 
 def test_status_codes(app):
     audit = Audit(app.pk, app.pk.requestor)
 
-    audit.query(page_size=1, status_codes="200")
-    assert audit.options["status_codes"] == ["200"]
+    results = audit.query(page_size=1, status_codes="200")
+    assert results._options["status_codes"] == ["200"]
 
-    audit.query(page_size=1, status_codes=["200", "403"])
-    assert audit.options["status_codes"] == ["200", "403"]
-
+    results = audit.query(page_size=1, status_codes=["200", "403"])
+    assert results._options["status_codes"] == ["200", "403"]
 
 def test_uri(app, role_generator):
     audit = Audit(app.pk, app.pk.requestor)
@@ -254,13 +249,13 @@ def test_text(app, user_generator, workspace_generator, patient_generator):
     workspace_generator()
 
     results = audit.query(page_size=1, text="role")
-    assert audit.options["text"] == ["role"]
-    assert results.items[0]["type"].__contains__("role")
+    assert results._options["text"] == ["role"]
+    assert "role" in results.items[0]["type"]
 
     results = audit.query(page_size=5, text=[patient.name, "role"])
-    assert audit.options["text"] == [patient.name, "role"]
+    assert results._options["text"] == [patient.name, "role"]
     for item in results.items:
-        assert item["patient_name"] == patient.name or item["type"].__contains__("role")
+        assert item["patient_name"] == patient.name or "role" in item["type"]
 
 def test_error_pass_through(app):
     audit = Audit(app.pk, app.pk.requestor)
