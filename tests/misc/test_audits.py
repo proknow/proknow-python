@@ -98,7 +98,7 @@ def test_types(app, workspace_generator, user_generator, role_generator):
     user_generator()
     role_generator()
 
-    results = audit.query(page_size=1, types=["workspace_created"])
+    results = audit.query(page_size=1, types="workspace_created")
     assert results.items[0]["type"] == "workspace_created"
     
     results = audit.query(page_size=2, types=["workspace_created", "user_created"])

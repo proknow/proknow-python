@@ -32,7 +32,7 @@ class Audit(object):
             page_size (int, optional): (Default is 25) The number of items for each page
             start_time (datetime): Start time cut off for whole query
             end_time (datetime): End time cut off for whole query
-            types (list): List of event types
+            types (str or list): List of event types
             user_id (str): ID of events' enacting user
             user_name (str): Name of events' enacting user
             patient_id (str): ID of patient
@@ -62,7 +62,6 @@ class Audit(object):
         if page_size is not None: self.options["page_size"] = page_size
         if "start_time" in kwargs : self.options["start_time"] = kwargs["start_time"].isoformat()
         if "end_time" in kwargs: self.options["end_time"] = kwargs["end_time"].isoformat()
-        if "types" in kwargs: self.options["types"] = kwargs["types"]
         if "user_id" in kwargs: self.options["user_id"] = kwargs["user_id"] 
         if "user_name" in kwargs: self.options["user_name"] = kwargs["user_name"]
         if "patient_id" in kwargs: self.options["patient_id"] = kwargs["patient_id"]
@@ -77,6 +76,12 @@ class Audit(object):
         if "uri" in kwargs: self.options["uri"] = kwargs["uri"] 
         if "user_agent" in kwargs: self.options["user_agent"] = kwargs["user_agent"]
         if "ip_address" in kwargs: self.options["ip_address"] = kwargs["ip_address"]
+
+        if "types" in kwargs: 
+            if not isinstance(kwargs["types"], list):
+                self.options["types"] = [kwargs["types"]]
+            else:
+                self.options["types"] = kwargs["types"]
 
         if "methods" in kwargs: 
             if not isinstance(kwargs["methods"], list):
