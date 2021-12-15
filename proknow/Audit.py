@@ -2,6 +2,8 @@ __all__ = [
     'Audit',
 ]
 
+import copy
+
 class Audit(object):
     """
     This class should be used to interact with the audit logs in a Proknow organization. It is
@@ -169,6 +171,6 @@ class AuditResultsPage(object):
         Raises: 
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
-        options = self._options.copy()
+        options = copy.deepcopy(self._options)
         options["page_number"] += 1
         return self._audit.query(options=options)
