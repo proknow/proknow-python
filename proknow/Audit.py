@@ -7,7 +7,7 @@ class Audit(object):
     This class should be used to interact with the audit logs in a Proknow organization. It is
     instantiated for you as an attribute of the :class:`proknow.ProKnow.ProKnow` class.
     """
-    
+
     def __init__(self, proknow, requestor):
         """Initializes the Audit class.
 
@@ -23,12 +23,12 @@ class Audit(object):
         """Queries for audit logs.
 
         Parameters:
-            page_size (int, optional): (Default is 25) The number of items for each page
+            page_size (int): (Default is 25) The number of items for each page
             start_time (datetime): Start time cut off for whole query
             end_time (datetime): End time cut off for whole query
             types (str or list): List of event types
             user_id (str): ID of events' enacting user
-            user_name (str): Name of events' enacting user
+            user_name (str): User name of events' enacting user
             patient_id (str): ID of patient
             patient_name (str): Name of patient
             patient_mrn (str): Medical record number of patient
@@ -60,7 +60,6 @@ class Audit(object):
                 clinicalResults = pk.audit.query(workspace_name="Clinical")
                 nextClinicalResults = clinicalResults.next()
         """
-        
         if "options" in kwargs: 
             options = kwargs["options"]
         else:
@@ -118,12 +117,35 @@ class Audit(object):
 class AuditResultsPage(object):
     """
     This class represents a page of audit log query results. It's instantiated by the
-    :meth:`proknow.Audits.Audit.query` method.
+    :meth:`proknow.Audit.Audit.query` method.
 
     Attributes:
         total (int): The total number of possible results for the given query, not the total of items in the object's item list.
         items (list of dict): A list of dictionaries to represent each item returned for the current page.
+
+            Item Keys:
+                * id: The ID of the event
+                * timestamp: Time of event
+                * user_id: User ID of event's enacting user
+                * user_name: User name of event's enacting user
+                * patient_id: ID of patient
+                * patient_name: Name of patient
+                * patient_mrn: Medical record number of patient
+                * resource_id: ID of a resource
+                * resource_name: Name of a resource
+                * workspace_id: ID of workspace in which events took place
+                * workspace_name: Name of workspace in which events took place
+                * collection_id: ID of a collection
+                * type: Event type (e.g. 'workspace_created')
+                * classification: 'HTTP' or 'AUTH'
+                * method: HTTP method: 'GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', or 'PATCH'
+                * uri: Uri that event took place (e.g. '/metrics/custom')
+                * user_agent: User Agent attributed to event (e.g. Browser User Agent)
+                * ip_address: IP Address attributed to event
+                * status_code: Status code of event (e.g. 200)
+                * data: Request data
     """
+
     def __init__(self, audit, options, total, items):
         self._audit = audit
         self._options = options
