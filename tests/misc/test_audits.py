@@ -65,6 +65,22 @@ def test_page_next(app, user_generator):
     assert first_id == results1.items[0]["id"]
     assert second_id == results1.items[1]["id"]
 
+def test_page_number(app, user_generator):
+    audit = Audit(app.pk, app.pk.requestor)
+
+    user_generator()
+
+    page1 = audit.query(page_size=1)
+    page2 = page1.next()
+    otherPage2 = page1.next()
+    page3 = page2.next()
+
+    assert page1._options["page_number"] == 0
+    assert page2._options["page_number"] == 1
+    assert otherPage2._options["page_number"] == 1
+    assert page2.items[0]["id"] == otherPage2.items[0]["id"]
+    assert page3._options["page_number"] == 2
+
 def test_start_time(app, user_generator):
     audit = Audit(app.pk, app.pk.requestor)
 

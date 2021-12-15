@@ -23,6 +23,7 @@ class Audit(object):
         """Queries for audit logs.
 
         Parameters:
+            options (dict): Dictionary of one or more of the following query parameters
             page_size (int): (Default is 25) The number of items for each page
             start_time (datetime): Start time cut off for whole query
             end_time (datetime): End time cut off for whole query
@@ -52,13 +53,16 @@ class Audit(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         
         Example:
-            This example shows how to query for events in a workspace called "Clinical"::
+            This example shows how to query for all events in a workspace called "Clinical"::
 
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 clinicalResults = pk.audit.query(workspace_name="Clinical")
-                nextClinicalResults = clinicalResults.next()
+                while len(clinicalResults.items) > 0:
+                    for item in clinicalResults.items:
+                        print(item)
+                    clinicalResults = clinicalResults.next()
         """
         if "options" in kwargs: 
             options = kwargs["options"]
@@ -160,10 +164,11 @@ class AuditResultsPage(object):
         """Gets the next page of query results using the initial query parameters.
 
         Returns:
-            :class:`proknow.Audit.AuditResultsPage`
+            :class:`proknow.Audit.AuditResultsPage`: A new object representing the next page of query results relative to the current page. 
 
         Raises: 
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
         """
-        self._options["page_number"] += 1
-        return self._audit.query(options = self._options)
+        options = self._options.copy()
+        options["page_number"] += 1
+        return self._audit.query(options=options)
