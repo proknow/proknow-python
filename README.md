@@ -32,7 +32,7 @@ Deactivate your virtual environment with the `deactivate` command. As long as th
 
 #### Testing
 
-Before you start testing, you'll need access to a ProKnow DS organization where you can generate an [API token](https://support.proknow.com/article/165-configuring-your-profile#api-keys) for your project. Once you have your API token create a file called `pktestconfig.py` in the root of this project with the following contents:
+Before you start testing, you'll need access to a ProKnow DS organization where you can generate an [API token](https://support.proknow.com/hc/en-us/articles/360019798893-Configuring-Your-Profile#managing-api-keys) for your project. Once you have your API token create a file called `pktestconfig.py` in the root of this project with the following contents:
 
 ```
 #!/usr/bin/env python

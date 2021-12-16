@@ -30,12 +30,16 @@ def test_create(app, custom_metric_generator, scorecard_template_generator):
         "type": "VOLUME",
         "roi_name": "BRAINSTEM",
         "arg_1": None,
-        "arg_2": None
+        "arg_2": None,
+        'rx': None,
+        'rx_scale': None
     }, {
         "type": "VOLUME_CC_DOSE_RANGE_ROI",
         "roi_name": "BRAINSTEM",
         "arg_1": 30,
         "arg_2": 60,
+        'rx': None,
+        'rx_scale': None,
         "objectives": [{
             "label": "IDEAL",
             "color": [18, 191, 0],

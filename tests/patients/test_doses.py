@@ -177,6 +177,8 @@ def test_metrics_query(app, patient_generator):
     assert metrics == sorted([{
         "type": "DOSE_VOLUME_PERCENT_ROI",
         "roi_name": "PTV",
+        'rx': None,
+        'rx_scale': None,
         "arg_1": 99,
         "arg_2": None,
         "status": "completed",
@@ -185,6 +187,8 @@ def test_metrics_query(app, patient_generator):
     }, {
         "type": "VOLUME_PERCENT_DOSE_RANGE_ROI",
         "roi_name": "BRAINSTEM",
+        'rx': None,
+        'rx_scale': None,
         "arg_1": 0,
         "arg_2": 10,
         "status": "failed",
