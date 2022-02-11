@@ -12,7 +12,6 @@ def test_create(app, user_generator):
     assert user.name == params["name"]
     assert user.email == params["email"]
     assert user.active is True
-    assert user.role_id == params["role_id"]
 
     # Assert item can be found in query
     for user in pk.users.query():
@@ -27,14 +26,12 @@ def test_create(app, user_generator):
     assert user.name == params["name"]
     assert user.email == params["email"]
     assert user.active is True
-    assert user.role_id == params["role_id"]
 
     # Verify user can be created with password
     params, user = user_generator(password="2pBUYbneE^egW^qX*34v")
     assert user.name == params["name"]
     assert user.email == params["email"]
     assert user.active is True
-    assert user.role_id == params["role_id"]
 
 def test_create_failure(app, user_generator):
     pk = app.pk
@@ -45,7 +42,7 @@ def test_create_failure(app, user_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         pk.users.create(**params)
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'User already exists with email "' + params["email"] + '"'
+    assert err_wrapper.value.body == '{"type":"USER_CONFLICT_EMAIL","params":{"email":"' + params["email"] + '"},"message":"User already exists with email \\"' + params["email"] + '\\""}'
 
 def test_delete(app, user_generator):
     pk = app.pk
@@ -72,7 +69,7 @@ def test_delete_failure(app, user_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         user.delete()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == 'User "' + user.id + '" not found'
+    assert err_wrapper.value.body == '{"type":"USER_NOT_FOUND","params":{"user_id":"' + user.id + '"},"message":"User \\"' + user.id + '\\" not found"}'
 
 def test_find(app, user_generator):
     pk = app.pk
@@ -138,7 +135,7 @@ def test_query(app, user_generator):
     assert match.email == params2["email"]
     assert match.name == params2["name"]
 
-def test_update(app, user_generator, role_generator):
+def test_update(app, user_generator):
     pk = app.pk
     resource_prefix = app.resource_prefix
 
@@ -163,41 +160,6 @@ def test_update(app, user_generator, role_generator):
     assert user.name == "Updated User Name"
     assert user.active == False
 
-    # Update user with new role
-    role_params, role = role_generator()
-    user.role_id = role.id
-    user.save()
-    user = pk.users.find(id=user.id).get()
-    assert user.role_id == role.id
-    assert user.role is None
-
-    # Update user with private role
-    user.role_id = None
-    user.role = {
-        "create_api_keys": False,
-        "manage_access": False,
-        "manage_custom_metrics": False,
-        "manage_template_metric_sets": False,
-        "manage_renaming_rules": False,
-        "manage_template_checklists": False,
-        "organization_collaborator": False,
-        "organization_read_patients": False,
-        "organization_read_collections": False,
-        "organization_view_phi": False,
-        "organization_download_dicom": False,
-        "organization_write_collections": False,
-        "organization_write_patients": False,
-        "organization_contour_patients": False,
-        "organization_delete_collections": False,
-        "organization_delete_patients": False,
-        "workspaces": [],
-    }
-    user.save()
-    user = pk.users.find(id=user.id).get()
-    assert user.role_id is None
-    assert isinstance(user.role, dict)
-    user.save()
-
 def test_update_failure(app, user_generator):
     pk = app.pk
 
@@ -209,28 +171,5 @@ def test_update_failure(app, user_generator):
         user.email = "example+duplicateme2@proknow.com"
         user.save()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == 'User "' + user.id + '" not found'
+    assert err_wrapper.value.body == '{"type":"USER_NOT_FOUND","params":{"user_id":"' + user.id + '"},"message":"User \\"' + user.id + '\\" not found"}'
 
-    # Assert error is raised for bad role configuration
-    with pytest.raises(AssertionError) as err_wrapper:
-        user.role = {
-            "create_api_keys": False,
-            "manage_access": False,
-            "manage_custom_metrics": False,
-            "manage_template_metric_sets": False,
-            "manage_renaming_rules": False,
-            "manage_template_checklists": False,
-            "organization_collaborator": False,
-            "organization_read_patients": False,
-            "organization_read_collections": False,
-            "organization_view_phi": False,
-            "organization_download_dicom": False,
-            "organization_write_collections": False,
-            "organization_write_patients": False,
-            "organization_contour_patients": False,
-            "organization_delete_collections": False,
-            "organization_delete_patients": False,
-            "workspaces": [],
-        }
-        user.save()
-    assert str(err_wrapper.value) == "exactly one of `role_id` or `role` is required"

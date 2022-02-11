@@ -24,11 +24,12 @@ class Roles(object):
         self._proknow = proknow
         self._requestor = requestor
 
-    def create(self, name, permissions):
+    def create(self, name, description, permissions):
         """Creates a new role.
 
         Parameters:
             name (str): The name of the role.
+            description (str): The description of the role.
             permissions (dict): A dictionary of permissions.
 
         Returns:
@@ -45,45 +46,111 @@ class Roles(object):
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                pk.roles.create("Researchers", {
-                    "create_api_keys": False,
-                    "manage_access": False,
-                    "manage_custom_metrics": False,
-                    "manage_template_metric_sets": False,
-                    "manage_renaming_rules": False,
-                    "manage_template_checklists": False,
-                    "organization_collaborator": False,
-                    "organization_read_patients": False,
-                    "organization_read_collections": False,
-                    "organization_view_phi": False,
-                    "organization_download_dicom": False,
-                    "organization_upload_dicom": False,
-                    "organization_write_collections": False,
-                    "organization_write_patients": False,
-                    "organization_contour_patients": False,
-                    "organization_delete_collections": False,
-                    "organization_delete_patients": False,
-                    "workspaces": [{
-                        "id": pk.workspaces.find(name="Research").id,
-                        "collaborator": False,
-                        "read_patients": True,
-                        "read_collections": True,
-                        "view_phi": True,
-                        "download_dicom": True,
-                        "upload_dicom": True,
-                        "write_collections": True,
-                        "write_patients": True,
-                        "contour_patients": True,
-                        "delete_collections": True,
-                        "delete_patients": True,
-                    }],
+                pk.roles.create("Researchers", "Role description", {
+                    "roles_read": true,
+                    "users_read": true,
+                    "groups_read": true,
+                    "patients_phi": false,
+                    "roles_create": false,
+                    "roles_delete": false,
+                    "roles_update": false,
+                    "users_create": false,
+                    "users_delete": false,
+                    "users_update": false,
+                    "groups_create": false,
+                    "groups_delete": false,
+                    "groups_update": false,
+                    "patients_copy": false,
+                    "patients_move": false,
+                    "patients_read": false,
+                    "workflows_read": true,
+                    "api_keys_create": false,
+                    "patients_create": false,
+                    "patients_delete": false,
+                    "patients_update": false,
+                    "workspaces_read": false,
+                    "collections_read": false,
+                    "patients_contour": false,
+                    "workflows_create": false,
+                    "workflows_delete": false,
+                    "workflows_update": false,
+                    "group_members_add": false,
+                    "audit_logs_manage": false,
+                    "workspaces_create": false,
+                    "workspaces_delete": false,
+                    "workspaces_update": false,
+                    "collections_create": false,
+                    "collections_delete": false,
+                    "collections_update": false,
+                    "group_members_list": true,
+                    "patient_notes_read": false,
+                    "custom_metrics_read": true,
+                    "renaming_rules_read": true,
+                    "group_members_remove": false,
+                    "patient_dicom_upload": false,
+                    "patient_notes_create": false,
+                    "patient_notes_delete": false,
+                    "patient_notes_update": false,
+                    "custom_metrics_create": false,
+                    "custom_metrics_delete": false,
+                    "custom_metrics_update": false,
+                    "renaming_rules_search": true,
+                    "renaming_rules_update": true,
+                    "patient_dicom_download": false,
+                    "patient_documents_read": false,
+                    "renaming_rules_execute": true,
+                    "collection_patients_add": false,
+                    "patient_checklists_read": false,
+                    "patient_scorecards_read": false,
+                    "checklist_templates_read": true,
+                    "objective_templates_read": true,
+                    "patient_documents_create": false,
+                    "patient_documents_delete": false,
+                    "patient_documents_update": false,
+                    "resource_assignments_add": false,
+                    "scorecard_templates_read": true,
+                    "collection_bookmarks_read": false,
+                    "patient_checklists_create": false,
+                    "patient_checklists_delete": false,
+                    "patient_checklists_update": false,
+                    "patient_scorecards_create": false,
+                    "patient_scorecards_delete": false,
+                    "patient_scorecards_update": false,
+                    "resource_assignments_list": false,
+                    "workspace_algorithms_read": true,
+                    "checklist_templates_create": false,
+                    "checklist_templates_delete": false,
+                    "checklist_templates_update": false,
+                    "collection_patients_remove": false,
+                    "collection_scorecards_read": false,
+                    "objective_templates_create": false,
+                    "objective_templates_delete": false,
+                    "scorecard_templates_create": false,
+                    "scorecard_templates_delete": false,
+                    "scorecard_templates_update": false,
+                    "collection_bookmarks_create": false,
+                    "collection_bookmarks_delete": false,
+                    "collection_bookmarks_update": false,
+                    "resource_assignments_remove": false,
+                    "workspace_algorithms_update": false,
+                    "collection_scorecards_create": false,
+                    "collection_scorecards_delete": false,
+                    "collection_scorecards_update": false,
+                    "resource_permissions_resolve": true,
+                    "structure_set_templates_read": true,
+                    "structure_set_templates_create": false,
+                    "structure_set_templates_delete": false,
+                    "structure_set_templates_update": false
                 })
         """
         assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(description, six.string_types), "`description` is required as a string."
         assert isinstance(permissions, dict), "`permissions` is required as a dict."
 
-        body = dict(permissions)
+        body = {}
+        body["permissions"] = dict(permissions)
         body["name"] = name
+        body["description"] = description
 
         _, role = self._requestor.post('/roles', json=body)
         return RoleItem(self, role)
@@ -258,6 +325,7 @@ class RoleItem(object):
         id (str): The id of the role (readonly).
         data (dict): The complete representation of the role as returned from the API (readonly).
         name (str): The name of the role.
+        description (str): The description of the role.
         permissions (dict): The dictionary of role permissions.
 
     """
@@ -274,10 +342,9 @@ class RoleItem(object):
         self._id = role["id"]
         self._data = role
         self.name = role["name"]
-        self.permissions = dict(role)
-        del self.permissions["id"]
-        del self.permissions["name"]
-        del self.permissions["created_at"]
+        self.description = role["description"]
+        self.system = role["system"]
+        self.permissions = dict(role["permissions"])
 
     @property
     def id(self):
@@ -318,17 +385,16 @@ class RoleItem(object):
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 researchers = pk.roles.find(name='researchers').get()
-                researchers.permissions["organization_read_patients"] = True
+                researchers.permissions["collections_read"] = True
                 researchers.save()
         """
-        body = dict(self.permissions)
-        del body["private"]
-        del body["user"]
+        body = {}
+        body["permissions"] = dict(self.permissions)
         body["name"] = self.name
-        _, role = self._requestor.put('/roles/' + self._id, json=body)
+        body["description"] = self.description
+        _, role = self._requestor.patch('/roles/' + self._id, json=body)
         self._data = role
         self.name = role["name"]
-        self.permissions = dict(role)
-        del self.permissions["id"]
-        del self.permissions["name"]
-        del self.permissions["created_at"]
+        self.description = role["description"]
+        self.system = role["system"]
+        self.permissions = dict(role["permissions"])

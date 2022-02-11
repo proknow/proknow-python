@@ -181,34 +181,16 @@ def role_generator(app):
     def _create_role(do_not_mark=False, **args):
         params = {
             "name": resource_prefix + generate_string(),
+            "description": resource_prefix + generate_string(),
             "permissions": {
-                "create_api_keys": False,
-                "manage_access": False,
-                "manage_custom_metrics": False,
-                "manage_template_metric_sets": False,
-                "manage_renaming_rules": False,
-                "manage_template_checklists": False,
-                "manage_audit_logs": False,
-                "manage_template_structure_sets": False,
-                "manage_workspace_algorithms": False,
-                "organization_manage_access_patients": False,
-                "organization_collaborator": False,
-                "organization_read_patients": False,
-                "organization_read_collections": False,
-                "organization_view_phi": False,
-                "organization_download_dicom": False,
-                "organization_upload_dicom": False,
-                "organization_write_collections": False,
-                "organization_write_patients": False,
-                "organization_contour_patients": False,
-                "organization_delete_collections": False,
-                "organization_delete_patients": False,
-                "workspaces": [],
+                "api_keys_create": True
             }
         }
         params.update(args)
         if params["name"].find(resource_prefix) != 0:
             params["name"] = resource_prefix + params["name"]
+        if params["description"].find(resource_prefix) != 0:
+            params["description"] = resource_prefix + params["description"]
         role = pk.roles.create(**params)
         if do_not_mark is False:
             app.marked_roles.append(role)
@@ -237,8 +219,7 @@ def user_generator(app):
     def _create_user(do_not_mark=False, **args):
         params = {
             "email": resource_prefix + generate_string(lowercase_only=True) + '@proknow.com',
-            "name": generate_string(),
-            "role_id": pk.roles.find(name="Admin").id
+            "name": generate_string()
         }
         params.update(args)
         if params["email"].find(resource_prefix) != 0:
