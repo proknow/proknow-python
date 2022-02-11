@@ -40,8 +40,7 @@ class Roles(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            This example creates a new role called "Researchers" with full permissions on the
-            "Research" workspace::
+            This example creates a new role called "Researchers"::
 
                 from proknow import ProKnow
 
@@ -266,6 +265,7 @@ class RoleSummary(object):
     Attributes:
         id (str): The id of the role (readonly).
         name (str): The name of the role (readonly).
+        description (str): The description of the role (readonly).
         data (dict): The summary representation of the role as returned from the API (readonly).
 
     """
@@ -281,6 +281,7 @@ class RoleSummary(object):
         self._requestor = self._roles._requestor
         self._id = role["id"]
         self._name = role["name"]
+        self._description = role["description"]
         self._data = role
 
     @property
@@ -290,6 +291,10 @@ class RoleSummary(object):
     @property
     def name(self):
         return self._name
+
+    @property
+    def description(self):
+        return self._description
 
     @property
     def data(self):
@@ -385,6 +390,7 @@ class RoleItem(object):
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 researchers = pk.roles.find(name='researchers').get()
+                researchers.name = "new researchers name"
                 researchers.permissions["collections_read"] = True
                 researchers.save()
         """
