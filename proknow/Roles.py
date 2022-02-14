@@ -30,7 +30,7 @@ class Roles(object):
         Parameters:
             name (str): The name of the role.
             description (str): The description of the role.
-            permissions (dict): A dictionary of permissions.
+            permissions (dict): A dictionary of permissions. Note that the permissions dictionary does not have to include all permissions.
 
         Returns:
             :class:`proknow.Roles.RoleItem`: A representation of the created item.
@@ -46,100 +46,10 @@ class Roles(object):
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.roles.create("Researchers", "Role description", {
-                    "roles_read": true,
-                    "users_read": true,
-                    "groups_read": true,
-                    "patients_phi": false,
-                    "roles_create": false,
-                    "roles_delete": false,
-                    "roles_update": false,
-                    "users_create": false,
-                    "users_delete": false,
-                    "users_update": false,
-                    "groups_create": false,
-                    "groups_delete": false,
-                    "groups_update": false,
-                    "patients_copy": false,
-                    "patients_move": false,
-                    "patients_read": false,
-                    "workflows_read": true,
-                    "api_keys_create": false,
-                    "patients_create": false,
-                    "patients_delete": false,
-                    "patients_update": false,
-                    "workspaces_read": false,
-                    "collections_read": false,
-                    "patients_contour": false,
-                    "workflows_create": false,
-                    "workflows_delete": false,
-                    "workflows_update": false,
-                    "group_members_add": false,
-                    "audit_logs_manage": false,
-                    "workspaces_create": false,
-                    "workspaces_delete": false,
-                    "workspaces_update": false,
-                    "collections_create": false,
-                    "collections_delete": false,
-                    "collections_update": false,
-                    "group_members_list": true,
-                    "patient_notes_read": false,
-                    "custom_metrics_read": true,
-                    "renaming_rules_read": true,
-                    "group_members_remove": false,
-                    "patient_dicom_upload": false,
-                    "patient_notes_create": false,
-                    "patient_notes_delete": false,
-                    "patient_notes_update": false,
-                    "custom_metrics_create": false,
-                    "custom_metrics_delete": false,
-                    "custom_metrics_update": false,
-                    "renaming_rules_search": true,
-                    "renaming_rules_update": true,
-                    "patient_dicom_download": false,
-                    "patient_documents_read": false,
-                    "renaming_rules_execute": true,
-                    "collection_patients_add": false,
-                    "patient_checklists_read": false,
-                    "patient_scorecards_read": false,
-                    "checklist_templates_read": true,
-                    "objective_templates_read": true,
-                    "patient_documents_create": false,
-                    "patient_documents_delete": false,
-                    "patient_documents_update": false,
-                    "resource_assignments_add": false,
-                    "scorecard_templates_read": true,
-                    "collection_bookmarks_read": false,
-                    "patient_checklists_create": false,
-                    "patient_checklists_delete": false,
-                    "patient_checklists_update": false,
-                    "patient_scorecards_create": false,
-                    "patient_scorecards_delete": false,
-                    "patient_scorecards_update": false,
-                    "resource_assignments_list": false,
-                    "workspace_algorithms_read": true,
-                    "checklist_templates_create": false,
-                    "checklist_templates_delete": false,
-                    "checklist_templates_update": false,
-                    "collection_patients_remove": false,
-                    "collection_scorecards_read": false,
-                    "objective_templates_create": false,
-                    "objective_templates_delete": false,
-                    "scorecard_templates_create": false,
-                    "scorecard_templates_delete": false,
-                    "scorecard_templates_update": false,
-                    "collection_bookmarks_create": false,
-                    "collection_bookmarks_delete": false,
-                    "collection_bookmarks_update": false,
-                    "resource_assignments_remove": false,
-                    "workspace_algorithms_update": false,
-                    "collection_scorecards_create": false,
-                    "collection_scorecards_delete": false,
-                    "collection_scorecards_update": false,
-                    "resource_permissions_resolve": true,
-                    "structure_set_templates_read": true,
-                    "structure_set_templates_create": false,
-                    "structure_set_templates_delete": false,
-                    "structure_set_templates_update": false
+                    "renaming_rules_search": True,
+                    "renaming_rules_update": True,
+                    "renaming_rules_execute": True,
+                    "structure_set_templates_read": True
                 })
         """
         assert isinstance(name, six.string_types), "`name` is required as a string."
@@ -328,10 +238,10 @@ class RoleItem(object):
 
     Attributes:
         id (str): The id of the role (readonly).
-        data (dict): The complete representation of the role as returned from the API (readonly).
         name (str): The name of the role.
         description (str): The description of the role.
         permissions (dict): The dictionary of role permissions.
+        data (dict): The complete representation of the role as returned from the API (readonly).
 
     """
 
