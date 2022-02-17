@@ -10,7 +10,7 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 **Bug Fixes**
 
-* Fixed breaking areas of the SDK to support the 1.31.0 Proknow release. 
+* Fixed breaking areas of the SDK to support the 1.31.0 ProKnow release. 
 
 v0.18.0
 -------
