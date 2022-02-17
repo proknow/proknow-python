@@ -40,12 +40,12 @@ class Roles(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            This example creates a new role called "Researchers"::
+            This example creates a new role called "Renaming Rule Maintainer"::
 
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                pk.roles.create("Researchers", "Role description", {
+                pk.roles.create("Renaming Rule Maintainer", "Role description", {
                     "renaming_rules_search": True,
                     "renaming_rules_update": True,
                     "renaming_rules_execute": True,
@@ -137,7 +137,7 @@ class Roles(object):
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                researchers = pk.roles.get('5c463a6c040068100c7f665acad17ac4')
+                renaming_rule_maintainer = pk.roles.get('5c463a6c040068100c7f665acad17ac4')
         """
         assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
         _, role = self._requestor.get('/roles/' + role_id)
@@ -281,8 +281,8 @@ class RoleItem(object):
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                researchers = pk.roles.find(name='researchers').get()
-                researchers.delete()
+                renaming_rule_maintainer = pk.roles.find(name='Renaming Rule Maintainer').get()
+                renaming_rule_maintainer.delete()
         """
         self._roles.delete(self._id)
 
@@ -299,10 +299,10 @@ class RoleItem(object):
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                researchers = pk.roles.find(name='researchers').get()
-                researchers.name = "new researchers name"
-                researchers.permissions["collections_read"] = True
-                researchers.save()
+                renaming_rule_maintainer = pk.roles.find(name='Renaming Rule Maintainer').get()
+                renaming_rule_maintainer.name = "new renaming rule maintainer name"
+                renaming_rule_maintainer.permissions["collections_read"] = True
+                renaming_rule_maintainer.save()
         """
         body = {}
         body["permissions"] = dict(self.permissions)

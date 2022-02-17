@@ -310,4 +310,3 @@ class UserItem(object):
         self.name = user["name"]
         self.email = user["email"]
         self.active = user["active"]
-        
