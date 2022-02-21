@@ -107,7 +107,8 @@ def test_query(app, role_generator):
 
     # Verify test 1
     for role in pk.roles.query():
-        if role.name == params1["name"]:
+        assert isinstance(role.id, six.string_types)
+        if role.name == params1["name"] and role.description == params1["description"]:
             match = role
             break
     else:
@@ -116,7 +117,8 @@ def test_query(app, role_generator):
 
     # Verify test 2
     for role in pk.roles.query():
-        if role.name == params2["name"]:
+        assert isinstance(role.id, six.string_types)
+        if role.name == params2["name"] and role.description == params2["description"]:
             match = role
             break
     else:
