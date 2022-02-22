@@ -10,10 +10,10 @@ def test_create(app, role_generator):
     # Verify returned RoleItem
     params, role = role_generator()
     assert role.name == params["name"]
+    assert role.description == params["description"]
     permissions = dict(params["permissions"])
-    permissions["user"] = None
-    permissions["private"] = False
-    assert role.permissions == permissions
+    for key, value in permissions.items():
+        assert role.permissions[key] == value
 
     # Assert item can be found in query
     for role in pk.roles.query():
@@ -26,35 +26,20 @@ def test_create(app, role_generator):
     role = role_match.get()
     assert isinstance(role.data["id"], six.string_types)
     assert role.name == params["name"]
-    assert role.permissions == permissions
+    assert role.description == params["description"]
+    for key, value in permissions.items():
+        assert role.permissions[key] == value
 
 def test_create_failure(app):
     pk = app.pk
 
-    # Assert error is raised for duplicate workspace
+    # Assert error is raised for duplicate roles
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
-        pk.roles.create("Admin", {
-            "create_api_keys": False,
-            "manage_access": False,
-            "manage_custom_metrics": False,
-            "manage_template_metric_sets": False,
-            "manage_renaming_rules": False,
-            "manage_template_checklists": False,
-            "organization_collaborator": False,
-            "organization_read_patients": False,
-            "organization_read_collections": False,
-            "organization_view_phi": False,
-            "organization_download_dicom": False,
-            "organization_upload_dicom": False,
-            "organization_write_collections": False,
-            "organization_write_patients": False,
-            "organization_contour_patients": False,
-            "organization_delete_collections": False,
-            "organization_delete_patients": False,
-            "workspaces": [],
+        pk.roles.create("User", "", {
+            "workspaces_read": True
         })
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'Role already exists with name "Admin"'
+    assert err_wrapper.value.body == '{"type":"ROLE_CONFLICT_NAME","params":{"name":"User"},"message":"Role already exists with name \\"User\\""}'
 
 def test_delete(app, role_generator):
     pk = app.pk
@@ -81,7 +66,7 @@ def test_delete_failure(app, role_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         role.delete()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == ('Role "' + role.id + '" not found')
+    assert err_wrapper.value.body == '{"type":"ROLE_NOT_FOUND","params":{"role_id":"' + role.id + '"},"message":"Role \\"' + role.id + '\\" not found"}'
 
 def test_find(app, role_generator):
     pk = app.pk
@@ -122,7 +107,8 @@ def test_query(app, role_generator):
 
     # Verify test 1
     for role in pk.roles.query():
-        if role.name == params1["name"]:
+        assert isinstance(role.id, six.string_types)
+        if role.name == params1["name"] and role.description == params1["description"]:
             match = role
             break
     else:
@@ -131,7 +117,8 @@ def test_query(app, role_generator):
 
     # Verify test 2
     for role in pk.roles.query():
-        if role.name == params2["name"]:
+        assert isinstance(role.id, six.string_types)
+        if role.name == params2["name"] and role.description == params2["description"]:
             match = role
             break
     else:
@@ -147,7 +134,7 @@ def test_update(app, role_generator):
     # Verify role was updated successfully
     updated_name = resource_prefix + "Updated Role Name"
     role.name = updated_name
-    role.permissions["organization_read_patients"] = True
+    role.permissions["collections_read"] = True
     role.save()
     for role in pk.roles.query():
         if role.name == updated_name:
@@ -160,30 +147,100 @@ def test_update(app, role_generator):
     assert isinstance(role.data["id"], six.string_types)
     assert role.name == updated_name
     assert role.permissions == {
-        "create_api_keys": False,
-        "manage_access": False,
-        "manage_custom_metrics": False,
-        "manage_template_metric_sets": False,
-        "manage_renaming_rules": False,
-        "manage_template_checklists": False,
-        "manage_audit_logs": False,
-        "manage_template_structure_sets": False,
-        "manage_workspace_algorithms": False,
-        "organization_manage_access_patients": False,
-        "organization_collaborator": False,
-        "organization_read_patients": True,
-        "organization_read_collections": False,
-        "organization_view_phi": False,
-        "organization_download_dicom": False,
-        "organization_upload_dicom": False,
-        "organization_write_collections": False,
-        "organization_write_patients": False,
-        "organization_contour_patients": False,
-        "organization_delete_collections": False,
-        "organization_delete_patients": False,
-        "workspaces": [],
-        "private": False,
-        "user": None,
+        'roles_read': True,
+        'users_read': True,
+        'groups_read': True,
+        'patients_phi': False,
+        'roles_create': False,
+        'roles_delete': False,
+        'roles_update': False,
+        'users_create': False,
+        'users_delete': False,
+        'users_update': False,
+        'groups_create': False,
+        'groups_delete': False,
+        'groups_update': False,
+        'patients_copy': False,
+        'patients_move': False,
+        'patients_read': False,
+        'workflows_read': True,
+        'api_keys_create': True,
+        'patients_create': False,
+        'patients_delete': False,
+        'patients_update': False,
+        'workspaces_read': False,
+        'collections_read': True,
+        'patients_contour': False,
+        'workflows_create': False,
+        'workflows_delete': False,
+        'workflows_update': False,
+        'audit_logs_manage': False,
+        'group_members_add': False,
+        'workspaces_create': False,
+        'workspaces_delete': False,
+        'workspaces_update': False,
+        'collections_create': False,
+        'collections_delete': False,
+        'collections_update': False,
+        'group_members_list': True,
+        'patient_notes_read': False,
+        'custom_metrics_read': True,
+        'renaming_rules_read': True,
+        'group_members_remove': False,
+        'patient_dicom_upload': False,
+        'patient_notes_create': False,
+        'patient_notes_delete': False,
+        'patient_notes_update': False,
+        'custom_metrics_create': False,
+        'custom_metrics_delete': False,
+        'custom_metrics_update': False,
+        'renaming_rules_search': False,
+        'renaming_rules_update': False,
+        'patient_dicom_download': False,
+        'patient_documents_read': False,
+        'renaming_rules_execute': False,
+        'collection_patients_add': False,
+        'patient_checklists_read': False,
+        'patient_scorecards_read': False,
+        'checklist_templates_read': True,
+        'objective_templates_read': True,
+        'patient_documents_create': False,
+        'patient_documents_delete': False,
+        'patient_documents_update': False,
+        'resource_assignments_add': False,
+        'scorecard_templates_read': True,
+        'collection_bookmarks_read': False,
+        'patient_checklists_create': False,
+        'patient_checklists_delete': False,
+        'patient_checklists_update': False,
+        'patient_scorecards_create': False,
+        'patient_scorecards_delete': False,
+        'patient_scorecards_update': False,
+        'resource_assignments_list': False,
+        'workspace_algorithms_read': True,
+        'checklist_templates_create': False,
+        'checklist_templates_delete': False,
+        'checklist_templates_update': False,
+        'collection_patients_remove': False,
+        'collection_scorecards_read': False,
+        'objective_templates_create': False,
+        'objective_templates_delete': False,
+        'scorecard_templates_create': False,
+        'scorecard_templates_delete': False,
+        'scorecard_templates_update': False,
+        'collection_bookmarks_create': False,
+        'collection_bookmarks_delete': False,
+        'collection_bookmarks_update': False,
+        'resource_assignments_remove': False,
+        'workspace_algorithms_update': False,
+        'collection_scorecards_create': False,
+        'collection_scorecards_delete': False,
+        'collection_scorecards_update': False,
+        'resource_permissions_resolve': True,
+        'structure_set_templates_read': True,
+        'structure_set_templates_create': False,
+        'structure_set_templates_delete': False,
+        'structure_set_templates_update': False
     }
 
 def test_update_failure(app, role_generator):
@@ -191,9 +248,27 @@ def test_update_failure(app, role_generator):
 
     _, role = role_generator()
 
-    # Assert error is raised for duplicate workspace
+    # Assert error is raised for duplicate role
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
-        role.name = "Admin"
+        role.name = "Owner"
         role.save()
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'Role already exists with name "Admin"'
+    assert err_wrapper.value.body == '{"type":"ROLE_CONFLICT_NAME","params":{"name":"Owner"},"message":"Role already exists with name \\"Owner\\""}'
+
+    # Assert error is raised for system role
+    system_role = pk.roles.find(name='Owner').get()
+    with pytest.raises(Exceptions.HttpError) as err_wrapper:
+        system_role.description = "New description"
+        system_role.permissions["collections_read"] = True
+        system_role.save()
+    assert err_wrapper.value.status_code == 400
+    assert err_wrapper.value.body == '{"type":"CANNOT_UPDATE_SYSTEM_ROLE","params":{},"message":"Invalid request to update system role"}'
+
+    # Assert error is raised for constant permission
+    system_role = pk.roles.find(name='Owner').get()
+    with pytest.raises(Exceptions.HttpError) as err_wrapper:
+        system_role.description = "New description"
+        system_role.permissions["users_read"] = False
+        system_role.save()
+    assert err_wrapper.value.status_code == 422
+    assert err_wrapper.value.body == '{"type":"VALIDATION_ERROR","params":{},"message":"child \'permissions.users_read\' must be equal to constant"}'    

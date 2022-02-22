@@ -153,7 +153,7 @@ def test_update_failure(app, entity_generator):
         image_set.description = "test"
         image_set.save()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == 'Entity "' + image_set.id + '" not found in workspace "' + image_set.workspace_id + '"'
+    assert err_wrapper.value.body ==  '{"type":"ENTITY_NOT_FOUND","params":{"entity_id":"' + image_set.id + '","workspace_id":"' + image_set.workspace_id + '"},"message":"Entity \\"' + image_set.id + '\\" not found in workspace \\"' + image_set.workspace_id + '\\""}'
 
 def test_set_metadata_failure(app, entity_generator):
     pk = app.pk

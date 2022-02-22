@@ -34,7 +34,7 @@ def test_create_failure(app, workspace_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         pk.workspaces.create(**params)
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'Workspace already exists with slug "' + params["slug"] + '"'
+    assert err_wrapper.value.body == '{"type":"WORKSPACE_CONFLICT_SLUG","params":{"slug":"' + params["slug"] + '"},"message":"Workspace already exists with slug \\"' + params["slug"] + '\\""}'
 
 def test_delete(app, workspace_generator):
     pk = app.pk
@@ -62,7 +62,7 @@ def test_delete_failure(app, workspace_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         workspace.delete()
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == ('Workspace "' + workspace.id + '" not found')
+    assert err_wrapper.value.body == '{"type":"WORKSPACE_NOT_FOUND","params":{"workspace_id":"' + workspace.id + '"},"message":"Workspace \\"' + workspace.id + '\\" not found"}'
 
 def test_find(app, workspace_generator):
     pk = app.pk
@@ -239,7 +239,7 @@ def test_update_failure(app, workspace_generator):
         workspace.slug = params["slug"]
         workspace.save()
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'Workspace already exists with slug "' + params["slug"] + '"'
+    assert err_wrapper.value.body == '{"type":"WORKSPACE_CONFLICT_SLUG","params":{"slug":"' + params["slug"] + '"},"message":"Workspace already exists with slug \\"' + params["slug"] + '\\""}'
 
 def test_update_entities(app, workspace_generator):
     pk = app.pk

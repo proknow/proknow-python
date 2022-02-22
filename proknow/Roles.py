@@ -24,12 +24,13 @@ class Roles(object):
         self._proknow = proknow
         self._requestor = requestor
 
-    def create(self, name, permissions):
+    def create(self, name, description, permissions):
         """Creates a new role.
 
         Parameters:
             name (str): The name of the role.
-            permissions (dict): A dictionary of permissions.
+            description (str): The description of the role.
+            permissions (dict): A dictionary of permissions. Note that the permissions dictionary does not have to include all permissions.
 
         Returns:
             :class:`proknow.Roles.RoleItem`: A representation of the created item.
@@ -39,51 +40,26 @@ class Roles(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            This example creates a new role called "Researchers" with full permissions on the
-            "Research" workspace::
+            This example creates a new role called "Renaming Rule Maintainer"::
 
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                pk.roles.create("Researchers", {
-                    "create_api_keys": False,
-                    "manage_access": False,
-                    "manage_custom_metrics": False,
-                    "manage_template_metric_sets": False,
-                    "manage_renaming_rules": False,
-                    "manage_template_checklists": False,
-                    "organization_collaborator": False,
-                    "organization_read_patients": False,
-                    "organization_read_collections": False,
-                    "organization_view_phi": False,
-                    "organization_download_dicom": False,
-                    "organization_upload_dicom": False,
-                    "organization_write_collections": False,
-                    "organization_write_patients": False,
-                    "organization_contour_patients": False,
-                    "organization_delete_collections": False,
-                    "organization_delete_patients": False,
-                    "workspaces": [{
-                        "id": pk.workspaces.find(name="Research").id,
-                        "collaborator": False,
-                        "read_patients": True,
-                        "read_collections": True,
-                        "view_phi": True,
-                        "download_dicom": True,
-                        "upload_dicom": True,
-                        "write_collections": True,
-                        "write_patients": True,
-                        "contour_patients": True,
-                        "delete_collections": True,
-                        "delete_patients": True,
-                    }],
+                pk.roles.create("Renaming Rule Maintainer", "Role description", {
+                    "renaming_rules_search": True,
+                    "renaming_rules_update": True,
+                    "renaming_rules_execute": True,
+                    "structure_set_templates_read": True
                 })
         """
         assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(description, six.string_types), "`description` is required as a string."
         assert isinstance(permissions, dict), "`permissions` is required as a dict."
 
-        body = dict(permissions)
+        body = {}
+        body["permissions"] = dict(permissions)
         body["name"] = name
+        body["description"] = description
 
         _, role = self._requestor.post('/roles', json=body)
         return RoleItem(self, role)
@@ -161,7 +137,7 @@ class Roles(object):
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                researchers = pk.roles.get('5c463a6c040068100c7f665acad17ac4')
+                renaming_rule_maintainer = pk.roles.get('5c463a6c040068100c7f665acad17ac4')
         """
         assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
         _, role = self._requestor.get('/roles/' + role_id)
@@ -199,6 +175,7 @@ class RoleSummary(object):
     Attributes:
         id (str): The id of the role (readonly).
         name (str): The name of the role (readonly).
+        description (str): The description of the role (readonly).
         data (dict): The summary representation of the role as returned from the API (readonly).
 
     """
@@ -214,6 +191,7 @@ class RoleSummary(object):
         self._requestor = self._roles._requestor
         self._id = role["id"]
         self._name = role["name"]
+        self._description = role["description"]
         self._data = role
 
     @property
@@ -223,6 +201,10 @@ class RoleSummary(object):
     @property
     def name(self):
         return self._name
+
+    @property
+    def description(self):
+        return self._description
 
     @property
     def data(self):
@@ -256,9 +238,10 @@ class RoleItem(object):
 
     Attributes:
         id (str): The id of the role (readonly).
-        data (dict): The complete representation of the role as returned from the API (readonly).
         name (str): The name of the role.
+        description (str): The description of the role.
         permissions (dict): The dictionary of role permissions.
+        data (dict): The complete representation of the role as returned from the API (readonly).
 
     """
 
@@ -274,10 +257,9 @@ class RoleItem(object):
         self._id = role["id"]
         self._data = role
         self.name = role["name"]
-        self.permissions = dict(role)
-        del self.permissions["id"]
-        del self.permissions["name"]
-        del self.permissions["created_at"]
+        self.description = role["description"]
+        self.system = role["system"]
+        self.permissions = dict(role["permissions"])
 
     @property
     def id(self):
@@ -299,8 +281,8 @@ class RoleItem(object):
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                researchers = pk.roles.find(name='researchers').get()
-                researchers.delete()
+                renaming_rule_maintainer = pk.roles.find(name='Renaming Rule Maintainer').get()
+                renaming_rule_maintainer.delete()
         """
         self._roles.delete(self._id)
 
@@ -317,18 +299,18 @@ class RoleItem(object):
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                researchers = pk.roles.find(name='researchers').get()
-                researchers.permissions["organization_read_patients"] = True
-                researchers.save()
+                renaming_rule_maintainer = pk.roles.find(name='Renaming Rule Maintainer').get()
+                renaming_rule_maintainer.name = "new renaming rule maintainer name"
+                renaming_rule_maintainer.permissions["collections_read"] = True
+                renaming_rule_maintainer.save()
         """
-        body = dict(self.permissions)
-        del body["private"]
-        del body["user"]
+        body = {}
+        body["permissions"] = dict(self.permissions)
         body["name"] = self.name
-        _, role = self._requestor.put('/roles/' + self._id, json=body)
+        body["description"] = self.description
+        _, role = self._requestor.patch('/roles/' + self._id, json=body)
         self._data = role
         self.name = role["name"]
-        self.permissions = dict(role)
-        del self.permissions["id"]
-        del self.permissions["name"]
-        del self.permissions["created_at"]
+        self.description = role["description"]
+        self.system = role["system"]
+        self.permissions = dict(role["permissions"])

@@ -12,4 +12,3 @@ def test_http_error(app):
     assert session["active"] == True
     assert isinstance(session["federated"], bool)
     assert isinstance(session["created_at"], six.string_types)
-    assert isinstance(session["role"], dict)

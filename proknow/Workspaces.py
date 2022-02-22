@@ -302,7 +302,7 @@ class WorkspaceItem(object):
                 clinical.name = "Clinical Patients"
                 clinical.save()
         """
-        _, workspace = self._requestor.put('/workspaces/' + self._id, json={'slug': self.slug, 'name': self.name, 'protected': self.protected})
+        _, workspace = self._requestor.patch('/workspaces/' + self._id, json={'slug': self.slug, 'name': self.name, 'protected': self.protected})
         self._data = workspace
         self.slug = workspace["slug"]
         self.name = workspace["name"]

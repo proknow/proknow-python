@@ -24,13 +24,12 @@ class Users(object):
         self._proknow = proknow
         self._requestor = requestor
 
-    def create(self, email, name, role_id, password=None):
+    def create(self, email, name, password=None):
         """Creates a new user.
 
         Parameters:
             email (str): The email of the user.
             name (str): The name of the user.
-            role_id (str): The id of the role for the user.
             password (str, optional): The password of the user.
 
         Returns:
@@ -41,22 +40,19 @@ class Users(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            This example creates a new user under the Admin role::
+            This example creates a new user::
 
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                role_id = pk.roles.find(name="Admin").id
-                pk.users.create("jsmith@example.com", "John Smith", role_id)
+                pk.users.create("jsmith@example.com", "John Smith")
         """
         assert isinstance(email, six.string_types), "`email` is required as a string."
         assert isinstance(name, six.string_types), "`name` is required as a string."
-        assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
 
         body = {
             "email": email,
-            "name": name,
-            "role_id": role_id,
+            "name": name
         }
         if password is not None:
             assert isinstance(password, six.string_types), "`password` is required as a string."
@@ -243,8 +239,6 @@ class UserItem(object):
         name (str): The name of the user.
         email (str): The email of the user.
         active (bool): Indicates whether the user is active.
-        role_id (str, None): The id of the role for the user.
-        role (dict, None): A private role definition.
 
     """
 
@@ -262,13 +256,6 @@ class UserItem(object):
         self.name = user["name"]
         self.email = user["email"]
         self.active = user["active"]
-        role = user["role"]
-        if role["private"] == True:
-            self.role_id = None
-            self.role = role
-        else:
-            self.role_id = role["id"]
-            self.role = None
 
     @property
     def id(self):
@@ -299,8 +286,6 @@ class UserItem(object):
         """Saves the changes made to a user.
 
         Raises:
-            AssertionError: If neither or both properties `role` and `role_id` are set to something
-                other than None.
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
@@ -314,60 +299,14 @@ class UserItem(object):
                 jsmith.active = False
                 jsmith.save()
 
-            To update the user with a private role, set the `role_id` property to `None` and the
-            `role` property to a role definition::
-
-                from proknow import ProKnow
-
-                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
-                jsmith = pk.users.find(email='jsmith@example.com')
-                jsmith.role_id = None
-                jsmith.role = {
-                    "create_api_keys": False,
-                    "manage_access": False,
-                    "manage_custom_metrics": False,
-                    "manage_template_metric_sets": False,
-                    "manage_renaming_rules": False,
-                    "manage_template_checklists": False,
-                    "organization_collaborator": False,
-                    "organization_read_patients": False,
-                    "organization_read_collections": False,
-                    "organization_view_phi": False,
-                    "organization_download_dicom": False,
-                    "organization_write_collections": False,
-                    "organization_write_patients": False,
-                    "organization_contour_patients": False,
-                    "organization_delete_collections": False,
-                    "organization_delete_patients": False,
-                    "workspaces": [],
-                }
-                jsmith.save()
-
         """
         body = {
             "email": self.email,
             "name": self.name,
             "active": self.active,
         }
-        assert (self.role_id is not None and self.role is None) or (self.role_id is None and self.role is not None), "exactly one of `role_id` or `role` is required"
-        if self.role_id is not None:
-            body["role_id"] = self.role_id
-        else: # self.role is not None:
-            body["role"] = self.role
-            for prop in ["id", "name", "private", "user", "created_at"]:
-                try:
-                    del body["role"][prop]
-                except KeyError:
-                    pass
         _, user = self._requestor.put('/users/' + self._id, json=body)
         self._data = user
         self.name = user["name"]
         self.email = user["email"]
         self.active = user["active"]
-        role = user["role"]
-        if role["private"] == True:
-            self.role_id = None
-            self.role = role
-        else:
-            self.role_id = role["id"]
-            self.role = None
