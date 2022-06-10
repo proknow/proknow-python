@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="proknow",
-    version="0.19.0",
+    version="0.19.1",
     author="ProKnow",
     author_email="support@proknow.com",
     description="Python library for the ProKnow API.",
@@ -23,6 +23,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires=['six', 'requests>=2.18.0', 'futures'],
+    install_requires=['six', 'requests>=2.18.0', 'futures; python_version == "2.7"'],
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
 )
