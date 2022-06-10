@@ -1,6 +1,17 @@
 Release History
 ===============
 
+v0.19.1
+-------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**Bug Fixes**
+
+* Changed setup to only require ``futures`` for Python2.7 to avoid installing it unnecessarily; the pinned version breaks during pip install for Python3.8.
+
 v0.19.0
 -------
 
