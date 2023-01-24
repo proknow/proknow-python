@@ -14,7 +14,7 @@ Complete documentation is available on [Read the Docs](https://proknow-python.re
 
 1. Install the latest version of Python 3.8. This will be installed alongside the version that your operating system provides.
 2. Run the following.
-```
+```sh
 $ python3 -m venv env
 $ source env/bin/activate
 (env) $ pip install --upgrade pip
@@ -26,7 +26,7 @@ Deactivate your virtual environment with the `deactivate` command. As long as th
 
 **Note**: If you wish to update the requirements with new or updated packages, run the following.
 
-```
+```sh
 (env) $ pip freeze --exclude-editable > requirements.txt
 ```
 
@@ -45,36 +45,43 @@ Make sure to put your actual base_url and the id and secret from your `credentia
 
 Next, run the tests with the `nox` command from within your virtual environment.
 
-```
-nox
+```sh
+$ nox
 ```
 
 To run a specific test using python 3, use the following form:
 
-```
-pytest tests/{{file name}}::{{test name}}
+```sh
+$ pytest tests/{{file name}}::{{test name}}
 ```
 
 To run tests with the HTML coverage report, use the following:
 
-```
-pytest --cov=proknow --cov-branch --cov-report html tests
+```sh
+$ pytest --cov=proknow --cov-branch --cov-report html tests
 ```
 
 #### Building the Documentation
 
 With the virtual environment, you can run `make clean && make html` to build the documentation.
-```
-cd docs/
-make clean && make html
+
+```sh
+$ cd docs/
+$ make clean && make html
 ```
 
-#### Packaging
+## Packaging & Release
 
-First, make sure the version has been updated in setup.py. Then run the following.
+Before attempting to package the distributable, you must install the `wheel` package. Run
 
+```sh
+$ pip install wheel
 ```
-rm -rf dist build */*.egg-info *.egg-info
-python3 setup.py bdist_wheel --universal
-python3 -m twine upload dist/*
+
+To release an updated package, first make sure the version has been updated in setup.py. Then run the following.
+
+```sh
+$ rm -rf dist build */*.egg-info *.egg-info
+$ python3 setup.py bdist_wheel --universal
+$ python3 -m twine upload dist/*
 ```
