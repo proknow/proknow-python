@@ -41,7 +41,7 @@ credentials_id = "{{ id from credentials.json }}"
 credentials_secret = "{{ secret from credentials.json }}"
 ```
 
-Make sure to put your actual base_url and the id and secret from your `credentials.json` file in place of the placeholders above. Note that for local testing against a local ProKnow instance, the `base_url` should be set to `http://localhost:3005` and the local environment must be configured to use Auth0 as the identity provider (and not Keycloak or OIDC).
+Make sure to put your actual base_url and the id and secret from your `credentials.json` file in place of the placeholders above. Note that for testing against a local ProKnow instance, the `base_url` should be set to `http://localhost:3005` and the environment must be configured to use Auth0 as the identity provider (and not Keycloak or OIDC).
 
 Next, run the tests with the `nox` command from within your virtual environment.
 
@@ -71,12 +71,6 @@ $ make clean && make html
 ```
 
 ## Packaging & Release
-
-Before attempting to package the distributable, you must install the `wheel` package. Run
-
-```sh
-$ pip install wheel
-```
 
 To release an updated package, first make sure the version has been updated in setup.py. Then run the following.
 
