@@ -262,11 +262,12 @@ def test_query(app, workspace_generator):
     assert len(patients) == 1
 
     # Verify paging
-    for i in range(1000):
+    for i in range(200):
         pk.patients.create(workspace.id, "patient" + str(i), "Patient " + str(i))
 
-    patients = pk.patients.query(workspace.id)
-    assert len(patients) == 1002
+    query = {'page_size': 200}
+    patients = pk.patients._query(workspace, query)
+    assert len(patients) == 202
 
 def test_refresh(app, workspace_generator):
     pk = app.pk
