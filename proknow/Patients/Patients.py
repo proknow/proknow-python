@@ -29,9 +29,7 @@ class Patients(object):
         res, data = self._requestor.get('/workspaces/' + workspace.id + '/patients', params=query)
         if res.headers['proknow-has-more'] == 'true': # pragma: no cover (difficult to test w/o lg num of patients)
             next_query = dict(query)
-            if "page_newest" not in next_query:
-                next_query['page_newest'] = datetime.utcnow().isoformat()
-
+            next_query['page_epoch'] = res.headers['proknow-epoch']
             next_query["page_number"] = res.headers['proknow-next-page']
             return data + self._query(workspace, next_query)
         else:
