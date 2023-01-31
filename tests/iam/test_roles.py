@@ -204,6 +204,7 @@ def test_update(app, role_generator):
         'patient_scorecards_read': False,
         'checklist_templates_read': True,
         'objective_templates_read': True,
+        'organizations_update': False,
         'patient_documents_create': False,
         'patient_documents_delete': False,
         'patient_documents_update': False,
