@@ -1,4 +1,3 @@
-import six
 import pytest
 import filecmp
 import os
@@ -33,7 +32,7 @@ def test_get_slice_data(app, entity_generator):
     dose = entity_generator(dose_path)
 
     data = dose.get_slice_data(0)
-    assert isinstance(data, six.binary_type), "data is not binary"
+    assert isinstance(data, bytes), "data is not binary"
 
 def test_get_analysis(app, workspace_generator):
     pk = app.pk
@@ -57,8 +56,8 @@ def test_get_analysis(app, workspace_generator):
         assert len(point) == 2
     assert isinstance(analysis["rois"], list)
     for roi in analysis["rois"]:
-        assert isinstance(roi["id"], six.string_types)
-        assert isinstance(roi["name"], six.string_types)
+        assert isinstance(roi["id"], str)
+        assert isinstance(roi["name"], str)
         assert isinstance(roi["dose_grid_bound"], bool)
         assert isinstance(roi["integral_dose"], (float,int))
         assert isinstance(roi["max_dose"], (float,int))

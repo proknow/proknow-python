@@ -1,6 +1,5 @@
 import pytest
 import re
-import six
 
 from proknow import Exceptions
 
@@ -148,7 +147,7 @@ def test_query(app, scorecard_template_generator):
     else:
         match = None
     assert match is not None
-    assert isinstance(match.id, six.string_types)
+    assert isinstance(match.id, str)
     assert match.name == params1["name"]
 
     # Verify test 2
@@ -159,7 +158,7 @@ def test_query(app, scorecard_template_generator):
     else:
         match = None
     assert match is not None
-    assert isinstance(match.id, six.string_types)
+    assert isinstance(match.id, str)
     assert match.name == params2["name"]
 
 def test_resolve(app, scorecard_template_generator):

@@ -3,7 +3,6 @@ __all__ = [
 ]
 
 import os
-import six
 import hashlib
 import time
 from datetime import datetime
@@ -137,7 +136,7 @@ class Uploads(object):
         # Determine files to be added
         upload_file_paths = []
         for path in path_or_paths:
-            assert isinstance(path, six.string_types), "provided path must be a string"
+            assert isinstance(path, str), "provided path must be a string"
             if os.path.isdir(path):
                 for root, dirs, files in os.walk(path):
                     for name in files:
@@ -307,7 +306,7 @@ class UploadBatch(object):
                 path = os.path.abspath("./DICOM/plan.dcm")
                 patient_summary = batch.find_patient(path)
         """
-        assert isinstance(path, six.string_types), "`path` is required as a string."
+        assert isinstance(path, str), "`path` is required as a string."
 
         try:
             upload = self._file_lookup[path]
@@ -343,7 +342,7 @@ class UploadBatch(object):
                 path = os.path.abspath("./DICOM/plan.dcm")
                 entity_summary = batch.find_entity(path)
         """
-        assert isinstance(path, six.string_types), "`path` is required as a string."
+        assert isinstance(path, str), "`path` is required as a string."
 
         try:
             upload = self._file_lookup[path]

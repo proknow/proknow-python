@@ -4,7 +4,7 @@ import shutil
 import string
 import random
 
-from pktestconfig import base_url, credentials_id, credentials_secret
+from .pktestconfig import base_url, credentials_id, credentials_secret
 
 from proknow import ProKnow
 

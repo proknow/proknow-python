@@ -1,6 +1,18 @@
 Release History
 ===============
 
+v0.20.0
+-------
+
+**Disclaimer**
+
+All releases in the v0.x.x series are subject to breaking changes from one version to another. After the release of v1.0.0, this project will be subject to `semantic versioning <http://semver.org/>`_.
+
+**Bug Fixes**
+
+* Updated supported Python versions to Python 3.8 and above (the currently supported versions). This means that Python 2 is no longer supported. `six` and `futures` were also removed as required modules.
+* Fixed failing Roles tests.
+
 v0.19.0
 -------
 

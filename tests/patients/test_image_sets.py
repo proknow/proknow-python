@@ -1,4 +1,3 @@
-import six
 import pytest
 import filecmp
 import os
@@ -46,7 +45,7 @@ def test_get_image_data(app, entity_generator):
     image_set = entity_generator(image_files)
 
     data = image_set.get_image_data(0)
-    assert isinstance(data, six.binary_type), "data is not binary"
+    assert isinstance(data, bytes), "data is not binary"
 
 def test_get_refresh(app, entity_generator):
     pk = app.pk

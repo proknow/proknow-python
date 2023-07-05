@@ -6,8 +6,6 @@ import filecmp
 import os
 from time import sleep
 
-from pktestconfig import base_url, credentials_id, credentials_secret
-
 from proknow import ProKnow, Exceptions
 
 def test_download(app, entity_generator, temp_directory):

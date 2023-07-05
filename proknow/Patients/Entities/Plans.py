@@ -1,5 +1,4 @@
 import os
-import six
 import datetime
 
 from .EntityItem import EntityItem
@@ -69,7 +68,7 @@ class PlanItem(EntityItem):
                 plan = entities[0].get()
                 plan.download("./")
         """
-        assert isinstance(path, six.string_types), "`path` is required as a string."
+        assert isinstance(path, str), "`path` is required as a string."
         if os.path.isdir(path):
             resolved_path = os.path.join(os.path.abspath(path), "RP." + self._data["uid"] + ".dcm")
         else:

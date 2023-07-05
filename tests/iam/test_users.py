@@ -1,6 +1,5 @@
 import pytest
 import re
-import six
 
 from proknow import Exceptions
 
@@ -22,7 +21,7 @@ def test_create(app, user_generator):
         user_match = None
     assert user_match is not None
     user = user_match.get()
-    assert isinstance(user.data["id"], six.string_types)
+    assert isinstance(user.data["id"], str)
     assert user.name == params["name"]
     assert user.email == params["email"]
     assert user.active is True
@@ -155,7 +154,7 @@ def test_update(app, user_generator):
         user_match = None
     assert user_match is not None
     user = user_match.get()
-    assert isinstance(user.data["id"], six.string_types)
+    assert isinstance(user.data["id"], str)
     assert user.email == updated_email
     assert user.name == "Updated User Name"
     assert user.active == False
