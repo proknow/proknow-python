@@ -1,3 +1,4 @@
+from datetime import datetime
 
 from .Scorecards import PatientScorecards
 from .Studies import StudySummary
@@ -27,7 +28,8 @@ class Patients(object):
         res, data = self._requestor.get('/workspaces/' + workspace.id + '/patients', params=query)
         if res.headers['proknow-has-more'] == 'true': # pragma: no cover (difficult to test w/o lg num of patients)
             next_query = dict(query)
-            next_query["next"] = res.headers['proknow-next']
+            next_query['page_epoch'] = res.headers['proknow-epoch']
+            next_query["page_number"] = res.headers['proknow-next-page']
             return data + self._query(workspace, next_query)
         else:
             return data
