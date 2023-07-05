@@ -41,7 +41,7 @@ Deactivate your virtual environment with the `deactivate` command. As long as th
 The tests require the ProKnow API service to be started with the `PATIENTS_MIN_PAGE_SIZE` environment variable set to `1`. To do this, at the top level of the the ProKnow directory, run
 
 ```sh
-$ PATIENTS_MIN_PAGE_SIZE=1 grunt start
+$ PATIENTS_MIN_PAGE_SIZE=1 npm run start
 ```
 
 Before you start testing, you'll need access to a ProKnow DS organization where you can generate an [API token](https://support.proknow.com/hc/en-us/articles/360019798893-Configuring-Your-Profile#managing-api-keys) for your project. Once you have your API token create a file called `pktestconfig.py` in the test directory with the following contents:
