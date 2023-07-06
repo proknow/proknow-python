@@ -12,7 +12,7 @@ Complete documentation is available on [Read the Docs](https://proknow-python.re
 
 #### Initializing a Development Environment
 
-1. Install the latest version of Python 3.8. This will be installed alongside the version that your operating system provides.
+1. Install the latest version of Python. This will be installed alongside the version that your operating system provides.
 2. Run the following.
 ```sh
 $ python3 -m venv env
@@ -27,7 +27,7 @@ Deactivate your virtual environment with the `deactivate` command. As long as th
 **Note**: The `requirements.txt` file contains transitive dependencies in addition to direct dependencies. To reconstruct the requirements from scratch, use the following commands to install the direct dependencies used for development, packaging, and releasing.
 
 ```
-(env) $ pip install pytest-cov requests nox sphinx, sphinx-rtd-theme twine wheel
+(env) $ pip install pytest-cov requests nox sphinx sphinx-rtd-theme twine wheel
 ```
 
 **Note**: If you wish to update the requirements with new or updated packages, run the following.
@@ -55,7 +55,7 @@ credentials_secret = "{{ secret from credentials.json }}"
 
 Make sure to put your actual base_url and the id and secret from your `credentials.json` file in place of the placeholders above. Note that for testing against a local ProKnow instance, the `base_url` should be set to `http://localhost:3005` and the environment must be configured to use Auth0 as the identity provider (and not Keycloak or OIDC).
 
-Next, run the tests with the `nox` command from within your virtual environment. This command runs the tests against all of the supported Python versions.
+Next, run the tests with the `nox` command from within your virtual environment. This command runs the tests against all of the supported Python versions. You may need to install these versions on the host.
 
 ```sh
 $ nox
