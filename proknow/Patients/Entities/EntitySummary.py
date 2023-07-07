@@ -1,4 +1,3 @@
-import six
 import time
 
 from .ImageSets import ImageSetItem

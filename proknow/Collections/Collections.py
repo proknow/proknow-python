@@ -1,4 +1,3 @@
-import six
 
 from .Patients import CollectionPatients
 from .Scorecards import CollectionScorecards
@@ -57,9 +56,9 @@ class Collections(object):
                     pk.workspaces.find(name="Clinical").id
                 ])
         """
-        assert isinstance(name, six.string_types), "`name` is required as a string."
-        assert isinstance(description, six.string_types), "`description` is required as a string."
-        assert isinstance(type, six.string_types), "`type` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
+        assert isinstance(description, str), "`description` is required as a string."
+        assert isinstance(type, str), "`type` is required as a string."
         assert isinstance(workspaces, list), "`workspaces` is required as a list."
 
         body = {
@@ -93,7 +92,7 @@ class Collections(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.collections.delete('5c463a6c040068100c7f665acad17ac4')
         """
-        assert isinstance(collection_id, six.string_types), "`collection_id` is required as a string."
+        assert isinstance(collection_id, str), "`collection_id` is required as a string."
         self._requestor.delete('/collections/' + collection_id)
 
     def find(self, workspace=None, predicate=None, **props):
@@ -159,10 +158,10 @@ class Collections(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 collection = pk.collections.get('5c463a6c040068100c7f665acad17ac4')
         """
-        assert isinstance(collection_id, six.string_types), "`collection_id` is required as a string."
+        assert isinstance(collection_id, str), "`collection_id` is required as a string."
         query = {}
         if workspace_id is not None:
-            assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
+            assert isinstance(workspace_id, str), "`workspace_id` is required as a string."
             query["workspace"] = workspace_id
         _, collection = self._requestor.get('/collections/' + collection_id, params=query)
         return CollectionItem(self, collection, workspace_id)
@@ -194,7 +193,7 @@ class Collections(object):
         """
         query = {}
         if workspace is not None:
-            assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
+            assert isinstance(workspace, str), "`workspace` is required as a string."
             query["workspace"] = self._proknow.workspaces.resolve(workspace).id
 
             _, collections = self._requestor.get('/collections', params=query)

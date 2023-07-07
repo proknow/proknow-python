@@ -1,5 +1,4 @@
 import os
-import six
 import time
 import datetime
 
@@ -75,7 +74,7 @@ class DoseItem(EntityItem):
                 dose = entities[0].get()
                 dose.download("./")
         """
-        assert isinstance(path, six.string_types), "`path` is required as a string."
+        assert isinstance(path, str), "`path` is required as a string."
         if os.path.isdir(path):
             resolved_path = os.path.join(os.path.abspath(path), "RD." + self._data["uid"] + ".dcm")
         else:

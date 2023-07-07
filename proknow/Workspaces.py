@@ -2,7 +2,6 @@ __all__ = [
     'Workspaces',
 ]
 
-import six
 import re
 
 from .Exceptions import WorkspaceLookupError
@@ -54,8 +53,8 @@ class Workspaces(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.workspaces.create('research', 'Research')
         """
-        assert isinstance(slug, six.string_types), "`slug` is required as a string."
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(slug, str), "`slug` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
         assert isinstance(protected, bool), "`protected` is required as a bool."
 
         _, workspace = self._requestor.post('/workspaces', json={'slug': slug, 'name': name, 'protected': protected})
@@ -80,7 +79,7 @@ class Workspaces(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.workspaces.delete('5c463a6c040040f1efda74db75c1b121')
         """
-        assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
+        assert isinstance(workspace_id, str), "`workspace_id` is required as a string."
         self._requestor.delete('/workspaces/' + workspace_id)
         self._cache = None
 
@@ -141,7 +140,7 @@ class Workspaces(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
             :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given name could not be found.
         """
-        assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
+        assert isinstance(workspace, str), "`workspace` is required as a string."
 
         pattern = re.compile(r"^[0-9a-f]{32}$")
         if pattern.match(workspace) is not None:
@@ -163,7 +162,7 @@ class Workspaces(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
             :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given name could not be found.
         """
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
 
         if self._cache is None:
             self.query()
@@ -192,7 +191,7 @@ class Workspaces(object):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
             :class:`proknow.Exceptions.WorkspaceLookupError`: If the workspace with the given name could not be found.
         """
-        assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
+        assert isinstance(workspace_id, str), "`workspace_id` is required as a string."
 
         workspace = self.find(id=workspace_id)
         if workspace is None:
@@ -334,7 +333,7 @@ class WorkspaceItem(object):
         """
         entity_ids = []
         for entity in entities:
-            if isinstance(entity, six.string_types):
+            if isinstance(entity, str):
                 entity_ids.append(entity)
             else:
                 entity_ids.append(entity.id)

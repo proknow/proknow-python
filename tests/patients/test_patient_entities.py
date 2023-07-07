@@ -2,7 +2,6 @@ import pytest
 import re
 import os
 import filecmp
-import six
 
 from proknow import Exceptions
 

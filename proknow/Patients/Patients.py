@@ -1,5 +1,4 @@
 from datetime import datetime
-import six
 
 from .Scorecards import PatientScorecards
 from .Studies import StudySummary
@@ -64,13 +63,13 @@ class Patients(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 patient = pk.patients.create("Clinical", "12345", "Becker^Matthew")
         """
-        assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
-        assert isinstance(mrn, six.string_types), "`mrn` is required as a string."
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(workspace, str), "`workspace` is required as a string."
+        assert isinstance(mrn, str), "`mrn` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
         if birth_date is not None:
-            assert isinstance(birth_date, six.string_types), "`birth_date` is required as a string."
+            assert isinstance(birth_date, str), "`birth_date` is required as a string."
         if sex is not None:
-            assert isinstance(sex, six.string_types), "`sex` is required as a string."
+            assert isinstance(sex, str), "`sex` is required as a string."
 
         item = self._proknow.workspaces.resolve(workspace)
 
@@ -104,8 +103,8 @@ class Patients(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.patients.delete('5c463a6c040040f1efda74db75c1b121', '5c4b4c52a5c058c3d1d98ac194d0200f')
         """
-        assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
-        assert isinstance(patient_id, six.string_types), "`patient_id` is required as a string."
+        assert isinstance(workspace_id, str), "`workspace_id` is required as a string."
+        assert isinstance(patient_id, str), "`patient_id` is required as a string."
         self._requestor.delete('/workspaces/' + workspace_id + '/patients/' + patient_id)
 
     def find(self, workspace, predicate=None, **props):
@@ -171,7 +170,7 @@ class Patients(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.patients.lookup('Clinical', ['HNC-0522c0009', 'HNC-0522c0013'])
         """
-        assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
+        assert isinstance(workspace, str), "`workspace` is required as a string."
 
         item = self._proknow.workspaces.resolve(workspace)
         _, patients = self._requestor.post('/workspaces/' + item.id + '/patients/lookup', json=mrns)
@@ -201,8 +200,8 @@ class Patients(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.patients.get('5c463a6c040040f1efda74db75c1b121', '5c4b4c52a5c058c3d1d98ac194d0200f')
         """
-        assert isinstance(workspace_id, six.string_types), "`workspace_id` is required as a string."
-        assert isinstance(patient_id, six.string_types), "`patient_id` is required as a string."
+        assert isinstance(workspace_id, str), "`workspace_id` is required as a string."
+        assert isinstance(patient_id, str), "`patient_id` is required as a string."
         _, patient = self._requestor.get('/workspaces/' + workspace_id + '/patients/' + patient_id)
         return PatientItem(self, workspace_id, patient)
 
@@ -232,7 +231,7 @@ class Patients(object):
                 for patient in pk.patients.query("Clinical"):
                     print(patient.name)
         """
-        assert isinstance(workspace, six.string_types), "`workspace` is required as a string."
+        assert isinstance(workspace, str), "`workspace` is required as a string."
 
         item = self._proknow.workspaces.resolve(workspace)
         query = {}

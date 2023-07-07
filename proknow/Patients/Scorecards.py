@@ -1,4 +1,3 @@
-import six
 
 
 class PatientScorecards(object):
@@ -85,7 +84,7 @@ class PatientScorecards(object):
                     "id": pk.custom_metrics.resolve_by_name("Genetic Type").id
                 }])
         """
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
         assert isinstance(computed, list), "`computed` is required as a list."
         assert isinstance(custom, list), "`custom` is required as a list."
 
@@ -113,7 +112,7 @@ class PatientScorecards(object):
                 patient = patients[0].get()
                 patient.scorecards.delete('5c463a6c040040f1efda74db75c1b121')
         """
-        assert isinstance(scorecard_id, six.string_types), "`scorecard_id` is required as a string."
+        assert isinstance(scorecard_id, str), "`scorecard_id` is required as a string."
         self._requestor.delete('/workspaces/' + self._workspace_id + '/patients/' + self._patient_id + '/metrics/sets/' + scorecard_id)
 
     def find(self, predicate=None, **props):
@@ -176,7 +175,7 @@ class PatientScorecards(object):
                 patient = patients[0].get()
                 scorecard = patient.scorecards.get('5c463a6c040068100c7f665acad17ac4')
         """
-        assert isinstance(scorecard_id, six.string_types), "`scorecard_id` is required as a string."
+        assert isinstance(scorecard_id, str), "`scorecard_id` is required as a string."
         _, scorecard = self._requestor.get('/workspaces/' + self._workspace_id + '/patients/' + self._patient_id + '/metrics/sets/' + scorecard_id)
         return PatientScorecardItem(self, self._workspace_id, self._patient_id, scorecard)
 

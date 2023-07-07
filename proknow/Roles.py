@@ -2,7 +2,6 @@ __all__ = [
     'Roles',
 ]
 
-import six
 
 
 class Roles(object):
@@ -52,8 +51,8 @@ class Roles(object):
                     "structure_set_templates_read": True
                 })
         """
-        assert isinstance(name, six.string_types), "`name` is required as a string."
-        assert isinstance(description, six.string_types), "`description` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
+        assert isinstance(description, str), "`description` is required as a string."
         assert isinstance(permissions, dict), "`permissions` is required as a dict."
 
         body = {}
@@ -82,7 +81,7 @@ class Roles(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.roles.delete('5c463a6c040068100c7f665acad17ac4')
         """
-        assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
+        assert isinstance(role_id, str), "`role_id` is required as a string."
         self._requestor.delete('/roles/' + role_id)
 
     def find(self, predicate=None, **props):
@@ -139,7 +138,7 @@ class Roles(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 renaming_rule_maintainer = pk.roles.get('5c463a6c040068100c7f665acad17ac4')
         """
-        assert isinstance(role_id, six.string_types), "`role_id` is required as a string."
+        assert isinstance(role_id, str), "`role_id` is required as a string."
         _, role = self._requestor.get('/roles/' + role_id)
         return RoleItem(self, role)
 

@@ -1,4 +1,3 @@
-import six
 import time
 from datetime import datetime
 
@@ -98,7 +97,7 @@ class Tasks(object):
                 patient = pk.patients.find("Clinical", mrn="1234").get()
                 patient.tasks.delete('5c4b4c52a5c058c3d1d98ac194d0200f')
         """
-        assert isinstance(task_id, six.string_types), "`task_id` is required as a string."
+        assert isinstance(task_id, str), "`task_id` is required as a string."
         self._requestor.delete('/workspaces/' + self._workspace_id + '/patients/' + self._patient_id + '/tasks/' + task_id)
 
     def get(self, task_id):

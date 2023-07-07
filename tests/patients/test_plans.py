@@ -1,4 +1,3 @@
-import six
 import pytest
 import filecmp
 import os

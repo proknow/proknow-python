@@ -12,7 +12,7 @@ Complete documentation is available on [Read the Docs](https://proknow-python.re
 
 #### Initializing a Development Environment
 
-1. Install the latest version of Python 3.8. This will be installed alongside the version that your operating system provides.
+1. Install the latest version of Python. This will be installed alongside the version that your operating system provides.
 2. Run the following.
 ```sh
 $ python3 -m venv env
@@ -23,6 +23,12 @@ $ source env/bin/activate
 ```
 
 Deactivate your virtual environment with the `deactivate` command. As long as the environment is not removed, you may start sessions simply with the command `source env/bin/activate`.
+
+**Note**: The `requirements.txt` file contains transitive dependencies in addition to direct dependencies. To reconstruct the requirements from scratch, use the following commands to install the direct dependencies used for development, packaging, and releasing.
+
+```
+(env) $ pip install pytest-cov requests nox sphinx sphinx-rtd-theme twine wheel
+```
 
 **Note**: If you wish to update the requirements with new or updated packages, run the following.
 
@@ -35,10 +41,10 @@ Deactivate your virtual environment with the `deactivate` command. As long as th
 The tests require the ProKnow API service to be started with the `PATIENTS_MIN_PAGE_SIZE` environment variable set to `1`. To do this, at the top level of the the ProKnow directory, run
 
 ```sh
-$ PATIENTS_MIN_PAGE_SIZE=1 grunt start
+$ PATIENTS_MIN_PAGE_SIZE=1 npm run start
 ```
 
-Before you start testing, you'll need access to a ProKnow DS organization where you can generate an [API token](https://support.proknow.com/hc/en-us/articles/360019798893-Configuring-Your-Profile#managing-api-keys) for your project. Once you have your API token create a file called `pktestconfig.py` in the root of this project with the following contents:
+Before you start testing, you'll need access to a ProKnow DS organization where you can generate an [API token](https://support.proknow.com/hc/en-us/articles/360019798893-Configuring-Your-Profile#managing-api-keys) for your project. Once you have your API token create a file called `pktestconfig.py` in the test directory with the following contents:
 
 ```
 #!/usr/bin/env python
@@ -49,7 +55,7 @@ credentials_secret = "{{ secret from credentials.json }}"
 
 Make sure to put your actual base_url and the id and secret from your `credentials.json` file in place of the placeholders above. Note that for testing against a local ProKnow instance, the `base_url` should be set to `http://localhost:3005` and the environment must be configured to use Auth0 as the identity provider (and not Keycloak or OIDC).
 
-Next, run the tests with the `nox` command from within your virtual environment.
+Next, run the tests with the `nox` command from within your virtual environment. This command runs the tests against all of the supported Python versions. You may need to install these versions on the host.
 
 ```sh
 $ nox
@@ -78,7 +84,7 @@ $ make clean && make html
 
 ## Packaging & Release
 
-To release an updated package, first make sure the version has been updated in setup.py. Then run the following.
+First, make sure the version has been updated in setup.py. Then run the following within the virtual environment.
 
 ```sh
 $ rm -rf dist build */*.egg-info *.egg-info

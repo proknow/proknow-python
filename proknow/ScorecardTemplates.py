@@ -1,4 +1,3 @@
-import six
 import re
 
 from .Exceptions import ScorecardTemplateLookupError
@@ -84,7 +83,7 @@ class ScorecardTemplates(object):
                     "id": pk.custom_metrics.resolve_by_name("Genetic Type").id
                 }])
         """
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
         assert isinstance(computed, list), "`computed` is required as a list."
         assert isinstance(custom, list), "`custom` is required as a list."
 
@@ -112,7 +111,7 @@ class ScorecardTemplates(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.scorecard_templates.delete('5c463a6c040040f1efda74db75c1b121')
         """
-        assert isinstance(scorecard_id, six.string_types), "`scorecard_id` is required as a string."
+        assert isinstance(scorecard_id, str), "`scorecard_id` is required as a string."
         self._requestor.delete('/metrics/templates/' + scorecard_id)
         self._cache = None
 
@@ -175,7 +174,7 @@ class ScorecardTemplates(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.scorecard_templates.get('5c463a6c040068100c7f665acad17ac4')
         """
-        assert isinstance(scorecard_id, six.string_types), "`scorecard_id` is required as a string."
+        assert isinstance(scorecard_id, str), "`scorecard_id` is required as a string."
         _, scorecard = self._requestor.get('/metrics/templates/' + scorecard_id)
         return ScorecardTemplateItem(self, scorecard)
 
@@ -195,7 +194,7 @@ class ScorecardTemplates(object):
             :class:`proknow.Exceptions.ScorecardTemplateLookupError`: If the scorecard template
                 with the given id or name could not be found.
         """
-        assert isinstance(scorecard_template, six.string_types), "`scorecard_template` is required as a string."
+        assert isinstance(scorecard_template, str), "`scorecard_template` is required as a string."
 
         pattern = re.compile(r"^[0-9a-f]{32}$")
         if pattern.match(scorecard_template) is not None:
@@ -219,7 +218,7 @@ class ScorecardTemplates(object):
             :class:`proknow.Exceptions.ScorecardTemplateLookupError`: If the scorecard template
                 with the given name could not be found.
         """
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
 
         if self._cache is None:
             self.query()
@@ -250,7 +249,7 @@ class ScorecardTemplates(object):
             :class:`proknow.Exceptions.ScorecardTemplateLookupError`: If the scorecard template
                 with the given id could not be found.
         """
-        assert isinstance(scorecard_template_id, six.string_types), "`scorecard_template_id` is required as a string."
+        assert isinstance(scorecard_template_id, str), "`scorecard_template_id` is required as a string."
 
         scorecard_template = self.find(id=scorecard_template_id)
         if scorecard_template is None:

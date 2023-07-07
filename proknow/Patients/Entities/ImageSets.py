@@ -1,5 +1,4 @@
 import os
-import six
 
 from .EntityItem import EntityItem
 from ...Exceptions import InvalidPathError
@@ -56,7 +55,7 @@ class ImageSetItem(EntityItem):
                 image_set = entities[0].get()
                 image_set.download("./")
         """
-        assert isinstance(path, six.string_types), "`path` is required as a string."
+        assert isinstance(path, str), "`path` is required as a string."
         modality = self._data["modality"]
         if os.path.isdir(path):
             main_directory = os.path.join(os.path.abspath(path), modality + "." + self._data["uid"])

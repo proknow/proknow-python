@@ -2,7 +2,6 @@ __all__ = [
     'CustomMetrics',
 ]
 
-import six
 import re
 
 from .Exceptions import CustomMetricLookupError
@@ -63,8 +62,8 @@ class CustomMetrics(object):
                     "number": {}
                 })
         """
-        assert isinstance(name, six.string_types), "`name` is required as a string."
-        assert isinstance(context, six.string_types), "`context` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
+        assert isinstance(context, str), "`context` is required as a string."
         assert isinstance(type, dict), "`type` is required as a dict."
 
         _, custom_metric = self._requestor.post('/metrics/custom', json={'name': name, 'context': context, 'type': type})
@@ -90,7 +89,7 @@ class CustomMetrics(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.custom_metrics.delete('5c463a6c040040f1efda74db75c1b121')
         """
-        assert isinstance(custom_metric_id, six.string_types), "`custom_metric_id` is required as a string."
+        assert isinstance(custom_metric_id, str), "`custom_metric_id` is required as a string."
         self._requestor.delete('/metrics/custom/' + custom_metric_id)
         self._cache = None
 
@@ -155,7 +154,7 @@ class CustomMetrics(object):
             :class:`proknow.Exceptions.CustomMetricLookupError`: If the custom metric with the
                 given id or name could not be found.
         """
-        assert isinstance(custom_metric, six.string_types), "`custom_metric` is required as a string."
+        assert isinstance(custom_metric, str), "`custom_metric` is required as a string."
 
         pattern = re.compile(r"^[0-9a-f]{32}$")
         if pattern.match(custom_metric) is not None:
@@ -179,7 +178,7 @@ class CustomMetrics(object):
             :class:`proknow.Exceptions.CustomMetricLookupError`: If the custom metric with the given
                 name could not be found.
         """
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
 
         if self._cache is None:
             self.query()
@@ -210,7 +209,7 @@ class CustomMetrics(object):
             :class:`proknow.Exceptions.CustomMetricLookupError`: If the custom metric with the given
                 id could not be found.
         """
-        assert isinstance(custom_metric_id, six.string_types), "`custom_metric_id` is required as a string."
+        assert isinstance(custom_metric_id, str), "`custom_metric_id` is required as a string."
 
         custom_metric = self.find(id=custom_metric_id)
         if custom_metric is None:

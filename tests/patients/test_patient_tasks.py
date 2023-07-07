@@ -1,5 +1,4 @@
 import pytest
-import six
 
 from proknow import Exceptions
 
@@ -25,7 +24,7 @@ def test_create(app, patient_generator):
     })
     task.wait()
     data = task.data
-    assert isinstance(data["id"], six.string_types)
+    assert isinstance(data["id"], str)
     assert data["status"] == "completed"
     assert len(data["output"]["entities"]) == 1
     patient = pk.patients.find(patient.workspace_id, mrn=patient.mrn).get()
@@ -81,22 +80,22 @@ def test_get(app, patient_generator):
     })
     tasks = patient.tasks.query(hidden=True, wait=True)
     summary = tasks[0]
-    assert isinstance(summary.data["id"], six.string_types) is True
+    assert isinstance(summary.data["id"], str) is True
     assert summary.data["type"] == "dose_composition"
     assert summary.data["status"] == "completed"
     assert summary.data["hidden"] == True
     assert isinstance(summary.data["created_by"], dict)
-    assert isinstance(summary.data["created_at"], six.string_types)
-    assert isinstance(summary.data["resolved_at"], six.string_types)
+    assert isinstance(summary.data["created_at"], str)
+    assert isinstance(summary.data["resolved_at"], str)
     assert summary.data["failure"] is None
     item = summary.get()
-    assert isinstance(item.data["id"], six.string_types) is True
+    assert isinstance(item.data["id"], str) is True
     assert item.data["type"] == "dose_composition"
     assert item.data["status"] == "completed"
     assert item.data["hidden"] == True
     assert isinstance(item.data["created_by"], dict)
-    assert isinstance(item.data["created_at"], six.string_types)
-    assert isinstance(item.data["resolved_at"], six.string_types)
+    assert isinstance(item.data["created_at"], str)
+    assert isinstance(item.data["resolved_at"], str)
     assert item.data["failure"] is None
     assert "args" in item.data
     assert "output" in item.data

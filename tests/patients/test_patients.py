@@ -2,7 +2,6 @@ import pytest
 import re
 import os
 import filecmp
-import six
 
 from proknow import Exceptions
 
@@ -233,7 +232,7 @@ def test_query(app, workspace_generator):
     else:
         match = None
     assert match is not None
-    assert isinstance(match.id, six.string_types)
+    assert isinstance(match.id, str)
     assert match.mrn == "1000"
     assert match.name == "Test^1"
     assert match.birth_date == "2018-01-01"
@@ -247,7 +246,7 @@ def test_query(app, workspace_generator):
     else:
         match = None
     assert match is not None
-    assert isinstance(match.id, six.string_types)
+    assert isinstance(match.id, str)
     assert match.mrn == "1001"
     assert match.name == "Test^2"
     assert match.birth_date == None
@@ -372,7 +371,7 @@ def test_find_entities(app, patient_generator):
     # Find image set
     entities = patient.find_entities(lambda entity: entity.data["type"] == "image_set")
     assert len(entities) == 1
-    assert isinstance(entities[0].id, six.string_types)
+    assert isinstance(entities[0].id, str)
     entities = patient.find_entities(type="image_set")
     assert len(entities) == 1
 
@@ -446,5 +445,5 @@ def test_studies(app, patient_generator):
     patient = patient_generator("./data/Becker^Matthew")
     assert len(patient.studies) == 1
     study = patient.studies[0]
-    assert isinstance(study.id, six.string_types)
+    assert isinstance(study.id, str)
     assert isinstance(study.data, dict)

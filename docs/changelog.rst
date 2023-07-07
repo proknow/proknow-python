@@ -10,7 +10,8 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 **New Features and Enhancements**
 
-* Updated the `Patients.query` route to reflect changes to the v2.0.1.0 version of the ProKnow API to return all patients.
+* Updated the `Patients.query` route to reflect changes to the v1.34.0 version of the ProKnow API to return all patients.
+* Updated supported Python versions to Python 3.8 and above (the currently supported versions). This means that Python 2 is no longer supported. `six` and `futures` were also removed as required modules.
 
 v0.19.0
 -------

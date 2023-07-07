@@ -1,6 +1,5 @@
 import pytest
 import re
-import six
 
 from proknow import Exceptions
 
@@ -24,7 +23,7 @@ def test_create(app, role_generator):
         role_match = None
     assert role_match is not None
     role = role_match.get()
-    assert isinstance(role.data["id"], six.string_types)
+    assert isinstance(role.data["id"], str)
     assert role.name == params["name"]
     assert role.description == params["description"]
     for key, value in permissions.items():
@@ -107,7 +106,7 @@ def test_query(app, role_generator):
 
     # Verify test 1
     for role in pk.roles.query():
-        assert isinstance(role.id, six.string_types)
+        assert isinstance(role.id, str)
         if role.name == params1["name"] and role.description == params1["description"]:
             match = role
             break
@@ -117,7 +116,7 @@ def test_query(app, role_generator):
 
     # Verify test 2
     for role in pk.roles.query():
-        assert isinstance(role.id, six.string_types)
+        assert isinstance(role.id, str)
         if role.name == params2["name"] and role.description == params2["description"]:
             match = role
             break
@@ -144,12 +143,13 @@ def test_update(app, role_generator):
         role_match = None
     assert role_match is not None
     role = role_match.get()
-    assert isinstance(role.data["id"], six.string_types)
+    assert isinstance(role.data["id"], str)
     assert role.name == updated_name
     assert role.permissions == {
+        'organizations_update': False,
         'roles_read': True,
-        'users_read': True,
-        'groups_read': True,
+        'users_read': False,
+        'groups_read': False,
         'patients_phi': False,
         'roles_create': False,
         'roles_delete': False,
@@ -182,7 +182,7 @@ def test_update(app, role_generator):
         'collections_create': False,
         'collections_delete': False,
         'collections_update': False,
-        'group_members_list': True,
+        'group_members_list': False,
         'patient_notes_read': False,
         'custom_metrics_read': True,
         'renaming_rules_read': True,
@@ -269,7 +269,7 @@ def test_update_failure(app, role_generator):
     system_role = pk.roles.find(name='Owner').get()
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         system_role.description = "New description"
-        system_role.permissions["users_read"] = False
+        system_role.permissions["roles_read"] = False
         system_role.save()
     assert err_wrapper.value.status_code == 422
-    assert err_wrapper.value.body == '{"type":"VALIDATION_ERROR","params":{},"message":"child \'permissions.users_read\' must be equal to constant"}'    
+    assert err_wrapper.value.body == '{"type":"VALIDATION_ERROR","params":{},"message":"child \'permissions.roles_read\' must be equal to constant"}'    

@@ -1,4 +1,3 @@
-import six
 
 
 class CollectionScorecards(object):
@@ -82,7 +81,7 @@ class CollectionScorecards(object):
                     "id": pk.custom_metrics.resolve_by_name("Genetic Type").id
                 }])
         """
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
         assert isinstance(computed, list), "`computed` is required as a list."
         assert isinstance(custom, list), "`custom` is required as a list."
 
@@ -109,7 +108,7 @@ class CollectionScorecards(object):
                 collection = pk.collections.find(name='My Collection').get()
                 collections.scorecards.delete('5c463a6c040040f1efda74db75c1b121')
         """
-        assert isinstance(scorecard_id, six.string_types), "`scorecard_id` is required as a string."
+        assert isinstance(scorecard_id, str), "`scorecard_id` is required as a string."
         self._requestor.delete('/collections/' + self._collection.id + '/metrics/sets/' + scorecard_id)
 
     def find(self, predicate=None, **props):
@@ -171,7 +170,7 @@ class CollectionScorecards(object):
                 collection = pk.collections.find(name='My Collection').get()
                 scorecard = collection.scorecards.get('5c463a6c040068100c7f665acad17ac4')
         """
-        assert isinstance(scorecard_id, six.string_types), "`scorecard_id` is required as a string."
+        assert isinstance(scorecard_id, str), "`scorecard_id` is required as a string."
         _, scorecard = self._requestor.get('/collections/' + self._collection.id + '/metrics/sets/' + scorecard_id)
         return CollectionScorecardItem(self, self._collection, scorecard)
 

@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-
 import json
-import six
 
 from .Requestor import Requestor
 from .Session import Session
@@ -70,11 +67,11 @@ class ProKnow(object):
             AssertionError: If the input parameters are invalid.
         """
 
-        idValid = isinstance(credentials_id, six.string_types)
-        tokenValid = isinstance(credentials_secret, six.string_types)
-        fileValid = isinstance(credentials_file, six.string_types)
+        idValid = isinstance(credentials_id, str)
+        tokenValid = isinstance(credentials_secret, str)
+        fileValid = isinstance(credentials_file, str)
 
-        assert isinstance(base_url, six.string_types), "`base_url` must be a string."
+        assert isinstance(base_url, str), "`base_url` must be a string."
         assert (idValid and tokenValid) or fileValid, "`credentials_id`/`credentials_secret` or `credentials_file` are required as strings."
         if credentials_id is None or credentials_secret is None: # pragma: no cover (not testing with file in unit tests)
             with open(credentials_file, 'r') as file:

@@ -1,5 +1,4 @@
 import os
-import six
 from time import sleep
 from datetime import datetime, timedelta
 from threading import Timer
@@ -145,9 +144,9 @@ class StructureSetItem(EntityItem):
         if not self._is_editable:
             raise InvalidOperationError('Item is not editable')
         if label is not None:
-            assert isinstance(label, six.string_types), "`label`, if provided, must be a string"
+            assert isinstance(label, str), "`label`, if provided, must be a string"
         if message is not None:
-            assert isinstance(message, six.string_types), "`message`, if provided, must be a string"
+            assert isinstance(message, str), "`message`, if provided, must be a string"
         wid = self._workspace_id
         sid = self._id
         headers = { 'ProKnow-Lock': self._lock["id"] }
@@ -196,9 +195,9 @@ class StructureSetItem(EntityItem):
         """
         if not self._is_editable:
             raise InvalidOperationError('Item is not editable')
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
         assert isinstance(color, list) or len(color) != 3, "`color` is required as a list of size 3"
-        assert isinstance(type, six.string_types), "`type` is required as a string."
+        assert isinstance(type, str), "`type` is required as a string."
         headers = { 'ProKnow-Lock': self._lock["id"] }
         body = {
             "name": name,
@@ -283,7 +282,7 @@ class StructureSetItem(EntityItem):
         """
         if self._is_draft:
             raise InvalidOperationError('Draft versions of structure sets cannot be downloaded')
-        assert isinstance(path, six.string_types), "`path` is required as a string."
+        assert isinstance(path, str), "`path` is required as a string."
         if os.path.isdir(path):
             resolved_path = os.path.join(os.path.abspath(path), "RS." + self._data["uid"] + ".dcm")
         else:
@@ -725,7 +724,7 @@ class StructureSetVersions(object):
                 entity = entities[0].get()
                 entity.versions.delete('5c463a6c040040f1efda74db75c1b121')
         """
-        assert isinstance(version_id, six.string_types), "`version_id` is required as a string."
+        assert isinstance(version_id, str), "`version_id` is required as a string."
         wid = self._workspace_id
         sid = self._structure_set._id
         self._requestor.delete('/workspaces/' + wid + '/structuresets/' + sid + '/versions/' + version_id)
@@ -756,7 +755,7 @@ class StructureSetVersions(object):
                 entity = entities[0].get()
                 version = entity.versions.get('5c463a6c040068100c7f665acad17ac4')
         """
-        assert isinstance(version_id, six.string_types), "`version_id` is required as a string."
+        assert isinstance(version_id, str), "`version_id` is required as a string."
         query = { 'version': version_id }
         wid = self._workspace_id
         pid = self._patient_id
@@ -911,7 +910,7 @@ class StructureSetVersionItem(object):
         if self._is_draft:
             raise InvalidOperationError('Draft versions of structure sets cannot be downloaded')
 
-        assert isinstance(path, six.string_types), "`path` is required as a string."
+        assert isinstance(path, str), "`path` is required as a string."
         if os.path.isdir(path):
             resolved_path = os.path.join(os.path.abspath(path), "RS." + self._version_id + ".dcm")
         else:

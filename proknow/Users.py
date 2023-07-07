@@ -2,7 +2,6 @@ __all__ = [
     'Users',
 ]
 
-import six
 
 
 class Users(object):
@@ -47,15 +46,15 @@ class Users(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.users.create("jsmith@example.com", "John Smith")
         """
-        assert isinstance(email, six.string_types), "`email` is required as a string."
-        assert isinstance(name, six.string_types), "`name` is required as a string."
+        assert isinstance(email, str), "`email` is required as a string."
+        assert isinstance(name, str), "`name` is required as a string."
 
         body = {
             "email": email,
             "name": name
         }
         if password is not None:
-            assert isinstance(password, six.string_types), "`password` is required as a string."
+            assert isinstance(password, str), "`password` is required as a string."
             body["password"] = password
 
         _, user = self._requestor.post('/users', json=body)
@@ -79,7 +78,7 @@ class Users(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 pk.users.delete('5c463a6c04005a992cc16b29f9a7637b')
         """
-        assert isinstance(user_id, six.string_types), "`user_id` is required as a string."
+        assert isinstance(user_id, str), "`user_id` is required as a string."
         self._requestor.delete('/users/' + user_id)
 
     def find(self, predicate=None, **props):
@@ -136,7 +135,7 @@ class Users(object):
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
                 admin = pk.users.get('5c463a6c04005a992cc16b29f9a7637b')
         """
-        assert isinstance(user_id, six.string_types), "`user_id` is required as a string."
+        assert isinstance(user_id, str), "`user_id` is required as a string."
         _, user = self._requestor.get('/users/' + user_id)
         return UserItem(self, user)
 

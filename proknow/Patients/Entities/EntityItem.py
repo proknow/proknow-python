@@ -1,4 +1,3 @@
-import six
 
 
 class EntityItem(object):
@@ -193,7 +192,7 @@ class EntityItem(object):
                 dose = dose_summary.get()
                 dose.update_parent(structure_set_summary)
         """
-        if isinstance(entity, six.string_types):
+        if isinstance(entity, str):
             parent_id = entity
         else:
             parent_id = entity.id
