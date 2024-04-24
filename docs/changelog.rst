@@ -10,8 +10,8 @@ All releases in the v0.x.x series are subject to breaking changes from one versi
 
 **New Features and Enhancements**
 
-* Removed ``Doses.get_slice_data``, ``ImageSets.get_image_data``, and ``Plans.get_delivery_information`` methods since this is no longer supplied by ProKnow v2.0.2.0 API.
-* Corrected test for role to with updated permission list.
+* Removed ``Doses.get_slice_data``, ``ImageSets.get_image_data``, and ``Plans.get_delivery_information`` methods since these are no longer supplied by ProKnow v2.0.2.0 API.
+* Corrected test for role with updated permission list.
 
 v0.20.0
 -------

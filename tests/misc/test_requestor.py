@@ -1,5 +1,4 @@
 import pytest
-import filecmp
 import os
 
 from proknow import ProKnow, Exceptions
