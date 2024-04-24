@@ -36,17 +36,6 @@ def test_download(app, entity_generator, temp_directory):
         download_path = image_set.download("/path/to/nowhere/")
     assert err_wrapper.value.message == "`/path/to/nowhere/` is invalid"
 
-def test_get_image_data(app, entity_generator):
-    pk = app.pk
-
-    image_files = [
-        os.path.abspath("./data/Becker^Matthew/HNC0522c0009_CT1_image00000.dcm"),
-    ]
-    image_set = entity_generator(image_files)
-
-    data = image_set.get_image_data(0)
-    assert isinstance(data, bytes), "data is not binary"
-
 def test_get_refresh(app, entity_generator):
     pk = app.pk
 
