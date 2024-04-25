@@ -25,6 +25,15 @@ def test_download(app, entity_generator, temp_directory):
         download_path = plan.download("/path/to/nowhere/plan.dcm")
     assert err_wrapper.value.message == "`/path/to/nowhere/plan.dcm` is invalid"
 
+def test_get_delivery_information(app, entity_generator):
+    pk = app.pk
+
+    plan_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1.dcm")
+    plan = entity_generator(plan_path)
+
+    info = plan.get_delivery_information()
+    assert isinstance(info, dict)
+
 def test_refresh(app, patient_generator):
     pk = app.pk
 

@@ -125,6 +125,51 @@ class DoseItem(EntityItem):
         _, content = self._requestor.get('/doses/' + self._id + '/analysis/' + self._data["data"]["analysis"]["tag"], headers=headers)
         return content
 
+    def get_slice_data(self, index):
+        """Gets the slice data for the dose at the given index.
+
+        Parameters:
+            index (int): The index of the slice for which to get the data.
+
+        Returns:
+            bytes: The slice data.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to get the slice data for the first slice in a dose::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="dose")
+                dose = entities[0].get()
+                slice_data = dose.get_slice_data(0)
+        """
+        assert isinstance(index, int), "`index` is required as an integer."
+        headers = {
+            "Accept-Version": "1",
+            "Authorization": 'Bearer ' + self._data["data"]["dicom_token"]
+        }
+        start = datetime.datetime.now()
+        DELAY = 0.2
+        while (datetime.datetime.now() - start).total_seconds() < self._proknow.ENTITY_WAIT_TIMEOUT:
+            _, dose = self._rtv.post('/dose', json={"data": self._data["data"]["dicom"]}, headers=headers)
+            if dose["status"] == "completed":
+                break
+            else: # pragma: no cover (unreliable)
+                time.sleep(DELAY)
+        else: # pragma: no cover (unlikely)
+            pass
+        item = dose["data"]["slices"][index]
+        pid = dose["data"]["processed_id"]
+        sid = item["id"]
+        _, content = self._rtv.get_binary('/dose/' + pid + '/slice/' + sid, headers=headers)
+        return content
 
     def refresh(self):
         """Refreshes the dose entity.

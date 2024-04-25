@@ -1,4 +1,6 @@
 import os
+import datetime
+import time
 
 from .EntityItem import EntityItem
 from ...Exceptions import InvalidPathError
@@ -66,6 +68,50 @@ class PlanItem(EntityItem):
                 raise InvalidPathError('`' + path + '` is invalid')
         self._requestor.stream('/workspaces/' + self._workspace_id + '/plans/' + self._id + '/dicom', resolved_path)
         return resolved_path
+
+    def get_delivery_information(self):
+        """Gets the delivery information for the plan.
+
+        The delivery information is returned as a dictionary.
+
+        Returns:
+            dict: The plan delivery information.
+
+        Raises:
+            :class:`proknow.Exceptions.TimeoutExceededError`: If the timeout was exceeded while
+                waiting for the delivery information to become available.
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to get the delivery information for a plan::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_entities(type="plan")
+                plan = entities[0].get()
+                info = plan.get_delivery_information()
+        """
+        headers = {
+            "Accept-Version": "1",
+            "Authorization": 'Bearer ' + self._data["data"]["dicom_token"]
+        }
+        start = datetime.datetime.now()
+        DELAY = 0.2
+        while (datetime.datetime.now() - start).total_seconds() < self._proknow.ENTITY_WAIT_TIMEOUT:
+            _, plan = self._rtv.post('/plan', json={"data": self._data["data"]["dicom"]}, headers=headers)
+            if plan["status"] == "completed":
+                break
+            else: # pragma: no cover (unreliable)
+                time.sleep(DELAY)
+        else: # pragma: no cover (unlikely)
+            pass
+        pid = plan["data"]["processed_id"]
+        did = plan["data"]["details_id"]
+        _, delivery = self._rtv.get('/plan/' + pid + '/details/' + did, headers=headers)
+        return delivery
 
     def refresh(self):
         """Refreshes the plan entity.

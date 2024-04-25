@@ -25,6 +25,15 @@ def test_download(app, entity_generator, temp_directory):
         download_path = dose.download("/path/to/nowhere/dose.dcm")
     assert err_wrapper.value.message == "`/path/to/nowhere/dose.dcm` is invalid"
 
+def test_get_slice_data(app, entity_generator):
+    pk = app.pk
+
+    dose_path = os.path.abspath("./data/Becker^Matthew/HNC0522c0009_Plan1_Dose.dcm")
+    dose = entity_generator(dose_path)
+
+    data = dose.get_slice_data(0)
+    assert isinstance(data, bytes), "data is not binary"
+
 def test_get_analysis(app, workspace_generator):
     pk = app.pk
 

@@ -10,6 +10,7 @@ This collection of pages includes a complete API reference. For an updated pictu
 
    api/proknow
    api/requestor
+   api/rtv_requestor
    api/exceptions
    api/session
    api/custom_metrics

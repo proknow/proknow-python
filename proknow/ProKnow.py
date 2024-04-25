@@ -1,6 +1,7 @@
 import json
 
 from .Requestor import Requestor
+from .RtvRequestor import RtvRequestor
 from .Session import Session
 from .CustomMetrics import CustomMetrics
 from .ScorecardTemplates import ScorecardTemplates
@@ -21,6 +22,7 @@ class ProKnow(object):
 
     Attributes:
         requestor (:class:`proknow.Requestor.Requestor`): An instance of the Requestor class.
+        rtv (:class:`proknow.RtvRequestor.RtvRequestor`): An instance of the RtvRequestor class.
         session (:class:`proknow.Session.Session`): An instance of the Session class.
         custom_metrics (:class:`ProKnow.CustomMetrics.CustomMetrics`): An instance of the
             CustomMetrics class.
@@ -86,6 +88,7 @@ class ProKnow(object):
         self.MAX_RETRIES = MAX_RETRIES
 
         self.requestor = Requestor(base_url, credentials_id, credentials_secret, max_retries=self.MAX_RETRIES)
+        self.rtv = RtvRequestor(base_url, credentials_id, credentials_secret, max_retries=self.MAX_RETRIES)
 
         self.session = Session(self, self.requestor)
         self.custom_metrics = CustomMetrics(self, self.requestor)
