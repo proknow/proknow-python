@@ -196,7 +196,6 @@ def test_update(app, role_generator):
         'custom_metrics_update': False,
         'renaming_rules_search': False,
         'renaming_rules_update': False,
-        'patient_dicom_download': False,
         'patient_documents_read': False,
         'renaming_rules_execute': False,
         'collection_patients_add': False,
