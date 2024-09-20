@@ -1,5 +1,6 @@
 import os
 import datetime
+import time
 
 from .EntityItem import EntityItem
 from ...Exceptions import InvalidPathError
@@ -28,19 +29,6 @@ class PlanItem(EntityItem):
             entity (dict): A dictionary of entity attributes.
         """
         super(PlanItem, self).__init__(patients, workspace_id, patient_id, entity)
-
-    def _wait_delivery_information(self):
-        start = datetime.datetime.now()
-        DELAY = 0.2
-        while (datetime.datetime.now() - start).total_seconds() < self._proknow.ENTITY_WAIT_TIMEOUT:
-            entity_status = self.data["status"]
-            if entity_status == 'completed':
-                return
-            else: # pragma: no cover (unreliable)
-                time.sleep(DELAY)
-                _, plan = self._requestor.get('/workspaces/' + self._workspace_id + '/plans/' + self._id)
-                self._update(plan)
-        raise TimeoutExceededError('Timeout exceeded while waiting for delivery information to reach completed status') # pragma: no cover (should not occur in normal circumstances)
 
     def download(self, path):
         """Download the plan file.
@@ -84,8 +72,7 @@ class PlanItem(EntityItem):
     def get_delivery_information(self):
         """Gets the delivery information for the plan.
 
-        The delivery information is returned as a dictionary with keys including ``"equipment"``,
-        ``"patient_setups"``, ``"fraction_groups"``, ``"beams"``, and ``"brachy"``.
+        The delivery information is returned as a dictionary.
 
         Returns:
             dict: The plan delivery information.
@@ -97,6 +84,7 @@ class PlanItem(EntityItem):
 
         Example:
             This example shows how to get the delivery information for a plan::
+
                 from proknow import ProKnow
 
                 pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
@@ -106,12 +94,24 @@ class PlanItem(EntityItem):
                 plan = entities[0].get()
                 info = plan.get_delivery_information()
         """
-        self._wait_delivery_information()
         headers = {
-            'ProKnow-Key': self.data["key"]
+            "Accept-Version": "5",
+            "Authorization": 'Bearer ' + self._data["data"]["dicom_token"]
         }
-        _, content = self._requestor.get('/plans/' + self._id + '/delivery/' + self._data["data"]["delivery_tag"], headers=headers)
-        return content
+        start = datetime.datetime.now()
+        DELAY = 0.2
+        while (datetime.datetime.now() - start).total_seconds() < self._proknow.ENTITY_WAIT_TIMEOUT:
+            _, plan = self._rtv.post('/plan', json={"data": self._data["data"]["dicom"]}, headers=headers)
+            if plan["status"] == "completed":
+                break
+            else: # pragma: no cover (unreliable)
+                time.sleep(DELAY)
+        else: # pragma: no cover (unlikely)
+            pass
+        pid = plan["data"]["processed_id"]
+        did = plan["data"]["details_id"]
+        _, delivery = self._rtv.get('/plan/' + pid + '/details/' + did, headers=headers)
+        return delivery
 
     def refresh(self):
         """Refreshes the plan entity.

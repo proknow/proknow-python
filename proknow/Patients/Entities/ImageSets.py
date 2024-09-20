@@ -1,4 +1,6 @@
 import os
+import time
+import datetime
 
 from .EntityItem import EntityItem
 from ...Exceptions import InvalidPathError
@@ -91,15 +93,28 @@ class ImageSetItem(EntityItem):
                 patient = patients[0].get()
                 entities = patient.find_entities(type="image_set")
                 image_set = entities[0].get()
-                slice_count = len(image_set.data["data"]["images"])
+                slice_count = len(image_set.data["data"]["dicom"])
                 slice_data = [image_set.get_image_data(i) for i in range(slice_count)]
         """
         assert isinstance(index, int), "`index` is required as an integer."
-        image = self.data["data"]["images"][index]
         headers = {
-            'ProKnow-Key': self.data["key"]
+            "Accept-Version": "5",
+            "Authorization": 'Bearer ' + self._data["data"]["dicom_token"]
         }
-        _, content = self._requestor.get_binary('/imagesets/' + self._id + '/images/' + image["tag"], headers=headers)
+        start = datetime.datetime.now()
+        DELAY = 0.2
+        while (datetime.datetime.now() - start).total_seconds() < self._proknow.ENTITY_WAIT_TIMEOUT:
+            _, imageset = self._rtv.post('/imageset', json={"data": self._data["data"]["dicom"]}, headers=headers)
+            if imageset["status"] == "completed":
+                break
+            else: # pragma: no cover (unreliable)
+                time.sleep(DELAY)
+        else: # pragma: no cover (unlikely)
+            pass
+        image = imageset["data"]["images"][index]
+        pid = imageset["data"]["processed_id"]
+        iid = image["processed_id"]
+        _, content = self._rtv.get_binary('/imageset/' + pid + '/image/' + iid, headers=headers)
         return content
 
     def refresh(self):

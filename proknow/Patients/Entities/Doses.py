@@ -139,7 +139,7 @@ class DoseItem(EntityItem):
             :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
 
         Example:
-            This example shows how to get the slice data for each slice in a dose::
+            This example shows how to get the slice data for the first slice in a dose::
 
                 from proknow import ProKnow
 
@@ -148,17 +148,28 @@ class DoseItem(EntityItem):
                 patient = patients[0].get()
                 entities = patient.find_entities(type="dose")
                 dose = entities[0].get()
-                slice_count = len(dose.data["data"]["slices"])
-                slice_data = [dose.get_slice_data(i) for i in range(slice_count)]
+                slice_data = dose.get_slice_data(0)
         """
         assert isinstance(index, int), "`index` is required as an integer."
-        dose_slice = self.data["data"]["slices"][index]
         headers = {
-            'ProKnow-Key': self.data["key"]
+            "Accept-Version": "5",
+            "Authorization": 'Bearer ' + self._data["data"]["dicom_token"]
         }
-        _, content = self._requestor.get_binary('/doses/' + self._id + '/slices/' + dose_slice["tag"], headers=headers)
+        start = datetime.datetime.now()
+        DELAY = 0.2
+        while (datetime.datetime.now() - start).total_seconds() < self._proknow.ENTITY_WAIT_TIMEOUT:
+            _, dose = self._rtv.post('/dose', json={"data": self._data["data"]["dicom"]}, headers=headers)
+            if dose["status"] == "completed":
+                break
+            else: # pragma: no cover (unreliable)
+                time.sleep(DELAY)
+        else: # pragma: no cover (unlikely)
+            pass
+        item = dose["data"]["slices"][index]
+        pid = dose["data"]["processed_id"]
+        sid = item["id"]
+        _, content = self._rtv.get_binary('/dose/' + pid + '/slice/' + sid, headers=headers)
         return content
-
 
     def refresh(self):
         """Refreshes the dose entity.
