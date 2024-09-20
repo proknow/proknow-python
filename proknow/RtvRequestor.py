@@ -10,7 +10,7 @@ from .Exceptions import HttpError
 
 
 class RtvRequestor(object):
-    """A class used for issuing requests for the ProKnow API"""
+    """A class used for issuing requests for the RT Visualizer API"""
 
     def __init__(self, base_url, username, password, max_retries=3):
         """Initializes the RtvRequestor class.
