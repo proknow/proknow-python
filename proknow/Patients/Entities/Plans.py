@@ -95,7 +95,7 @@ class PlanItem(EntityItem):
                 info = plan.get_delivery_information()
         """
         headers = {
-            "Accept-Version": "1",
+            "Accept-Version": "5",
             "Authorization": 'Bearer ' + self._data["data"]["dicom_token"]
         }
         start = datetime.datetime.now()

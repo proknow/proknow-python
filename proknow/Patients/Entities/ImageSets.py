@@ -98,7 +98,7 @@ class ImageSetItem(EntityItem):
         """
         assert isinstance(index, int), "`index` is required as an integer."
         headers = {
-            "Accept-Version": "1",
+            "Accept-Version": "5",
             "Authorization": 'Bearer ' + self._data["data"]["dicom_token"]
         }
         start = datetime.datetime.now()
