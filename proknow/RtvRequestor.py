@@ -4,6 +4,7 @@ __all__ = [
 
 import requests
 import re
+import json
 from requests.adapters import HTTPAdapter
 
 from .Exceptions import HttpError
@@ -25,6 +26,8 @@ class RtvRequestor(object):
         self._password = password
         self._base_url = base_url
         self._source = None
+        self._status = None
+        self._api_version = None
         self._session = requests.Session()
         self._session.mount('http', HTTPAdapter(max_retries=max_retries))
         self._session.mount('https', HTTPAdapter(max_retries=max_retries))
@@ -35,9 +38,17 @@ class RtvRequestor(object):
             match = re.search(r'"rtVisualizerSourceName":"([\w-]+)"', r.text)
             self._source = match.group(1)
         return self._base_url + "/rtv/" + self._source
+    
+    def _get_status(self):
+        if self._status is None:
+            r = self._session.get(self._base_url + "/rtv/status")
+            if r.status_code >= 400: # pragma: no cover (included for completeness)
+                raise HttpError(r.status_code, r.text)
+            self._status = r.json()
+        return self._status
 
     def _handle_response(self, r, binary=False):
-        if r.status_code >= 400:
+        if r.status_code >= 400: # pragma: no cover (included for completeness)
             raise HttpError(r.status_code, r.text)
         if binary == True:
             return (r, r.content)
@@ -45,6 +56,25 @@ class RtvRequestor(object):
             return (r, r.json())
         except ValueError: # pragma: no cover (included for consistency)
             return (r, r.text)
+        
+    def get_api_version(self, type=None):
+        """Gets the RT Visualizer's API version string
+
+        Parameters:
+            type (str): An optional type such as ``imageset``, ``structureset``, ``plan``,
+              ``dose``, and ``sro``; if not provided, a JSON string representing all available
+              types
+
+        Returns:
+            str: The API version string.
+        """
+        status = self._get_status()
+        if self._api_version is None:
+            self._api_version = json.loads(status["api_version"])
+        if type is None:
+            return json.dumps(self._api_version)
+        else:
+            return json.dumps(self._api_version[type])
 
     def get(self, route, **kwargs):
         """Issues an HTTP ``GET`` request.

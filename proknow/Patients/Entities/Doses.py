@@ -152,7 +152,7 @@ class DoseItem(EntityItem):
         """
         assert isinstance(index, int), "`index` is required as an integer."
         headers = {
-            "Accept-Version": "5",
+            "Accept-Version": self._rtv.get_api_version(type="dose"),
             "Authorization": 'Bearer ' + self._data["data"]["dicom_token"]
         }
         start = datetime.datetime.now()

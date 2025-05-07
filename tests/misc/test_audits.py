@@ -1,5 +1,6 @@
 import pytest
 import datetime
+import json
 
 from proknow.Audit import Audit
 from proknow.Exceptions import HttpError
@@ -278,4 +279,8 @@ def test_error_pass_through(app):
 
     with pytest.raises(HttpError) as error_info:
         audit.query(page_size=1, methods="gett")
-    assert "[\"0\" must be one of [GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH]]" in str(error_info)
+    assert error_info.value.body == json.dumps({
+        "type": "VALIDATION_ERROR",
+        "params": {},
+        "message": "child 'methods[0]' \"GETT\" must be one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', or 'TRACE'"
+    }, separators=(',', ':'))

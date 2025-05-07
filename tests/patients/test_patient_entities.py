@@ -206,7 +206,7 @@ def test_update_parent_failure(app, patient_generator):
     with pytest.raises(Exceptions.HttpError) as err_wrapper:
         structure_set.update_parent(dose)
     assert err_wrapper.value.status_code == 409
-    assert err_wrapper.value.body == 'Invalid parent type "dose" for structure set entity'
+    assert err_wrapper.value.body == '{"type":"INVALID_PARENT_STRUCTURE_SET_ENTITY","params":{"parent_type":"dose"},"message":"Invalid parent type \\"dose\\" for structure set entity"}'
 
     with pytest.raises(AttributeError) as err_wrapper:
         dose.update_parent({})
