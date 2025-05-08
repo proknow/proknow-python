@@ -36,7 +36,6 @@ class Tasks(object):
                 for task in tasks:
                     if task["status"] not in ("completed", "failed"):
                         if (datetime.utcnow() - wait_start).total_seconds() > 30: # pragma: no cover
-                            print(task["status"], (datetime.utcnow() - wait_start).total_seconds())
                             raise TimeoutExceededError("Timeout of 30 seconds elapsed while waiting for tasks to become resolved")
                         else:
                             break

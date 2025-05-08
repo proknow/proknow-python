@@ -1,4 +1,5 @@
 from .Entities import EntitySummary
+from .Sros import SroSummary
 
 
 class StudySummary(object):
@@ -31,6 +32,7 @@ class StudySummary(object):
         self._id = study["id"]
         self._data = study
         self.entities = [EntitySummary(self._patients, self._workspace_id, self._patient_id, entity) for entity in study["entities"]]
+        self.sros = [SroSummary(self._patients, self._workspace_id, self._patient_id, sro) for sro in study["sros"]]
 
     @property
     def id(self):

@@ -198,6 +198,27 @@ def role_generator(app):
 
     return _create_role
 
+@pytest.fixture
+def sro_generator(app, workspace_generator):
+    pk = app.pk
+
+    def _create_entity(path_or_paths, **args):
+        _, workspace = workspace_generator()
+        batch = pk.uploads.upload(workspace.id, path_or_paths)
+        length = len(batch.patients)
+        assert length == 1, "sro_generator: only 1 patient at a time supported; got " + length
+        if len(args) > 0:
+            sros = batch.patients[0].get().find_sros(**args)
+            length = len(sros)
+            assert length == 1, "sro_generator: only 1 SRO at a time supported; got " + length
+            return sros[0].get()
+        else:
+            length = len(batch.patients[0].sros)
+            assert length == 1, "sro_generator: only 1 SRO at a time supported; got " + length
+            return batch.patients[0].sros[0].get()
+
+    return _create_entity
+
 class TempDirectory(object):
     def __init__(self):
         self.path = tempfile.mkdtemp()

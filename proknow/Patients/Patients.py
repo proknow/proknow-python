@@ -636,6 +636,48 @@ class PatientItem(object):
                                 entities.append(entity_m)
         return entities
 
+    def find_sros(self, predicate=None, **props):
+        """Finds the sros for the patient matching the input paramters.
+
+        Note:
+            For more information on how to use this method, see :ref:`find-methods`.
+
+        Parameters:
+            predicate (func): A function that is passed an entity as input and which should return
+                a bool indicating whether the entity is a match.
+            **props: A dictionary of keyword arguments that may include any entity attribute to
+                match. These arguments are considered in turn to find matching entities.
+
+        Returns:
+            list: A list of matching :class:`proknow.Patients.SroSummary` objects.
+
+        Example:
+            Use this example to find the patient entities matching the predicate function (returns
+            all sros)::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                patients = pk.patients.lookup("Clinical", ["HNC-0522c0009"])
+                patient = patients[0].get()
+                entities = patient.find_sros(lambda sro: True)
+        """
+        if predicate is None and len(props) == 0:
+            return []
+
+        sros = []
+        for study in self.studies:
+            for sro in study.sros:
+                match = True
+                for key in props:
+                    if sro.data[key] != props[key]:
+                        match = False
+                if predicate is not None and not predicate(sro):
+                    match = False
+                if match:
+                    sros.append(sro)
+        return sros
+
     def get_metadata(self):
         """Gets the metadata dictionary and decodes the ids into metrics names.
 

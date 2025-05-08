@@ -399,6 +399,25 @@ def test_find_entities(app, patient_generator):
     entities = patient.find_entities(lambda entity: entity.data["type"] == "dose" or entity.data["type"] == "plan")
     assert len(entities) == 2
 
+def test_find_sros(app, patient_generator):
+    pk = app.pk
+
+    patient = patient_generator("./data/Registration")
+
+    # Find with no args
+    sros = patient.find_sros()
+    assert len(sros) == 0
+
+    # Find one
+    sros = patient.find_sros(name="Identity Matrix")
+    assert len(sros) == 1
+    sros = patient.find_sros(lambda sro: sro.data["name"] == "Identity Matrix")
+    assert len(sros) == 1
+
+    # Find all
+    sros = patient.find_sros(lambda sro: True)
+    assert len(sros) == 3
+
 def test_upload(app, workspace_generator):
     pk = app.pk
 

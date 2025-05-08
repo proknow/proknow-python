@@ -253,6 +253,7 @@ class UploadBatch(object):
         self._file_lookup = {}
         self._patient_lookup = {}
         self._entity_lookup = {}
+        self._sro_lookup = {}
         self._patients = []
 
         for file in files:
@@ -262,19 +263,28 @@ class UploadBatch(object):
 
             if upload["status"] == "completed":
                 patient_id = upload["patient"]["id"]
-                entity_id = upload["entity"]["id"]
                 try:
                     patient = self._patient_lookup[patient_id]
                 except KeyError:
                     patient = UploadPatientSummary(self._uploads, self._workspace_id, upload["patient"])
-                    self._patient_lookup[patient_id] = patient;
+                    self._patient_lookup[patient_id] = patient
                     self._patients.append(patient)
-                try:
-                    entity = self._entity_lookup[entity_id]
-                except KeyError:
-                    entity = UploadEntitySummary(self._uploads, self._workspace_id, patient_id, upload["entity"])
-                    self._entity_lookup[entity_id] = entity
-                    patient.add_entity(entity)
+                if upload["entity"] is not None:
+                    entity_id = upload["entity"]["id"]
+                    try:
+                        entity = self._entity_lookup[entity_id]
+                    except KeyError:
+                        entity = UploadEntitySummary(self._uploads, self._workspace_id, patient_id, upload["entity"])
+                        self._entity_lookup[entity_id] = entity
+                        patient.add_entity(entity)
+                if upload["sro"] is not None:
+                    sro_id = upload["sro"]["id"]
+                    try:
+                        sro = self._sro_lookup[sro_id]
+                    except KeyError:
+                        sro = UploadSroSummary(self._uploads, self._workspace_id, patient_id, upload["sro"])
+                        self._sro_lookup[sro_id] = sro
+                        patient.add_sro(sro)
             else: # pragma: no cover (cannot hit)
                 pass
 
@@ -354,6 +364,42 @@ class UploadBatch(object):
 
         return self._entity_lookup[entity_id]
 
+    def find_sro(self, path):
+        """Find the SRO associated with the given file.
+
+        Parameters:
+            path (str): An absolute file path.
+
+        Returns:
+            :class:`proknow.Uploads.UploadSroSummary`: A summary representation of the SRO.
+
+        Raises:
+            AssertionError: If the input parameters are invalid.
+            :class:`proknow.Exceptions.InvalidPathError`: If the provided file path is invalid.
+
+        Example:
+            This example shows how to find an SRO associated with a given file upload::
+
+                from proknow import ProKnow
+                import os
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                batch = pk.uploads.upload("Upload Test", "./DICOM")
+                path = os.path.abspath("./DICOM/plan.dcm")
+                sro_summary = batch.find_sro(path)
+        """
+        assert isinstance(path, str), "`path` is required as a string."
+
+        try:
+            upload = self._file_lookup[path]
+        except:
+            raise InvalidPathError('`' + path + '` not found in current batch')
+
+        assert upload["status"] == "completed", "Upload is not complete"
+        sro_id = upload["sro"]["id"]
+
+        return self._sro_lookup[sro_id]
+
 class UploadPatientSummary(object):
     """
 
@@ -364,6 +410,7 @@ class UploadPatientSummary(object):
         data (dict): The summary representation of the patient as returned from the API for an
             upload (readonly).
         entities (list): A list of :class:`proknow.Uploads.UploadEntitySummary` items.
+        sros (list): A list of :class:`proknow.Uploads.UploadSroSummary` items.
 
     """
 
@@ -382,6 +429,7 @@ class UploadPatientSummary(object):
         self._id = patient["id"]
         self._data = patient
         self._entities = []
+        self._sros = []
 
     @property
     def id(self):
@@ -395,6 +443,10 @@ class UploadPatientSummary(object):
     def entities(self):
         return self._entities
 
+    @property
+    def sros(self):
+        return self._sros
+
     def add_entity(self, entity):
         """Adds an entity to patient summary.
 
@@ -403,6 +455,15 @@ class UploadPatientSummary(object):
                 patient summary.
         """
         self._entities.append(entity)
+
+    def add_sro(self, sro):
+        """Adds an entity to patient summary.
+
+        Parameters:
+            sro (:class:`proknow.Uploads.UploadSroSummary`): An SRO summary to add to the patient
+                summary.
+        """
+        self._sros.append(sro)
 
     def get(self):
         """Gets the complete representation of the patient.
@@ -486,4 +547,64 @@ class UploadEntitySummary(object):
         """
         patient = self._proknow.patients.get(self._workspace_id, self._patient_id)
         entity = patient.find_entities(id=self._id)[0]
+        return entity.get()
+
+class UploadSroSummary(object):
+    """
+
+    This class provides a summary view of an SRO as returned as part of an upload.
+
+    Attributes:
+        id (str): The id of the SRO (readonly).
+        data (dict): The summary representation of the SRO as returned from the API for an
+            upload (readonly).
+
+    """
+
+    def __init__(self, uploads, workspace_id, patient_id, sro):
+        """Initializes the UploadSroSummary class.
+
+        Parameters:
+            uploads (proknow.Uploads.Uploads): The Uploads instance that is instantiating the
+                object.
+            workspace_id (str): The id of the workspace to which the SRO belongs.
+            patient_id (str): The id of the patient to which the SRO belongs
+            sro (dict): SRO summary information.
+        """
+        self._uploads = uploads
+        self._proknow = uploads._proknow
+        self._workspace_id = workspace_id
+        self._patient_id = patient_id
+        self._id = sro["id"]
+        self._data = sro
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def data(self):
+        return self._data
+
+    def get(self):
+        """Gets the complete representation of the SRO.
+
+        Returns:
+            :class:`proknow.Patients.SroItem`: The complete SRO item.
+
+        Raises:
+            :class:`proknow.Exceptions.HttpError`: If the HTTP request generated an error.
+
+        Example:
+            This example shows how to get a list of SRO items associated with a batch of
+            uploads::
+
+                from proknow import ProKnow
+
+                pk = ProKnow('https://example.proknow.com', credentials_file="./credentials.json")
+                batch = pk.uploads.upload("Upload Test", "./DICOM")
+                sros = [sro.get() for patient in batch.patients for sro in patient.sros]
+        """
+        patient = self._proknow.patients.get(self._workspace_id, self._patient_id)
+        entity = patient.find_sros(id=self._id)[0]
         return entity.get()

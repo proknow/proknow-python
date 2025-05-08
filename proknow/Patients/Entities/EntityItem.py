@@ -16,7 +16,7 @@ class EntityItem(object):
     """
 
     def __init__(self, patients, workspace_id, patient_id, entity):
-        """Initializes the PatientItem class.
+        """Initializes the EntityItem class.
 
         Parameters:
             patients (proknow.Patients.Patients): The Patients instance that is instantiating the
