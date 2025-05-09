@@ -111,7 +111,8 @@ class ImageSetItem(EntityItem):
                 time.sleep(DELAY)
         else: # pragma: no cover (unlikely)
             pass
-        image = imageset["data"]["images"][index]
+        images = sorted(imageset["data"]["images"], key=lambda image: image["pos"])
+        image = images[index]
         pid = imageset["data"]["processed_id"]
         iid = image["processed_id"]
         _, content = self._rtv.get_binary('/imageset/' + pid + '/image/' + iid, headers=headers)
