@@ -320,7 +320,7 @@ class UploadBatch(object):
 
         try:
             upload = self._file_lookup[path]
-        except:
+        except KeyError:
             raise InvalidPathError('`' + path + '` not found in current batch')
 
         assert upload["status"] == "completed", "Upload is not complete"
@@ -356,7 +356,7 @@ class UploadBatch(object):
 
         try:
             upload = self._file_lookup[path]
-        except:
+        except KeyError:
             raise InvalidPathError('`' + path + '` not found in current batch')
 
         assert upload["status"] == "completed", "Upload is not complete"
@@ -392,7 +392,7 @@ class UploadBatch(object):
 
         try:
             upload = self._file_lookup[path]
-        except:
+        except KeyError:
             raise InvalidPathError('`' + path + '` not found in current batch')
 
         assert upload["status"] == "completed", "Upload is not complete"

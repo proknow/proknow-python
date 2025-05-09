@@ -147,15 +147,15 @@ def entity_generator(app, workspace_generator):
         _, workspace = workspace_generator()
         batch = pk.uploads.upload(workspace.id, path_or_paths)
         length = len(batch.patients)
-        assert length == 1, "entity_generator: only 1 patient at a time supported; got " + length
+        assert length == 1, "entity_generator: only 1 patient at a time supported; got " + str(length)
         if len(args) > 0:
             entities = batch.patients[0].get().find_entities(**args)
             length = len(entities)
-            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + length
+            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + str(length)
             return entities[0].get()
         else:
             length = len(batch.patients[0].entities)
-            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + length
+            assert length == 1, "entity_generator: only 1 entity at a time supported; got " + str(length)
             return batch.patients[0].entities[0].get()
 
     return _create_entity
@@ -168,7 +168,7 @@ def patient_generator(app, workspace_generator):
         _, workspace = workspace_generator()
         batch = pk.uploads.upload(workspace.id, path_or_paths)
         length = len(batch.patients)
-        assert length == 1, "patient_generator: only 1 patient at a time supported; got " + length
+        assert length == 1, "patient_generator: only 1 patient at a time supported; got " + str(length)
         return batch.patients[0].get()
 
     return _create_patient
@@ -206,15 +206,15 @@ def sro_generator(app, workspace_generator):
         _, workspace = workspace_generator()
         batch = pk.uploads.upload(workspace.id, path_or_paths)
         length = len(batch.patients)
-        assert length == 1, "sro_generator: only 1 patient at a time supported; got " + length
+        assert length == 1, "sro_generator: only 1 patient at a time supported; got " + str(length)
         if len(args) > 0:
             sros = batch.patients[0].get().find_sros(**args)
             length = len(sros)
-            assert length == 1, "sro_generator: only 1 SRO at a time supported; got " + length
+            assert length == 1, "sro_generator: only 1 SRO at a time supported; got " + str(length)
             return sros[0].get()
         else:
             length = len(batch.patients[0].sros)
-            assert length == 1, "sro_generator: only 1 SRO at a time supported; got " + length
+            assert length == 1, "sro_generator: only 1 SRO at a time supported; got " + str(length)
             return batch.patients[0].sros[0].get()
 
     return _create_entity
