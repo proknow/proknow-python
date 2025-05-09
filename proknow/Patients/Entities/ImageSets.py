@@ -98,7 +98,7 @@ class ImageSetItem(EntityItem):
         """
         assert isinstance(index, int), "`index` is required as an integer."
         headers = {
-            "Accept-Version": "5",
+            "Accept-Version": self._rtv.get_api_version(type="imageset"),
             "Authorization": 'Bearer ' + self._data["data"]["dicom_token"]
         }
         start = datetime.datetime.now()
@@ -111,7 +111,8 @@ class ImageSetItem(EntityItem):
                 time.sleep(DELAY)
         else: # pragma: no cover (unlikely)
             pass
-        image = imageset["data"]["images"][index]
+        images = sorted(imageset["data"]["images"], key=lambda image: image["pos"])
+        image = images[index]
         pid = imageset["data"]["processed_id"]
         iid = image["processed_id"]
         _, content = self._rtv.get_binary('/imageset/' + pid + '/image/' + iid, headers=headers)

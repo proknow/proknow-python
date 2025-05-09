@@ -274,4 +274,4 @@ def test_update_entities_failure(app, workspace_generator):
             "frame_of_reference": "1.3.6.1.4.1.22213.2.26558.1"
         }, ["00000000000000000000000000000000"])
     assert err_wrapper.value.status_code == 404
-    assert err_wrapper.value.body == 'One or more entities not found'
+    assert err_wrapper.value.body == '{"type":"ANY_ENTITY_NOT_FOUND","params":{},"message":"One or more entities not found"}'
