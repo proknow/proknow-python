@@ -22,5 +22,5 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=['requests>=2.18.0'],
-    python_requires=">=3.8",
+    python_requires=">=3.11",
 )
