@@ -84,6 +84,40 @@ def test_upload_batch_find_entity_failure(app, workspace_generator):
         entity = batch.find_entity(path + "m")
     assert err_wrapper.value.message == '`' + path + 'm` not found in current batch'
 
+def test_upload_batch_find_sro(app, workspace_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+
+    identity_path = os.path.abspath("./data/Registration/reg_identity.dcm")
+    sro_path = os.path.abspath("./data/Registration/reg.dcm")
+    no_imgs_path = os.path.abspath("./data/Registration/reg_no_imgs.dcm")
+
+    batch = pk.uploads.upload(workspace.id, "./data/Registration")
+    sros = batch.patients[0].sros
+    assert len(sros) == 3
+    for sro in sros:
+        print(sro.data)
+        if sro.data["uid"] == "1.2.826.0.1.3680043.8.498.28068777392206796577852532328666550263":
+                assert sro == batch.find_sro(no_imgs_path)
+        elif sro.data["uid"] == "1.2.246.352.221.52738008096457865345287404867971417273":
+            assert sro == batch.find_sro(identity_path)
+        elif sro.data["uid"] == "1.2.246.352.221.52738008096457865345287404867971417272":
+            assert sro == batch.find_sro(sro_path)
+        else:
+            raise ValueError("Unexpected name: " + sro.data["name"])
+
+def test_upload_batch_find_sro_failure(app, workspace_generator):
+    pk = app.pk
+
+    _, workspace = workspace_generator()
+
+    path = os.path.abspath("./data/Registration/reg_identity.dcm")
+    batch = pk.uploads.upload(workspace.id, path)
+    with pytest.raises(Exceptions.InvalidPathError) as err_wrapper:
+        sro = batch.find_sro(path + "m")
+    assert err_wrapper.value.message == '`' + path + 'm` not found in current batch'
+
 def test_upload_patient_summary_get(app, workspace_generator):
     pk = app.pk
 

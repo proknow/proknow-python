@@ -126,3 +126,15 @@ DoseItemMetrics
 
 .. autoclass:: proknow.Patients.DoseItemMetrics
    :members:
+
+SroSummary
+------------
+
+.. autoclass:: proknow.Patients.SroSummary
+   :members:
+
+SroItem
+------------
+
+.. autoclass:: proknow.Patients.SroItem
+   :members:

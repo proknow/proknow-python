@@ -679,7 +679,6 @@ class StructureSetRoiData(object):
         headers = { 'ProKnow-Lock': self._structure_set._lock["id"] }
         _, result = self._requestor.put('/workspaces/' + wid + '/structuresets/' + sid + '/draft/rois/' + rid + '/data', json=body, headers=headers)
         self._roi_item._tag = result["tag"]
-        print(rid, result["tag"])
 
 class StructureSetVersions(object):
     """
