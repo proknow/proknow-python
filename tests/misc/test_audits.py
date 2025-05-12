@@ -86,23 +86,23 @@ def test_start_time(app, user_generator):
     audit = Audit(app.pk, app.pk.requestor)
 
     user_generator()
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(datetime.timezone.utc)
     user_generator()
 
     results = audit.query(page_size=2, start_time=now)
     for item in results.items:
-        assert datetime.datetime.strptime(item["timestamp"],"%Y-%m-%dT%H:%M:%S.%fZ") >= now 
+        assert datetime.datetime.fromisoformat(item["timestamp"]) >= now
     
 def test_end_time(app, user_generator):
     audit = Audit(app.pk, app.pk.requestor)
 
     user_generator()
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(datetime.timezone.utc)
     user_generator()
 
     results = audit.query(page_size=2, end_time=now)
     for item in results.items:
-        assert datetime.datetime.strptime(item["timestamp"],"%Y-%m-%dT%H:%M:%S.%fZ") <= now
+        assert datetime.datetime.fromisoformat(item["timestamp"]) <= now
 
 def test_types(app, workspace_generator, user_generator, role_generator):
     audit = Audit(app.pk, app.pk.requestor)
