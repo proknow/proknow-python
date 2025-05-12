@@ -111,7 +111,6 @@ class SroItem(object):
         self._patients = patients
         self._proknow = self._patients._proknow
         self._requestor = self._patients._requestor
-        self._rtv = self._proknow.rtv
         self._workspace_id = workspace_id
         self._patient_id = patient_id
         self._id = sro["id"]
