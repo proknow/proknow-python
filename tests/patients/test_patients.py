@@ -265,8 +265,20 @@ def test_query(app, workspace_generator):
         pk.patients.create(workspace.id, "patient" + str(i), "Patient " + str(i))
 
     query = {'page_size': 5}
-    patients = pk.patients._query(workspace, query)
+    patients = pk.patients._query(workspace, {}, query)
     assert len(patients) == 14
+
+    _, workspace2 = workspace_generator()
+
+    pk.uploads.upload(workspace2.id, [
+        "./data/Becker^Matthew/HNC0522c0009_StrctrSets.dcm",
+        "./data/Jensen^Myrtle/HNC0522c0013_StrctrSets.dcm"
+    ])
+    patients = pk.patients.query(workspace2.id, structure="BODY")
+    assert len(patients) == 2
+
+    patients = pk.patients.query(workspace2.id, structure="PAROTID_RT")
+    assert len(patients) == 1
 
 def test_refresh(app, workspace_generator):
     pk = app.pk
